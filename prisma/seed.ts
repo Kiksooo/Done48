@@ -81,6 +81,28 @@ async function main() {
     update: { displayName: "Админ демо" },
   });
 
+  const ownerAdminEmail = "lidiiakik@gmail.com";
+  const ownerAdmin = await prisma.user.upsert({
+    where: { email: ownerAdminEmail },
+    create: {
+      email: ownerAdminEmail,
+      passwordHash,
+      role: Role.ADMIN,
+      onboardingDone: true,
+    },
+    update: {
+      role: Role.ADMIN,
+      onboardingDone: true,
+      isActive: true,
+    },
+  });
+
+  await prisma.adminProfile.upsert({
+    where: { userId: ownerAdmin.id },
+    create: { userId: ownerAdmin.id, displayName: "Администратор" },
+    update: { displayName: "Администратор" },
+  });
+
   const customer = await prisma.user.upsert({
     where: { email: customerEmail },
     create: {
