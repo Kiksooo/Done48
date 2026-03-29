@@ -1,0 +1,46 @@
+import type { LucideIcon } from "lucide-react";
+import {
+  Banknote,
+  Bell,
+  Briefcase,
+  ClipboardList,
+  CreditCard,
+  FolderTree,
+  Inbox,
+  LayoutDashboard,
+  MessageSquare,
+  PlusCircle,
+  Scale,
+  ScrollText,
+  Search,
+  Settings,
+  User,
+  Users,
+  Wallet,
+} from "lucide-react";
+import type { NavIconName } from "@/config/navigation";
+
+const MAP: Record<NavIconName, LucideIcon> = {
+  layoutDashboard: LayoutDashboard,
+  users: Users,
+  clipboardList: ClipboardList,
+  folderTree: FolderTree,
+  inbox: Inbox,
+  scale: Scale,
+  creditCard: CreditCard,
+  banknote: Banknote,
+  bell: Bell,
+  settings: Settings,
+  scrollText: ScrollText,
+  plusCircle: PlusCircle,
+  messageSquare: MessageSquare,
+  wallet: Wallet,
+  user: User,
+  briefcase: Briefcase,
+  search: Search,
+};
+
+export function NavIcon({ name, className }: { name: NavIconName; className?: string }) {
+  const Icon = MAP[name];
+  return <Icon className={className} aria-hidden />;
+}

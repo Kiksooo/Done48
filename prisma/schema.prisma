@@ -1,0 +1,542 @@
+// DONE48 — доменная модель MVP (PostgreSQL)
+// Согласовано с ТЗ: роли, заказы, отклики, чат, финансы, споры, аудит.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ——— Идентичность и роли ———
+
+enum Role {
+  ADMIN
+  EXECUTOR
+  CUSTOMER
+}
+
+enum ExecutorAccountStatus {
+  PENDING_MODERATION
+  ACTIVE
+  BLOCKED
+  ARCHIVED
+}
+
+enum VerificationStatus {
+  NOT_SUBMITTED
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  passwordHash    String
+  role            Role
+  onboardingDone  Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  customerProfile  CustomerProfile?
+  executorProfile  ExecutorProfile?
+  adminProfile     AdminProfile?
+
+  customerOrders Order[]  @relation("OrderCustomer")
+  executorOrders Order[]  @relation("OrderExecutor")
+
+  proposals        Proposal[]
+  chatMessages     ChatMessage[] @relation("ChatMessageSender")
+  chatMemberships  ChatMember[]
+
+  transactionsFrom Transaction[] @relation("TxFromUser")
+  transactionsTo   Transaction[] @relation("TxToUser")
+
+  payoutsRequested Payout[] @relation("PayoutExecutor")
+
+  reviewsGiven     Review[] @relation("ReviewFrom")
+  reviewsReceived  Review[] @relation("ReviewTo")
+
+  notifications    Notification[]
+  portfolioItems   PortfolioItem[]
+  auditLogs        AuditLog[]
+
+  disputesOpened   Dispute[] @relation("DisputeOpenedBy")
+}
+
+model CustomerProfile {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  displayName  String?
+  phone        String?
+  telegram     String?
+  company      String?
+  billingInfo  String?  @db.Text
+  avatarUrl    String?
+
+  /// Кэш баланса (копейки); согласуется с Transaction в бизнес-логике
+  balanceCents Int      @default(0)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model ExecutorProfile {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  username     String?  @unique
+  displayName  String?
+  phone        String?
+  telegram     String?
+  emailPublic  String?
+  city         String?
+  bio          String?  @db.Text
+  skills       String[] @default([])
+  categories   String[] @default([])
+  rateFromCents Int?
+  leadTimeDays  Int?
+  portfolioLinks String[] @default([])
+  avatarUrl    String?
+
+  accountStatus ExecutorAccountStatus @default(PENDING_MODERATION)
+  verificationStatus VerificationStatus @default(NOT_SUBMITTED)
+  idDocumentUrl    String?
+  selfieUrl        String?
+  taxDocumentUrl   String?
+
+  balanceCents     Int @default(0)
+  heldCents        Int @default(0)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  skillLinks   ExecutorSkill[]
+}
+
+model AdminProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ——— Таксономия ———
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  subcategories Subcategory[]
+  orders        Order[]
+}
+
+model Subcategory {
+  id          String   @id @default(cuid())
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  name        String
+  slug        String
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orders Order[]
+
+  @@unique([categoryId, slug])
+}
+
+model Skill {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+
+  executors ExecutorSkill[]
+}
+
+model ExecutorSkill {
+  executorProfileId String
+  skillId           String
+  executorProfile   ExecutorProfile @relation(fields: [executorProfileId], references: [id], onDelete: Cascade)
+  skill             Skill           @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([executorProfileId, skillId])
+}
+
+// ——— Заказ ———
+
+enum OrderStatus {
+  DRAFT
+  NEW
+  ON_MODERATION
+  PUBLISHED
+  ASSIGNED
+  IN_PROGRESS
+  SUBMITTED
+  REVISION
+  ACCEPTED
+  DISPUTED
+  CANCELED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  UNPAID
+  RESERVED
+  PAID
+  REFUNDED
+  PAYOUT_PENDING
+  PAYOUT_DONE
+}
+
+enum BudgetType {
+  FIXED
+  HOURLY
+  BY_OFFER
+}
+
+enum VisibilityType {
+  PLATFORM_ASSIGN
+  OPEN_FOR_RESPONSES
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  publicId        String   @unique @default(cuid())
+
+  customerId      String
+  customer        User     @relation("OrderCustomer", fields: [customerId], references: [id], onDelete: Restrict)
+
+  executorId      String?
+  executor        User?    @relation("OrderExecutor", fields: [executorId], references: [id], onDelete: SetNull)
+
+  title           String
+  description     String   @db.Text
+
+  categoryId      String
+  category        Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  subcategoryId   String?
+  subcategory     Subcategory? @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
+
+  budgetCents     Int
+  currency        String   @default("RUB")
+  budgetType      BudgetType
+  deadlineAt      DateTime?
+  urgency         Boolean  @default(false)
+
+  status          OrderStatus
+  paymentStatus   PaymentStatus @default(UNPAID)
+  visibilityType  VisibilityType
+
+  assignedByAdmin Boolean  @default(false)
+
+  executorRequirements String? @db.Text
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  attachments     OrderAttachment[]
+  statusHistory   OrderStatusHistory[]
+  proposals       Proposal[]
+  assignments     Assignment[]
+  chat            Chat?
+  transactions    Transaction[]
+  disputes        Dispute[]
+  reviews         Review[]
+}
+
+model OrderAttachment {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  fileName    String
+  fileUrl     String
+  mimeType    String?
+  uploadedById String
+  createdAt   DateTime @default(now())
+}
+
+model OrderStatusHistory {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  fromStatus  OrderStatus?
+  toStatus    OrderStatus
+  actorUserId String?
+  note        String?  @db.Text
+  createdAt   DateTime @default(now())
+}
+
+// ——— Отклики и назначения ———
+
+enum ProposalStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+model Proposal {
+  id            String   @id @default(cuid())
+  orderId       String
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  executorId    String
+  executor      User     @relation(fields: [executorId], references: [id], onDelete: Cascade)
+
+  offeredCents  Int?
+  offeredDays   Int?
+  message       String?  @db.Text
+  status        ProposalStatus @default(PENDING)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([executorId])
+}
+
+model Assignment {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  executorId  String
+  /// Кто назначил: админ или система (null = авто/система)
+  assignedByAdminUserId String?
+  createdAt   DateTime @default(now())
+}
+
+// ——— Чат по заказу ———
+
+enum ChatMessageKind {
+  USER
+  SYSTEM
+}
+
+model Chat {
+  id        String   @id @default(cuid())
+  orderId   String   @unique
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  messages  ChatMessage[]
+  members   ChatMember[]
+}
+
+model ChatMember {
+  id           String   @id @default(cuid())
+  chatId       String
+  chat         Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastReadAt   DateTime?
+
+  @@unique([chatId, userId])
+}
+
+model ChatMessage {
+  id          String   @id @default(cuid())
+  chatId      String
+  chat        Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  senderId    String?
+  sender      User?    @relation("ChatMessageSender", fields: [senderId], references: [id], onDelete: SetNull)
+
+  kind        ChatMessageKind @default(USER)
+  body        String   @db.Text
+  attachmentUrl String?
+
+  createdAt   DateTime @default(now())
+
+  @@index([chatId, createdAt])
+}
+
+// ——— Финансы ———
+
+enum TransactionType {
+  TOPUP
+  RESERVE
+  CAPTURE
+  REFUND
+  PAYOUT
+  ADJUSTMENT
+  FEE
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  type        TransactionType
+  amountCents Int
+  currency    String   @default("RUB")
+
+  orderId     String?
+  order       Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  fromUserId  String?
+  fromUser    User?    @relation("TxFromUser", fields: [fromUserId], references: [id], onDelete: SetNull)
+  toUserId    String?
+  toUser      User?    @relation("TxToUser", fields: [toUserId], references: [id], onDelete: SetNull)
+
+  meta        Json?
+  createdAt   DateTime @default(now())
+
+  @@index([orderId])
+  @@index([fromUserId])
+  @@index([toUserId])
+}
+
+enum PayoutStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PAID
+}
+
+model Payout {
+  id              String   @id @default(cuid())
+  executorId      String
+  executor        User     @relation("PayoutExecutor", fields: [executorId], references: [id], onDelete: Cascade)
+
+  amountCents     Int
+  currency        String   @default("RUB")
+  payoutDetails   String   @db.Text
+  status          PayoutStatus @default(PENDING)
+  adminNote       String?  @db.Text
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([executorId])
+  @@index([status])
+}
+
+// ——— Споры ———
+
+enum DisputeStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED_CUSTOMER
+  RESOLVED_EXECUTOR
+  PARTIAL
+  CLOSED
+}
+
+model Dispute {
+  id            String   @id @default(cuid())
+  orderId       String
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  openedById    String
+  openedBy      User     @relation("DisputeOpenedBy", fields: [openedById], references: [id], onDelete: Restrict)
+
+  status        DisputeStatus @default(OPEN)
+  reason        String   @db.Text
+  resolution    String?  @db.Text
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([orderId])
+}
+
+// ——— Отзывы, уведомления, портфолио, настройки, аудит ———
+
+model Review {
+  id         String   @id @default(cuid())
+  fromUserId String
+  toUserId   String
+  orderId    String
+
+  fromUser   User     @relation("ReviewFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser     User     @relation("ReviewTo", fields: [toUserId], references: [id], onDelete: Cascade)
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  rating     Int
+  text       String?  @db.Text
+  createdAt  DateTime @default(now())
+
+  @@unique([orderId, fromUserId])
+  @@index([toUserId])
+}
+
+enum NotificationKind {
+  ORDER_CREATED
+  ORDER_PUBLISHED
+  EXECUTOR_ASSIGNED
+  NEW_PROPOSAL
+  NEW_MESSAGE
+  WORK_SUBMITTED
+  REVISION_REQUESTED
+  WORK_ACCEPTED
+  DISPUTE_OPENED
+  PAYOUT_CONFIRMED
+  GENERIC
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  kind      NotificationKind
+  title     String
+  body      String?  @db.Text
+  readAt    DateTime?
+  link      String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, readAt])
+}
+
+model PortfolioItem {
+  id          String   @id @default(cuid())
+  executorId  String
+  executor    User     @relation(fields: [executorId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?  @db.Text
+  imageUrl    String?
+  linkUrl     String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([executorId])
+}
+
+/// Одна строка настроек платформы (singleton id = "default" в seed)
+model PlatformSettings {
+  id                 String   @id @default("default")
+  platformFeePercent Decimal  @default(10) @db.Decimal(5, 2)
+  minPayoutCents     Int      @default(1000)
+  updatedAt          DateTime @updatedAt
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  actorUserId String?
+  actor       User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  action      String
+  entityType  String
+  entityId    String?
+  oldValue    Json?
+  newValue    Json?
+
+  createdAt   DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([actorUserId])
+}
