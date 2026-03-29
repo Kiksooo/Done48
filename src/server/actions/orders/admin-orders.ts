@@ -3,6 +3,7 @@
 import {
   NotificationKind,
   OrderStatus,
+  PaymentStatus,
   Prisma,
   ProposalStatus,
   Role,
@@ -25,6 +26,9 @@ import {
 import { isPrismaTransactionConflict } from "@/lib/prisma-errors";
 import { writeAuditLog } from "@/server/audit/log";
 import type { ActionResult } from "./create-order";
+
+const ESCROW_REQUIRED_MSG =
+  "Сначала заказчик должен заблокировать сумму заказа в безопасной сделке (карточка заказа → кнопка блокировки с баланса).";
 
 async function requireAdmin() {
   const user = await getSessionUserForAction();
@@ -153,6 +157,10 @@ export async function adminAssignExecutorAction(
     return { ok: false, error: "Назначение недоступно для текущего статуса" };
   }
 
+  if (order.paymentStatus !== PaymentStatus.RESERVED) {
+    return { ok: false, error: ESCROW_REQUIRED_MSG };
+  }
+
   type AssignOut =
     | { kind: "noop" }
     | {
@@ -181,12 +189,16 @@ export async function adminAssignExecutorAction(
         if (!assignable.includes(ord.status)) {
           throw new Error("BAD_STATUS");
         }
+        if (ord.paymentStatus !== PaymentStatus.RESERVED) {
+          throw new Error("NEED_ESCROW");
+        }
 
         const ou = await tx.order.updateMany({
           where: {
             id: orderId,
             OR: [{ executorId: null }, { executorId: executorUserId }],
             status: { in: assignable },
+            paymentStatus: PaymentStatus.RESERVED,
           },
           data: {
             executorId: executorUserId,
@@ -231,7 +243,11 @@ export async function adminAssignExecutorAction(
           title: ord.title,
         };
       },
-      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+      {
+        isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        maxWait: 10_000,
+        timeout: 25_000,
+      },
     );
   } catch (e) {
     const msg = e instanceof Error ? e.message : "";
@@ -241,6 +257,9 @@ export async function adminAssignExecutorAction(
     }
     if (msg === "BAD_STATUS" || msg === "STATE") {
       return { ok: false, error: "Назначение недоступно для текущего статуса" };
+    }
+    if (msg === "NEED_ESCROW") {
+      return { ok: false, error: ESCROW_REQUIRED_MSG };
     }
     if (isPrismaTransactionConflict(e)) {
       return { ok: false, error: "Конфликт при сохранении, попробуйте ещё раз" };
@@ -379,6 +398,9 @@ export async function adminAcceptProposalAction(raw: unknown): Promise<ActionRes
   ) {
     return { ok: false, error: "Назначение по отклику недоступно" };
   }
+  if (orderPre.paymentStatus !== PaymentStatus.RESERVED) {
+    return { ok: false, error: ESCROW_REQUIRED_MSG };
+  }
 
   type AcceptOut = {
     orderId: string;
@@ -414,6 +436,9 @@ export async function adminAcceptProposalAction(raw: unknown): Promise<ActionRes
         ) {
           throw new Error("ORDER_BAD");
         }
+        if (ord.paymentStatus !== PaymentStatus.RESERVED) {
+          throw new Error("NEED_ESCROW");
+        }
 
         const ou = await tx.order.updateMany({
           where: {
@@ -421,6 +446,7 @@ export async function adminAcceptProposalAction(raw: unknown): Promise<ActionRes
             executorId: null,
             status: OrderStatus.PUBLISHED,
             visibilityType: VisibilityType.OPEN_FOR_RESPONSES,
+            paymentStatus: PaymentStatus.RESERVED,
           },
           data: {
             executorId: prop.executorId,
@@ -484,7 +510,11 @@ export async function adminAcceptProposalAction(raw: unknown): Promise<ActionRes
           fromStatus: ord.status,
         };
       },
-      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+      {
+        isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        maxWait: 10_000,
+        timeout: 25_000,
+      },
     );
   } catch (e) {
     const msg = e instanceof Error ? e.message : "";
@@ -497,6 +527,9 @@ export async function adminAcceptProposalAction(raw: unknown): Promise<ActionRes
     }
     if (msg === "ORDER_BAD" || msg === "ORDER_STATE") {
       return { ok: false, error: "Назначение по отклику недоступно" };
+    }
+    if (msg === "NEED_ESCROW") {
+      return { ok: false, error: ESCROW_REQUIRED_MSG };
     }
     if (isPrismaTransactionConflict(e)) {
       return { ok: false, error: "Конфликт при сохранении, попробуйте ещё раз" };

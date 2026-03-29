@@ -34,6 +34,9 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
   * {
     @apply border-border;
   }
@@ -66,5 +69,33 @@
     background-image: linear-gradient(to right, color-mix(in srgb, var(--foreground) 4%, transparent) 1px, transparent 1px),
       linear-gradient(to bottom, color-mix(in srgb, var(--foreground) 4%, transparent) 1px, transparent 1px);
     mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, black 20%, transparent 75%);
+  }
+  .landing-page-theme {
+    --background: #f4f7fc;
+    --foreground: #0c1222;
+    --card: #ffffff;
+    --card-foreground: #0c1222;
+    --muted: #e9eef8;
+    --muted-foreground: #5c6477;
+    --border: #d9e2ef;
+    --primary: #1380e8;
+    --primary-foreground: #ffffff;
+    --ring: #1380e8;
+    --elevated: 0 2px 8px rgb(12 18 34 / 0.05), 0 16px 40px -12px rgb(12 18 34 / 0.12);
+  }
+  @media (prefers-color-scheme: dark) {
+    .landing-page-theme {
+      --background: #070910;
+      --foreground: #f0f3fa;
+      --card: #10151f;
+      --card-foreground: #f0f3fa;
+      --muted: #181e2b;
+      --muted-foreground: #9aa3b8;
+      --border: #2a3344;
+      --primary: #4db2ff;
+      --primary-foreground: #051018;
+      --ring: #4db2ff;
+      --elevated: 0 2px 8px rgb(0 0 0 / 0.35), 0 20px 48px -12px rgb(0 0 0 / 0.5);
+    }
   }
 }

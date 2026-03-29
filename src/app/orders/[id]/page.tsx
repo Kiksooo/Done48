@@ -150,6 +150,13 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
           <div>
             <p className="text-neutral-500">Заказчик</p>
             <p className="font-medium">{order.customer.email}</p>
+            {order.customer.customerProfile?.city ? (
+              <p className="mt-1 text-neutral-600 dark:text-neutral-400">
+                Город: {order.customer.customerProfile.city}
+              </p>
+            ) : (
+              <p className="mt-1 text-xs text-neutral-500">Город не указан в профиле заказчика</p>
+            )}
           </div>
           <div>
             <p className="text-neutral-500">Исполнитель</p>

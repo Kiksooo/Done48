@@ -27,6 +27,7 @@ export async function updateCustomerProfileAction(raw: unknown): Promise<ActionR
       phone: d.phone,
       telegram: d.telegram,
       company: d.company,
+      city: d.city,
     },
   });
 

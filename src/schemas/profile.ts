@@ -11,6 +11,7 @@ export const customerProfileUpdateSchema = z.object({
   phone: z.string().max(64).transform((s) => trimOrNull(s, 64)),
   telegram: z.string().max(64).transform((s) => trimOrNull(s, 64)),
   company: z.string().max(200).transform((s) => trimOrNull(s, 200)),
+  city: z.string().max(120).transform((s) => trimOrNull(s, 120)),
 });
 
 export const executorProfileUpdateSchema = z.object({

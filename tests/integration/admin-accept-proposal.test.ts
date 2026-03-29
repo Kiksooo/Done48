@@ -24,6 +24,7 @@ vi.mock("@/lib/rbac", async (importOriginal) => {
 });
 
 import { prisma } from "@/lib/db";
+import { customerReserveOrderAction } from "@/server/actions/finance/customer-finance";
 import { adminAcceptProposalAction } from "@/server/actions/orders/admin-orders";
 
 describe.skipIf(!hasTestDatabase())("adminAcceptProposalAction", () => {
@@ -43,7 +44,7 @@ describe.skipIf(!hasTestDatabase())("adminAcceptProposalAction", () => {
   });
 
   it("назначает исполнителя по отклику и закрывает остальные PENDING", async () => {
-    const customer = await createCustomerUser(0);
+    const customer = await createCustomerUser(100_000);
     const executor = await createExecutorUser(0, 0);
     const admin = await createAdminUser();
 
@@ -52,6 +53,15 @@ describe.skipIf(!hasTestDatabase())("adminAcceptProposalAction", () => {
       categoryId,
       budgetCents: 8000,
     });
+
+    rbac.getSessionUserForAction.mockResolvedValue({
+      id: customer.id,
+      email: customer.email,
+      role: Role.CUSTOMER,
+      onboardingDone: true,
+    });
+    const reserveRes = await customerReserveOrderAction({ orderId: order.id });
+    expect(reserveRes).toEqual({ ok: true });
 
     const prop = await createPendingProposal({
       orderId: order.id,
@@ -88,6 +98,40 @@ describe.skipIf(!hasTestDatabase())("adminAcceptProposalAction", () => {
     await deleteUserCascade(customer.id);
     await deleteUserCascade(executor.id);
     await deleteUserCascade(otherExec.id);
+    await prisma.user.delete({ where: { id: admin.id } });
+  });
+
+  it("не принимает отклик без безопасной сделки (без резерва)", async () => {
+    const customer = await createCustomerUser(0);
+    const executor = await createExecutorUser(0, 0);
+    const admin = await createAdminUser();
+
+    const order = await createUnpaidOrder({
+      customerId: customer.id,
+      categoryId,
+      budgetCents: 3000,
+    });
+    const prop = await createPendingProposal({
+      orderId: order.id,
+      executorId: executor.id,
+    });
+
+    rbac.getSessionUserForAction.mockResolvedValue({
+      id: admin.id,
+      email: admin.email,
+      role: Role.ADMIN,
+      onboardingDone: true,
+    });
+
+    const res = await adminAcceptProposalAction({ proposalId: prop.id });
+    expect(res.ok).toBe(false);
+    expect(res.error).toMatch(/безопасн/i);
+
+    const ord = await prisma.order.findUniqueOrThrow({ where: { id: order.id } });
+    expect(ord.status).toBe(OrderStatus.PUBLISHED);
+
+    await deleteUserCascade(customer.id);
+    await deleteUserCascade(executor.id);
     await prisma.user.delete({ where: { id: admin.id } });
   });
 });

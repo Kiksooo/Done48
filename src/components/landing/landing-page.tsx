@@ -17,6 +17,7 @@ import {
   Wallet,
   Zap,
 } from "lucide-react";
+import { LandingHeader } from "@/components/landing/landing-header";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -28,53 +29,46 @@ const categories = [
 ];
 
 const forCustomers = [
-  "Публикуете задачу с бюджетом и сроками — как краткое ТЗ.",
-  "Получаете отклики исполнителей и выбираете подходящего.",
-  "Оплата и учёт через баланс платформы, статус заказа виден в кабинете.",
-  "Если что-то пошло не так — модерация и разбор спорных ситуаций.",
+  "Рассказываете, что нужно сделать, с бюджетом и сроками — как короткое ТЗ.",
+  "Получаете отклики и спокойно выбираете человека, который вам откликается.",
+  "Оплата и учёт — в кабинете, статус заказа всегда на виду.",
+  "Если вдруг спор — команда площадки поможет разобраться.",
 ];
 
 const forExecutors = [
-  "Смотрите каталог доступных заказов и откликайтесь с предложением.",
-  "Ведёте переписку и сдачу работы в рамках одного заказа.",
-  "Баланс и выплаты отображаются прозрачно в вашем кабинете.",
-  "Публичное портфолио по желанию — заказчики видят ваш стиль работы.",
+  "Смотрите открытые задачи и откликайтесь там, где вам интересно.",
+  "Общаетесь и сдаёте работу в рамках одного заказа — без прыжков между чатами.",
+  "Баланс и выплаты видны прямо в профиле.",
+  "Хотите — покажите портфолио: заказчикам проще понять ваш стиль.",
 ];
 
 const steps = [
   {
     step: "1",
-    title: "Регистрация и роль",
-    text: "Создайте аккаунт как заказчик или исполнитель. Пройдите короткое онбординг-заполнение профиля.",
+    title: "Знакомство",
+    text: "Регистрируйтесь как заказчик или исполнитель и чуть-чуть расскажите о себе в онбординге.",
   },
   {
     step: "2",
-    title: "Заказ или отклик",
-    text: "Заказчик оформляет заказ. Исполнитель находит подходящую задачу и предлагает условия и сроки.",
+    title: "Находите друг друга",
+    text: "Кто-то публикует задачу, кто-то откликается с условиями и сроками — всё по делу.",
   },
   {
     step: "3",
-    title: "Работа и приёмка",
-    text: "Статусы заказа, сообщения и файлы — в одном месте. После приёмки работа считается завершённой.",
+    title: "Делаете дело",
+    text: "Статусы, сообщения и файлы в одной карточке заказа. Закрыли — и можно двигаться дальше.",
   },
   {
     step: "4",
-    title: "Баланс и поддержка",
-    text: "Движение средств отражается в балансе. Команда платформы помогает при спорах и вопросах по правилам.",
+    title: "Подстраховка",
+    text: "Деньги и операции отражаются в балансе. Если что-то неясно — мы на связи по правилам площадки.",
   },
 ];
 
 const highlights = [
-  { icon: Layers, label: "Заказы и статусы", sub: "единая карточка сделки" },
-  { icon: MessageSquare, label: "Чат по заказу", sub: "без потери контекста" },
-  { icon: Wallet, label: "Баланс в кабинете", sub: "прозрачный учёт" },
-];
-
-const navLinks = [
-  { href: "#audience", label: "Для кого" },
-  { href: "#how", label: "Как работает" },
-  { href: "#categories", label: "Направления" },
-  { href: "#trust", label: "Надёжность" },
+  { icon: Layers, label: "Один заказ — одна история", sub: "статусы и детали не теряются" },
+  { icon: MessageSquare, label: "Пишите по делу", sub: "чат привязан к заказу, контекст всегда с вами" },
+  { icon: Wallet, label: "Баланс наглядно", sub: "видно, что куда ушло — без таблиц на коленке" },
 ];
 
 function HeroPreview() {
@@ -96,8 +90,8 @@ function HeroPreview() {
                 <p className="text-[11px] text-muted-foreground">Вёрстка лендинга</p>
               </div>
             </div>
-            <span className="rounded-full bg-primary/15 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
-              В работе
+            <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-400">
+              В работе ✓
             </span>
           </div>
           <div className="space-y-3">
@@ -128,7 +122,7 @@ function HeroPreview() {
       <div className="absolute -bottom-6 -right-4 hidden w-44 rounded-2xl border border-border bg-card/95 p-3 shadow-elevated backdrop-blur-md sm:block lg:-right-8">
         <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Сводка</p>
         <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">48</p>
-        <p className="text-[11px] text-muted-foreground">часов на микро-задачи</p>
+        <p className="text-[11px] text-muted-foreground">идеально для небольших задач</p>
       </div>
     </div>
   );
@@ -136,52 +130,18 @@ function HeroPreview() {
 
 function SectionEyebrow({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <p
-      className={cn(
-        "mb-3 text-center text-xs font-semibold uppercase tracking-[0.2em] text-primary/90",
-        className,
-      )}
-    >
-      {children}
-    </p>
+    <div className={cn("mb-4 flex justify-center", className)}>
+      <span className="inline-flex items-center rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary ring-1 ring-primary/15">
+        {children}
+      </span>
+    </div>
   );
 }
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-50 border-b border-border/40 bg-background/75 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/60">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:h-[4.25rem] sm:px-6 lg:px-10">
-          <Link href="/" className="group flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-glow transition-transform group-hover:scale-105">
-              D
-            </span>
-            <span className="text-lg font-bold tracking-tight">DONE48</span>
-          </Link>
-          <nav
-            className="hidden items-center gap-1 text-sm font-medium text-muted-foreground md:flex"
-            aria-label="По странице"
-          >
-            {navLinks.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                className="rounded-lg px-3 py-2 transition-colors hover:bg-muted/80 hover:text-foreground"
-              >
-                {l.label}
-              </a>
-            ))}
-          </nav>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
-              <Link href="/login">Войти</Link>
-            </Button>
-            <Button size="sm" className="shadow-sm" asChild>
-              <Link href="/register">Начать</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
+    <div className="landing-page-theme min-h-screen bg-background text-foreground">
+      <LandingHeader />
 
       <main>
         <section className="relative isolate overflow-hidden border-b border-border/50">
@@ -198,27 +158,26 @@ export function LandingPage() {
 
           <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-14 sm:px-6 sm:pb-28 sm:pt-20 lg:grid lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-16 lg:px-10 lg:pb-32 lg:pt-24">
             <div>
-              <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-border/80 bg-card/90 px-4 py-1.5 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur-sm opacity-0 animate-fade-up [animation-delay:80ms]">
-                <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden />
-                Маркетплейс микро-услуг · в духе Fiverr, в вашем процессе
+              <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-4 py-2 text-sm font-medium text-primary shadow-sm opacity-0 animate-fade-up [animation-delay:80ms]">
+                <Sparkles className="h-4 w-4 shrink-0" aria-hidden />
+                Рады видеть вас — микро-задачи и фриланс без лишней суеты
               </p>
               <h1 className="text-balance text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.35rem] xl:text-[3.65rem] opacity-0 animate-fade-up [animation-delay:140ms]">
-                Заказы и исполнители —{" "}
+                Нужен человек на задачу? Или вы сами хотите помочь?{" "}
                 <span className="bg-gradient-to-r from-primary via-sky-500 to-primary bg-clip-text text-transparent dark:from-sky-400 dark:via-primary dark:to-sky-300">
-                  в одном современном кабинете
+                  Всё встречается в одном уютном кабинете
                 </span>
               </h1>
               <p className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl opacity-0 animate-fade-up [animation-delay:200ms]">
-                Публикуйте задачи или откликайтесь на них, ведите переписку по заказу и смотрите баланс без таблиц и
-                разрозненных чатов — всё структурировано, как на крупных биржах вроде{" "}
-                <span className="font-medium text-foreground">Fiverr</span>.
+                Здесь можно спокойно опубликовать запрос или откликнуться, переписываться по делу и не гадать, где лежат
+                статусы и цифры — мы собрали это в одном месте, чтобы вам было проще.
               </p>
 
-              <div className="mt-4 flex flex-wrap gap-3 text-sm text-muted-foreground opacity-0 animate-fade-up [animation-delay:240ms]">
-                {["Заказы", "Отклики", "Чат", "Баланс", "Модерация"].map((t) => (
+              <div className="mt-5 flex flex-wrap gap-2 opacity-0 animate-fade-up [animation-delay:240ms]">
+                {["Заказы", "Отклики", "Чат", "Баланс", "Помощь"].map((t) => (
                   <span
                     key={t}
-                    className="rounded-full border border-border/60 bg-card/60 px-3 py-1 text-xs font-medium backdrop-blur-sm"
+                    className="rounded-full bg-card/90 px-3.5 py-1.5 text-xs font-medium text-muted-foreground shadow-sm ring-1 ring-border/50"
                   >
                     {t}
                   </span>
@@ -226,23 +185,28 @@ export function LandingPage() {
               </div>
 
               <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center opacity-0 animate-fade-up [animation-delay:280ms]">
-                <Button size="lg" className="h-12 gap-2 rounded-xl px-8 text-base shadow-glow" asChild>
+                <Button size="lg" className="h-12 gap-2 rounded-full px-8 text-base shadow-glow" asChild>
                   <Link href="/register">
-                    Начать как заказчик
+                    Хочу заказать работу
                     <ArrowRight className="h-4 w-4" aria-hidden />
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="h-12 rounded-xl border-border/80 bg-card/50 px-8 text-base" asChild>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="h-12 rounded-full border-border/80 bg-card/60 px-8 text-base"
+                  asChild
+                >
                   <Link href="/register">
                     <Briefcase className="h-4 w-4" aria-hidden />
-                    Я исполнитель
+                    Хочу выполнять задачи
                   </Link>
                 </Button>
               </div>
               <p className="mt-6 text-sm text-muted-foreground opacity-0 animate-fade-up [animation-delay:320ms]">
-                Уже с нами?{" "}
+                Возвращаетесь к нам?{" "}
                 <Link href="/login" className="font-semibold text-primary underline-offset-4 hover:underline">
-                  Войти в аккаунт
+                  Войти
                 </Link>
               </p>
             </div>
@@ -250,36 +214,40 @@ export function LandingPage() {
             <div className="relative mt-16 opacity-0 animate-fade-up [animation-delay:360ms] lg:mt-0">
               <HeroPreview />
               <div className="mx-auto mt-8 max-w-xl lg:mx-0 lg:max-w-md">
-                <div className="rounded-2xl border border-border/70 bg-card/70 p-2 shadow-sm backdrop-blur-md">
-                  <div className="flex items-center gap-3 rounded-xl bg-muted/40 px-4 py-3.5">
+                <div className="rounded-[1.35rem] border border-border/60 bg-card/80 p-2 shadow-sm backdrop-blur-md">
+                  <div className="flex items-center gap-3 rounded-2xl bg-muted/50 px-4 py-3.5">
                     <Search className="h-5 w-5 shrink-0 text-primary" aria-hidden />
                     <span className="text-sm text-muted-foreground">
-                      Лендинг за выходные, обложка подкаста, правки в Notion…
+                      Например: лендинг за выходные, обложка подкаста, мелкий текст…
                     </span>
                   </div>
                 </div>
                 <p className="mt-3 text-center text-xs text-muted-foreground lg:text-left">
-                  После регистрации — реальные заказы и витрина задач в вашем кабинете.
+                  Зарегистрируйтесь — и можно сразу создавать заказы или смотреть витрину задач.
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        <section id="product" className="border-b border-border/50 py-16 sm:py-20" aria-labelledby="product-heading">
+        <section
+          id="product"
+          className="scroll-mt-20 border-b border-border/50 py-16 sm:scroll-mt-24 sm:py-20"
+          aria-labelledby="product-heading"
+        >
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
-            <SectionEyebrow>Возможности</SectionEyebrow>
+            <SectionEyebrow>Удобство</SectionEyebrow>
             <h2 id="product-heading" className="text-center text-3xl font-bold tracking-tight sm:text-4xl">
-              Всё, что нужно для сделки
+              Всё под рукой — без лишних вкладок
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-center text-muted-foreground">
-              Один интерфейс для заказчика и исполнителя — статусы, сообщения и деньги не разъезжаются по разным каналам.
+            <p className="mx-auto mt-4 max-w-2xl text-center text-lg text-muted-foreground">
+              И заказчику, и исполнителю не нужно прыгать между чатами и таблицами: важное собрано в одном окне.
             </p>
             <ul className="mt-12 grid gap-6 sm:grid-cols-3">
               {highlights.map(({ icon: Icon, label, sub }) => (
                 <li
                   key={label}
-                  className="group relative overflow-hidden rounded-2xl border border-border/70 bg-card p-6 shadow-sm transition-all duration-300 hover:border-primary/20 hover:shadow-md"
+                  className="group relative overflow-hidden rounded-[1.35rem] border border-border/60 bg-card p-6 shadow-sm transition-all duration-300 hover:border-primary/25 hover:shadow-md"
                 >
                   <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110">
                     <Icon className="h-6 w-6" aria-hidden />
@@ -294,30 +262,30 @@ export function LandingPage() {
 
         <section
           id="audience"
-          className="relative border-b border-border/50 bg-muted/20 py-20 sm:py-24"
+          className="relative scroll-mt-20 border-b border-border/50 bg-muted/20 py-20 sm:scroll-mt-24 sm:py-24"
           aria-labelledby="for-whom-heading"
         >
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" aria-hidden />
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
-            <SectionEyebrow>Аудитория</SectionEyebrow>
+            <SectionEyebrow>Кому мы рады</SectionEyebrow>
             <h2 id="for-whom-heading" className="text-center text-3xl font-bold tracking-tight sm:text-4xl">
-              Для кого платформа
+              И тем, кто заказывает, и тем, кто помогает
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-center text-muted-foreground">
-              Заказчики покупают результат, исполнители продают навыки — правила и экраны согласованы для обеих ролей.
+            <p className="mx-auto mt-4 max-w-2xl text-center text-lg text-muted-foreground">
+              Один сервис — две роли. Мы постарались, чтобы и заказчикам, и фрилансерам было понятно и спокойно.
             </p>
             <div className="mt-14 grid gap-8 lg:grid-cols-2">
               {[
                 {
-                  title: "Заказчикам",
+                  title: "Если вам нужна помощь",
                   icon: Users,
-                  intro: "Разовая задача без бесконечного поиска в чатах — текст, дизайн, правка сайта и другое.",
+                  intro: "Разовая задача — текст, дизайн, правка сайта — без бесконечных «а кто свободен?» в чатах.",
                   items: forCustomers,
                 },
                 {
-                  title: "Исполнителям",
+                  title: "Если вы делаете классные вещи",
                   icon: Briefcase,
-                  intro: "Короткие заказы и прозрачный цикл сделки — похоже на витрину Fiverr, но внутри DONE48.",
+                  intro: "Короткие заказы, понятные отклики и прозрачный цикл — витрина задач прямо внутри DONE48.",
                   items: forExecutors,
                 },
               ].map((block) => {
@@ -353,14 +321,14 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section id="how" className="py-20 sm:py-24" aria-labelledby="how-heading">
+        <section id="how" className="scroll-mt-20 py-20 sm:scroll-mt-24 sm:py-24" aria-labelledby="how-heading">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
-            <SectionEyebrow>Процесс</SectionEyebrow>
+            <SectionEyebrow>По шагам</SectionEyebrow>
             <h2 id="how-heading" className="text-center text-3xl font-bold tracking-tight sm:text-4xl">
-              Как это работает
+              Всего четыре шага — без запутанных схем
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-center text-muted-foreground">
-              Четыре шага от регистрации до поддержки. Администраторы следят за правилами площадки.
+            <p className="mx-auto mt-4 max-w-2xl text-center text-lg text-muted-foreground">
+              От регистрации до спокойной поддержки: администраторы следят за правилами, чтобы всем было честно.
             </p>
             <div className="relative mt-16">
               <div
@@ -371,9 +339,9 @@ export function LandingPage() {
                 {steps.map((s, i) => (
                   <li
                     key={s.step}
-                    className="relative rounded-2xl border border-border/70 bg-card/80 p-6 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md lg:text-center"
+                    className="relative rounded-[1.35rem] border border-border/60 bg-card/90 p-6 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md lg:text-center"
                   >
-                    <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-sm lg:mx-auto">
+                    <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-sky-600 text-sm font-bold text-white shadow-md dark:to-sky-500 lg:mx-auto">
                       {s.step}
                     </span>
                     {i < steps.length - 1 ? (
@@ -393,18 +361,18 @@ export function LandingPage() {
 
         <section
           id="categories"
-          className="border-y border-border/50 bg-muted/15 py-20 sm:py-24"
+          className="scroll-mt-20 border-y border-border/50 bg-muted/15 py-20 sm:scroll-mt-24 sm:py-24"
           aria-labelledby="categories-heading"
         >
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <SectionEyebrow className="text-left">Категории</SectionEyebrow>
+                <SectionEyebrow className="justify-start">Направления</SectionEyebrow>
                 <h2 id="categories-heading" className="text-3xl font-bold tracking-tight sm:text-4xl">
-                  Популярные направления
+                  Чем обычно занимаются на площадке
                 </h2>
-                <p className="mt-3 max-w-xl text-muted-foreground">
-                  Сгруппированные типы задач — проще сформулировать запрос и найти свой формат работы.
+                <p className="mt-3 max-w-xl text-lg text-muted-foreground">
+                  Подсказки по типам задач — проще описать, что вам нужно, или найти «своё» среди заказов.
                 </p>
               </div>
               <Layers className="h-12 w-12 text-primary/30 lg:shrink-0" aria-hidden />
@@ -437,31 +405,31 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section id="trust" className="py-20 sm:py-24" aria-labelledby="trust-heading">
+        <section id="trust" className="scroll-mt-20 py-20 sm:scroll-mt-24 sm:py-24" aria-labelledby="trust-heading">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
-            <SectionEyebrow>Доверие</SectionEyebrow>
+            <SectionEyebrow>Спокойствие</SectionEyebrow>
             <h2 id="trust-heading" className="text-center text-3xl font-bold tracking-tight sm:text-4xl">
-              Прозрачность и контроль
+              Чтобы было понятно, где что лежит
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-center text-muted-foreground">
-              Платформа задаёт структуру: статусы, баланс и переписка остаются в одном месте.
+            <p className="mx-auto mt-4 max-w-2xl text-center text-lg text-muted-foreground">
+              Мы не заменяем договорённости между людьми, но помогаем держать порядок: статусы, баланс и переписка рядом.
             </p>
             <ul className="mt-14 grid gap-6 sm:grid-cols-3">
               {[
                 {
                   icon: Wallet,
-                  title: "Баланс и платежи",
-                  text: "Операции в кабинете — меньше ручных сверок и споров о суммах.",
+                  title: "Баланс наглядно",
+                  text: "Операции видны в кабинете — проще свериться и не спорить вслепую о суммах.",
                 },
                 {
                   icon: MessageSquare,
-                  title: "Коммуникации",
-                  text: "Сообщения и уведомления привязаны к заказам, а не теряются в мессенджерах.",
+                  title: "Переписка по делу",
+                  text: "Сообщения и уведомления живут рядом с заказом, а не теряются в личке.",
                 },
                 {
                   icon: Shield,
-                  title: "Модерация",
-                  text: "Администрация подключается к спорным сценариям и настройкам категорий.",
+                  title: "Кто-то на страже правил",
+                  text: "Если случился спор или нужна настройка категорий — администрация на связи.",
                 },
               ].map((item) => {
                 const TrustIcon = item.icon;

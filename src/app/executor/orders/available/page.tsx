@@ -35,6 +35,9 @@ export default async function ExecutorAvailableOrdersPage() {
                 {o.category.name}
                 {o.subcategory ? ` · ${o.subcategory.name}` : ""} ·{" "}
                 {formatMoneyFromCents(o.budgetCents)} · дедлайн {formatDateTime(o.deadlineAt)}
+                {o.customer.customerProfile?.city
+                  ? ` · город: ${o.customer.customerProfile.city}`
+                  : ""}
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-2">

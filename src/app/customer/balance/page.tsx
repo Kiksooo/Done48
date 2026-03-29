@@ -21,7 +21,8 @@ export default async function CustomerBalancePage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Баланс и оплаты</h1>
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Демо-пополнение, резервы под заказы и история движений
+          Пополнение (демо), безопасные сделки: сумма блокируется на площадке до приёмки работы, затем уходит исполнителю
+          (за вычетом комиссии) — и история операций.
         </p>
       </div>
 

@@ -1,6 +1,6 @@
 "use server";
 
-import { NotificationKind, OrderStatus, Prisma, Role } from "@prisma/client";
+import { NotificationKind, OrderStatus, PaymentStatus, Prisma, Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { isPrismaTransactionConflict } from "@/lib/prisma-errors";
@@ -121,6 +121,13 @@ export async function executorStartWorkAction(raw: unknown): Promise<ActionResul
   if (check.order.status !== OrderStatus.ASSIGNED) {
     return { ok: false, error: "Старт работы доступен после назначения" };
   }
+  if (check.order.paymentStatus !== PaymentStatus.RESERVED) {
+    return {
+      ok: false,
+      error:
+        "Заказчик ещё не внёс сумму в безопасную сделку. Начать работу можно после блокировки средств на площадке.",
+    };
+  }
 
   const orderId = check.order.id;
 
@@ -132,6 +139,7 @@ export async function executorStartWorkAction(raw: unknown): Promise<ActionResul
             id: orderId,
             executorId: user.id,
             status: OrderStatus.ASSIGNED,
+            paymentStatus: PaymentStatus.RESERVED,
           },
           data: { status: OrderStatus.IN_PROGRESS },
         });

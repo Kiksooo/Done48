@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { formatMoneyFromCents } from "@/lib/format";
+import { PAYMENT_STATUS_LABELS } from "@/lib/order-labels";
 import { customerReserveOrderAction } from "@/server/actions/finance/customer-finance";
 import { adminAcceptProposalAction, adminAssignExecutorAction, adminPublishOrder, adminSetOrderStatusAction } from "@/server/actions/orders/admin-orders";
 import { customerAcceptWorkAction, customerCancelOrderAction, customerRequestRevisionAction } from "@/server/actions/orders/customer-orders";
@@ -121,6 +122,10 @@ export function OrderPanels(props: {
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-2">
               <Label>Назначить исполнителя</Label>
+              <p className="text-xs text-neutral-500">
+                Безопасная сделка: назначение возможно только после того, как заказчик заблокировал сумму заказа с
+                баланса.
+              </p>
               {executorOptions.length === 0 ? (
                 <p className="text-sm text-neutral-500">Нет активных исполнителей в системе.</p>
               ) : (
@@ -198,6 +203,9 @@ export function OrderPanels(props: {
           !snapshot.executorId ? (
             <div className="mt-6 border-t border-neutral-200 pt-4 dark:border-neutral-800">
               <h3 className="text-sm font-medium">Отклики</h3>
+              <p className="mt-1 text-xs text-neutral-500">
+                Принять отклик можно только если у заказа статус платежа «средства в безопасной сделке».
+              </p>
               <ul className="mt-2 space-y-2 text-sm">
                 {snapshot.proposals
                   .filter((p) => p.status === "PENDING")
@@ -238,14 +246,17 @@ export function OrderPanels(props: {
         <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
           <h2 className="text-sm font-semibold">Действия заказчика</h2>
           <p className="mt-2 text-xs text-neutral-500">
-            Оплата: {snapshot.paymentStatus} · бюджет {formatMoneyFromCents(snapshot.budgetCents, snapshot.currency)}
+            {PAYMENT_STATUS_LABELS[snapshot.paymentStatus]} · бюджет{" "}
+            {formatMoneyFromCents(snapshot.budgetCents, snapshot.currency)}
           </p>
           {snapshot.paymentStatus === "UNPAID" &&
           !["CANCELED", "COMPLETED", "DRAFT"].includes(snapshot.status) ? (
             <div className="mt-3 rounded-md border border-dashed border-amber-300/80 bg-amber-50/50 p-3 dark:border-amber-800 dark:bg-amber-950/20">
-              <p className="text-sm text-neutral-700 dark:text-neutral-300">
-                Зарезервируйте сумму бюджета с баланса, чтобы после приёмки работы средства ушли исполнителю (за вычетом
-                комиссии).
+              <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">Как на Авито</p>
+              <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
+                Сумма заказа списывается с вашего баланса и удерживается на площадке. Исполнитель получит деньги только
+                после того, как вы примете работу. До этого средства можно вернуть при отмене заказа без назначенного
+                исполнителя.
               </p>
               <Button
                 type="button"
@@ -256,9 +267,14 @@ export function OrderPanels(props: {
                   run("reserve", () => customerReserveOrderAction({ orderId }))
                 }
               >
-                Зарезервировать {formatMoneyFromCents(snapshot.budgetCents, snapshot.currency)}
+                Заблокировать {formatMoneyFromCents(snapshot.budgetCents, snapshot.currency)} в сделке
               </Button>
             </div>
+          ) : null}
+          {snapshot.paymentStatus === "RESERVED" ? (
+            <p className="mt-2 text-xs text-emerald-800 dark:text-emerald-200/90">
+              Сумма заблокирована на площадке до приёмки работы или возврата по правилам заказа.
+            </p>
           ) : null}
           <div className="mt-3 flex flex-wrap gap-2">
             {["NEW", "ON_MODERATION", "PUBLISHED"].includes(snapshot.status) &&
@@ -386,11 +402,17 @@ export function OrderPanels(props: {
 
           {snapshot.executorId === viewerId ? (
             <div className="mt-4 flex flex-wrap gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-800">
+              {snapshot.status === "ASSIGNED" && snapshot.paymentStatus === "UNPAID" ? (
+                <p className="w-full text-sm text-amber-800 dark:text-amber-200">
+                  Заказчик ещё не внёс сумму в безопасную сделку. Кнопка «Начать работу» станет доступна после
+                  блокировки средств на площадке.
+                </p>
+              ) : null}
               {snapshot.status === "ASSIGNED" ? (
                 <Button
                   type="button"
                   size="sm"
-                  disabled={pending}
+                  disabled={pending || snapshot.paymentStatus !== "RESERVED"}
                   onClick={() => run("start", () => executorStartWorkAction({ orderId }))}
                 >
                   Начать работу

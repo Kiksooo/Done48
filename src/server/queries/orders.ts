@@ -4,7 +4,13 @@ import { prisma } from "@/lib/db";
 const orderListInclude = {
   category: { select: { name: true } },
   subcategory: { select: { name: true } },
-  customer: { select: { id: true, email: true } },
+  customer: {
+    select: {
+      id: true,
+      email: true,
+      customerProfile: { select: { city: true } },
+    },
+  },
   executor: { select: { id: true, email: true } },
 } satisfies Prisma.OrderInclude;
 
@@ -95,7 +101,13 @@ export async function getOrderDetailForPage(orderId: string) {
     include: {
       category: true,
       subcategory: true,
-      customer: { select: { id: true, email: true } },
+      customer: {
+        select: {
+          id: true,
+          email: true,
+          customerProfile: { select: { city: true } },
+        },
+      },
       executor: { select: { id: true, email: true } },
       statusHistory: { orderBy: { createdAt: "asc" } },
       proposals: {

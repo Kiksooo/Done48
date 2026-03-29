@@ -77,6 +77,8 @@ model CustomerProfile {
   phone        String?
   telegram     String?
   company      String?
+  /// Город заказчика (для исполнителей; можно выбрать из справочника или ввести вручную)
+  city         String?
   billingInfo  String?  @db.Text
   avatarUrl    String?
 

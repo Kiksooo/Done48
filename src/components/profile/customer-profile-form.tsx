@@ -6,6 +6,7 @@ import { updateCustomerProfileAction } from "@/server/actions/profile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RussianCityInput } from "@/components/profile/russian-city-input";
 
 type Props = {
   initial: {
@@ -13,6 +14,7 @@ type Props = {
     phone: string | null;
     telegram: string | null;
     company: string | null;
+    city: string | null;
   };
 };
 
@@ -24,6 +26,7 @@ export function CustomerProfileForm({ initial }: Props) {
   const [phone, setPhone] = useState(initial.phone ?? "");
   const [telegram, setTelegram] = useState(initial.telegram ?? "");
   const [company, setCompany] = useState(initial.company ?? "");
+  const [city, setCity] = useState(initial.city ?? "");
 
   return (
     <form
@@ -37,6 +40,7 @@ export function CustomerProfileForm({ initial }: Props) {
             phone,
             telegram,
             company,
+            city,
           });
           if (!r.ok) {
             setMsg(r.error ?? "Ошибка");
@@ -67,6 +71,13 @@ export function CustomerProfileForm({ initial }: Props) {
         <Label htmlFor="co">Компания</Label>
         <Input id="co" value={company} onChange={(e) => setCompany(e.target.value)} disabled={pending} />
       </div>
+      <RussianCityInput
+        label="Город"
+        value={city}
+        onChange={setCity}
+        disabled={pending}
+        hint="Справочник городов России (~1100). Можно ввести свой вариант, если населённого пункта нет в списке."
+      />
       <Button type="submit" disabled={pending}>
         Сохранить
       </Button>

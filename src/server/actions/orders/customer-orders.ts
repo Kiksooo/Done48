@@ -165,7 +165,7 @@ export async function customerAcceptWorkAction(raw: unknown): Promise<ActionResu
   if (check.order.paymentStatus !== PaymentStatus.RESERVED) {
     return {
       ok: false,
-      error: "Сначала зарезервируйте средства под заказ (баланс → резерв)",
+      error: "Сначала заблокируйте сумму в безопасной сделке (карточка заказа → блокировка с баланса).",
     };
   }
 

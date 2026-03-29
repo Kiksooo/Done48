@@ -19,7 +19,9 @@ export default async function CustomerProfilePage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Профиль заказчика</h1>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">Контактные данные для исполнителей и администрации.</p>
+        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          Контактные данные и город — исполнители увидят их в карточке заказа.
+        </p>
       </div>
       <CustomerProfileForm
         initial={{
@@ -27,6 +29,7 @@ export default async function CustomerProfilePage() {
           phone: profile.phone,
           telegram: profile.telegram,
           company: profile.company,
+          city: profile.city,
         }}
       />
     </div>

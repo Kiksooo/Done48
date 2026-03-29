@@ -21,8 +21,8 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
 };
 
 export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
-  UNPAID: "Не оплачен",
-  RESERVED: "Зарезервировано",
+  UNPAID: "Сделка не оплачена",
+  RESERVED: "Средства в безопасной сделке",
   PAID: "Оплачен",
   REFUNDED: "Возврат",
   PAYOUT_PENDING: "К выплате",

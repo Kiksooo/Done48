@@ -6,6 +6,7 @@ import {
   PaymentStatus,
   PrismaClient,
   Role,
+  TransactionType,
   VisibilityType,
 } from "@prisma/client";
 import bcrypt from "bcryptjs";
@@ -213,7 +214,22 @@ async function main() {
           visibilityType: VisibilityType.PLATFORM_ASSIGN,
           status: OrderStatus.ASSIGNED,
           assignedByAdmin: true,
-          paymentStatus: PaymentStatus.UNPAID,
+          paymentStatus: PaymentStatus.RESERVED,
+        },
+      });
+
+      await tx.customerProfile.update({
+        where: { userId: customer.id },
+        data: { balanceCents: { decrement: 800_000 } },
+      });
+      await tx.transaction.create({
+        data: {
+          type: TransactionType.RESERVE,
+          amountCents: 800_000,
+          currency: "RUB",
+          orderId: oProg.id,
+          fromUserId: customer.id,
+          meta: { note: "Демо: безопасная сделка" },
         },
       });
 
