@@ -18,6 +18,7 @@ export function LoginForm() {
   const callbackUrl = searchParams.get("callbackUrl") ?? "/";
   const authError = searchParams.get("error");
   const justRegistered = searchParams.get("registered") === "1";
+  const justReset = searchParams.get("reset") === "1";
 
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -59,6 +60,11 @@ export function LoginForm() {
               Аккаунт создан. Войдите с теми же email и паролем.
             </p>
           )}
+          {justReset && (
+            <p className="text-sm text-green-700 dark:text-green-400" role="status">
+              Пароль обновлён. Войдите с новым паролем.
+            </p>
+          )}
           {(authError || submitError) && (
             <p className="text-sm text-red-600 dark:text-red-400" role="alert">
               {submitError ?? "Ошибка входа"}
@@ -77,7 +83,15 @@ export function LoginForm() {
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Пароль</Label>
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor="password">Пароль</Label>
+              <Link
+                href="/forgot-password"
+                className="text-xs font-medium text-primary underline-offset-4 hover:underline"
+              >
+                Забыли пароль?
+              </Link>
+            </div>
             <Input
               id="password"
               type="password"
