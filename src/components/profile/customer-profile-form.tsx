@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RussianCityInput } from "@/components/profile/russian-city-input";
+import { AvatarField } from "@/components/profile/avatar-field";
 
 type Props = {
   initial: {
@@ -15,6 +16,7 @@ type Props = {
     telegram: string | null;
     company: string | null;
     city: string | null;
+    avatarUrl: string | null;
   };
 };
 
@@ -27,6 +29,7 @@ export function CustomerProfileForm({ initial }: Props) {
   const [telegram, setTelegram] = useState(initial.telegram ?? "");
   const [company, setCompany] = useState(initial.company ?? "");
   const [city, setCity] = useState(initial.city ?? "");
+  const [avatarUrl, setAvatarUrl] = useState(initial.avatarUrl ?? "");
 
   return (
     <form
@@ -41,6 +44,7 @@ export function CustomerProfileForm({ initial }: Props) {
             telegram,
             company,
             city,
+            avatarUrl,
           });
           if (!r.ok) {
             setMsg(r.error ?? "Ошибка");
@@ -55,6 +59,7 @@ export function CustomerProfileForm({ initial }: Props) {
           {msg}
         </p>
       ) : null}
+      <AvatarField idPrefix="cust" value={avatarUrl} onChange={setAvatarUrl} disabled={pending} />
       <div className="space-y-2">
         <Label htmlFor="dp">Отображаемое имя</Label>
         <Input id="dp" value={displayName} onChange={(e) => setDisplayName(e.target.value)} disabled={pending} />

@@ -28,6 +28,7 @@ export async function updateCustomerProfileAction(raw: unknown): Promise<ActionR
       telegram: d.telegram,
       company: d.company,
       city: d.city,
+      avatarUrl: d.avatarUrl,
     },
   });
 
@@ -72,6 +73,7 @@ export async function updateExecutorProfileAction(raw: unknown): Promise<ActionR
         telegram: d.telegram,
         city: d.city,
         bio: d.bio,
+        avatarUrl: d.avatarUrl,
       },
     });
   } catch (e) {

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { AvatarField } from "@/components/profile/avatar-field";
 
 type Props = {
   initial: {
@@ -18,6 +19,7 @@ type Props = {
     bio: string | null;
     accountStatus: string;
     verificationStatus: string;
+    avatarUrl: string | null;
   };
 };
 
@@ -31,6 +33,7 @@ export function ExecutorProfileForm({ initial }: Props) {
   const [telegram, setTelegram] = useState(initial.telegram ?? "");
   const [city, setCity] = useState(initial.city ?? "");
   const [bio, setBio] = useState(initial.bio ?? "");
+  const [avatarUrl, setAvatarUrl] = useState(initial.avatarUrl ?? "");
 
   return (
     <div className="space-y-6">
@@ -51,6 +54,7 @@ export function ExecutorProfileForm({ initial }: Props) {
               telegram,
               city,
               bio,
+              avatarUrl,
             });
             if (!r.ok) {
               setMsg(r.error ?? "Ошибка");
@@ -65,6 +69,7 @@ export function ExecutorProfileForm({ initial }: Props) {
             {msg}
           </p>
         ) : null}
+        <AvatarField idPrefix="ex" value={avatarUrl} onChange={setAvatarUrl} disabled={pending} />
         <div className="space-y-2">
           <Label htmlFor="ex-dp">Отображаемое имя</Label>
           <Input

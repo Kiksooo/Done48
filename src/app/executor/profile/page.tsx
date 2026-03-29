@@ -1,16 +1,20 @@
 import Link from "next/link";
 import { ExecutorProfileForm } from "@/components/profile/executor-profile-form";
+import { ProfileReviewsSection } from "@/components/reviews/profile-reviews-section";
 import { prisma } from "@/lib/db";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { redirect } from "next/navigation";
+import { getReviewStatsForUser, listReviewsReceivedByUser } from "@/server/queries/reviews";
 
 export default async function ExecutorProfilePage() {
   const user = await getSessionUserForAction();
   if (!user) redirect("/login");
 
-  const profile = await prisma.executorProfile.findUnique({
-    where: { userId: user.id },
-  });
+  const [profile, stats, receivedReviews] = await Promise.all([
+    prisma.executorProfile.findUnique({ where: { userId: user.id } }),
+    getReviewStatsForUser(user.id),
+    listReviewsReceivedByUser(user.id, 40),
+  ]);
 
   if (!profile) {
     return <p className="text-sm text-neutral-600">Профиль не найден.</p>;
@@ -52,8 +56,10 @@ export default async function ExecutorProfilePage() {
           bio: profile.bio,
           accountStatus: profile.accountStatus,
           verificationStatus: profile.verificationStatus,
+          avatarUrl: profile.avatarUrl,
         }}
       />
+      <ProfileReviewsSection stats={stats} reviews={receivedReviews} mode="full" />
     </div>
   );
 }

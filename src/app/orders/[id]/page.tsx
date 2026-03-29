@@ -1,8 +1,9 @@
-import type { Role } from "@prisma/client";
+import { OrderStatus, type Role } from "@prisma/client";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { OrderChat } from "@/components/orders/order-chat";
 import { OrderPanels } from "@/components/orders/order-panels";
+import { OrderReviewsSection, type OrderReviewRow } from "@/components/reviews/order-reviews-section";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { Badge } from "@/components/ui/badge";
 import { countUnreadChatMessages } from "@/lib/chat-unread";
@@ -19,6 +20,8 @@ import { ensureChatMembership, getChatMessagesForOrder } from "@/server/queries/
 import { getOrderDetailForPage, listExecutorsForSelect } from "@/server/queries/orders";
 import { prisma } from "@/lib/db";
 import { getDisputeOpenFlagsForOrder } from "@/server/queries/disputes";
+import { reviewerAvatarUrl, reviewerDisplayName } from "@/lib/review-display";
+import { findReviewByOrderAndAuthor, listReviewsForOrder } from "@/server/queries/reviews";
 
 export default async function OrderPage({ params }: { params: { id: string } }) {
   const { id } = params;
@@ -87,6 +90,34 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
   }
 
   const disputeFlags = await getDisputeOpenFlagsForOrder(order.id, order.status);
+
+  const reviewable =
+    order.status === OrderStatus.ACCEPTED || order.status === OrderStatus.COMPLETED;
+
+  let reviewTarget: { toUserId: string; label: string } | null = null;
+  if (reviewable && order.executorId) {
+    if (user.role === "CUSTOMER" && user.id === order.customerId) {
+      reviewTarget = { toUserId: order.executorId, label: "исполнителю" };
+    } else if (user.role === "EXECUTOR" && user.id === order.executorId) {
+      reviewTarget = { toUserId: order.customerId, label: "заказчику" };
+    }
+  }
+
+  const [orderReviewsList, myReviewRow] = await Promise.all([
+    listReviewsForOrder(order.id),
+    user.role === "CUSTOMER" || user.role === "EXECUTOR"
+      ? findReviewByOrderAndAuthor(order.id, user.id)
+      : Promise.resolve(null),
+  ]);
+
+  const orderReviewRows: OrderReviewRow[] = orderReviewsList.map((r) => ({
+    id: r.id,
+    rating: r.rating,
+    text: r.text,
+    createdAt: r.createdAt.toISOString(),
+    reviewerName: reviewerDisplayName(r.fromUser, "full"),
+    reviewerAvatarUrl: reviewerAvatarUrl(r.fromUser),
+  }));
 
   const proposals = order.proposals.map((p) => ({
     id: p.id,
@@ -190,6 +221,13 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
             </>
           ) : null}
         </section>
+
+        <OrderReviewsSection
+          orderId={order.id}
+          reviewTarget={reviewTarget}
+          alreadyReviewed={Boolean(myReviewRow)}
+          reviews={orderReviewRows}
+        />
 
         <OrderPanels
           orderId={order.id}

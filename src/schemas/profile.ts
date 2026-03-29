@@ -6,12 +6,23 @@ function trimOrNull(s: string, max: number) {
   return t.slice(0, max);
 }
 
+const avatarUrlField = z
+  .string()
+  .max(2048)
+  .transform((s) => s.trim())
+  .refine(
+    (s) => s.length === 0 || s.startsWith("/uploads/") || /^https?:\/\//i.test(s),
+    "Аватар: укажите https:// ссылку или загрузите файл",
+  )
+  .transform((s) => (s.length === 0 ? null : s.slice(0, 2048)));
+
 export const customerProfileUpdateSchema = z.object({
   displayName: z.string().max(120).transform((s) => trimOrNull(s, 120)),
   phone: z.string().max(64).transform((s) => trimOrNull(s, 64)),
   telegram: z.string().max(64).transform((s) => trimOrNull(s, 64)),
   company: z.string().max(200).transform((s) => trimOrNull(s, 200)),
   city: z.string().max(120).transform((s) => trimOrNull(s, 120)),
+  avatarUrl: avatarUrlField,
 });
 
 export const executorProfileUpdateSchema = z.object({
@@ -30,4 +41,5 @@ export const executorProfileUpdateSchema = z.object({
   telegram: z.string().max(64).transform((s) => trimOrNull(s, 64)),
   city: z.string().max(120).transform((s) => trimOrNull(s, 120)),
   bio: z.string().max(2000).transform((s) => trimOrNull(s, 2000)),
+  avatarUrl: avatarUrlField,
 });

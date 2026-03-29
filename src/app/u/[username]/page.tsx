@@ -3,7 +3,9 @@ import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ProfileReviewsSection } from "@/components/reviews/profile-reviews-section";
 import { getPublicExecutorByUsername } from "@/server/queries/public-executor";
+import { getReviewStatsForUser, listReviewsReceivedByUser } from "@/server/queries/reviews";
 
 type Props = { params: { username: string } };
 
@@ -26,18 +28,35 @@ export default async function PublicExecutorPortfolioPage({ params }: Props) {
   const p = user.executorProfile;
   const name = p.displayName ?? p.username ?? user.email;
 
+  const [stats, reviews] = await Promise.all([
+    getReviewStatsForUser(user.id),
+    listReviewsReceivedByUser(user.id, 30),
+  ]);
+
   return (
     <div className="min-h-screen bg-neutral-50 px-4 py-10 dark:bg-neutral-950 sm:px-6">
       <div className="mx-auto max-w-3xl space-y-8">
-        <header className="space-y-2 border-b border-neutral-200 pb-6 dark:border-neutral-800">
+        <header className="space-y-3 border-b border-neutral-200 pb-6 dark:border-neutral-800">
           <p className="text-xs text-neutral-500">
             <Link href="/login" className="underline hover:text-neutral-800 dark:hover:text-neutral-200">
               Войти в DONE48
             </Link>
           </p>
-          <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
-            {name}
-          </h1>
+          <div className="flex flex-wrap items-start gap-4">
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-neutral-200 bg-neutral-100 text-xl font-semibold text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300">
+              {p.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={p.avatarUrl} alt="" className="h-full w-full object-cover" />
+              ) : (
+                name.charAt(0).toUpperCase()
+              )}
+            </div>
+            <div className="min-w-0 flex-1 space-y-2">
+              <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
+                {name}
+              </h1>
+            </div>
+          </div>
           {p.username ? (
             <p className="font-mono text-sm text-neutral-500">@{p.username}</p>
           ) : null}
@@ -46,6 +65,13 @@ export default async function PublicExecutorPortfolioPage({ params }: Props) {
             <p className="whitespace-pre-wrap text-sm text-neutral-700 dark:text-neutral-300">{p.bio}</p>
           ) : null}
         </header>
+
+        <ProfileReviewsSection
+          stats={stats}
+          reviews={reviews}
+          mode="anonymous_role"
+          title="Отзывы заказчиков"
+        />
 
         <section>
           <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Портфолио</h2>
