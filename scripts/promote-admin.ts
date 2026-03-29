@@ -4,11 +4,16 @@
  */
 import { PrismaClient, Role } from "@prisma/client";
 
-const email = (process.argv[2] ?? "lidiiakik@gmail.com").trim().toLowerCase();
+const email = (process.argv[2] ?? "").trim().toLowerCase();
 
 const prisma = new PrismaClient();
 
 async function main() {
+  if (!email) {
+    console.error("Укажите email: npm run db:promote-admin -- user@example.com");
+    process.exit(1);
+  }
+
   const existing = await prisma.user.findUnique({ where: { email } });
   if (!existing) {
     console.error(`Пользователь не найден: ${email}`);
