@@ -20,7 +20,8 @@ export type NavIconName =
   | "wallet"
   | "user"
   | "briefcase"
-  | "search";
+  | "search"
+  | "flag";
 
 export type CabinetNavItem = {
   href: string;
@@ -37,6 +38,7 @@ export const ADMIN_NAV: CabinetNavItem[] = [
   { href: "/admin/categories", label: "Категории", icon: "folderTree" },
   { href: "/admin/proposals", label: "Отклики", icon: "inbox" },
   { href: "/admin/disputes", label: "Споры", icon: "scale" },
+  { href: "/admin/moderation", label: "Модерация", icon: "flag" },
   { href: "/admin/payments", label: "Платежи", icon: "creditCard" },
   { href: "/admin/payouts", label: "Выплаты", icon: "banknote" },
   { href: "/admin/notifications", label: "Уведомления", icon: "bell" },

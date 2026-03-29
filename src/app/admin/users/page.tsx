@@ -1,3 +1,4 @@
+import { AdminUserActiveCell } from "@/components/admin/admin-user-active-cell";
 import { Badge } from "@/components/ui/badge";
 import { formatDateTime } from "@/lib/format";
 import { listUsersForAdmin } from "@/server/queries/users";
@@ -10,7 +11,7 @@ export default async function AdminUsersPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Пользователи</h1>
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Список учётных записей (управление ролями — следующий шаг)
+          Блокировка отключает вход. Жалобы по заказам — в разделе «Модерация».
         </p>
       </div>
 
@@ -23,6 +24,7 @@ export default async function AdminUsersPage() {
               <th className="px-3 py-2 font-medium">Статус</th>
               <th className="px-3 py-2 font-medium">Онбординг</th>
               <th className="px-3 py-2 font-medium">Регистрация</th>
+              <th className="px-3 py-2 font-medium">Действие</th>
             </tr>
           </thead>
           <tbody>
@@ -41,6 +43,9 @@ export default async function AdminUsersPage() {
                 </td>
                 <td className="px-3 py-2">{u.onboardingDone ? "Да" : "Нет"}</td>
                 <td className="px-3 py-2 text-neutral-600">{formatDateTime(u.createdAt)}</td>
+                <td className="px-3 py-2">
+                  <AdminUserActiveCell userId={u.id} role={u.role} isActive={u.isActive} />
+                </td>
               </tr>
             ))}
           </tbody>

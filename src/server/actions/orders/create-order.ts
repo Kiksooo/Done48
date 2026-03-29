@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { appendStatusHistory } from "@/server/orders/status";
+import { getAntifraudPlatformSettings } from "@/lib/platform-antifraud";
 import { createOrderSchema } from "@/schemas/order";
 import { notifyActiveAdmins, notifySafe } from "@/server/notifications/service";
 
@@ -41,8 +42,12 @@ export async function createOrderAction(raw: unknown): Promise<ActionResult<{ or
     }
   }
 
-  const status: OrderStatus =
-    data.initialStatus === "ON_MODERATION" ? OrderStatus.ON_MODERATION : OrderStatus.NEW;
+  const af = await getAntifraudPlatformSettings();
+  const status: OrderStatus = af.moderateAllNewOrders
+    ? OrderStatus.ON_MODERATION
+    : data.initialStatus === "ON_MODERATION"
+      ? OrderStatus.ON_MODERATION
+      : OrderStatus.NEW;
 
   const orderId = await prisma.$transaction(async (tx) => {
     const offline = Boolean(data.isOfflineWork);

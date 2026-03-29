@@ -4,6 +4,7 @@ import { Prisma, Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getSessionUserForAction } from "@/lib/rbac";
+import { isContactBlocklisted } from "@/lib/contact-blocklist";
 import { writeAuditLog } from "@/server/audit/log";
 import { customerProfileUpdateSchema, executorProfileUpdateSchema } from "@/schemas/profile";
 import type { ActionResult } from "@/server/actions/orders/create-order";
@@ -20,6 +21,13 @@ export async function updateCustomerProfileAction(raw: unknown): Promise<ActionR
   }
 
   const d = parsed.data;
+  if (d.phone && (await isContactBlocklisted("PHONE", d.phone))) {
+    return { ok: false, error: "Этот номер телефона в списке ограничений площадки" };
+  }
+  if (d.telegram && (await isContactBlocklisted("TELEGRAM", d.telegram))) {
+    return { ok: false, error: "Этот контакт Telegram в списке ограничений площадки" };
+  }
+
   await prisma.customerProfile.update({
     where: { userId: user.id },
     data: {
@@ -57,6 +65,13 @@ export async function updateExecutorProfileAction(raw: unknown): Promise<ActionR
   }
 
   const d = parsed.data;
+
+  if (d.phone && (await isContactBlocklisted("PHONE", d.phone))) {
+    return { ok: false, error: "Этот номер телефона в списке ограничений площадки" };
+  }
+  if (d.telegram && (await isContactBlocklisted("TELEGRAM", d.telegram))) {
+    return { ok: false, error: "Этот контакт Telegram в списке ограничений площадки" };
+  }
 
   const prevProfile = await prisma.executorProfile.findUnique({
     where: { userId: user.id },

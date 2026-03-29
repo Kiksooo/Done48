@@ -1,8 +1,17 @@
 "use server";
 
-import { NotificationKind, OrderStatus, PaymentStatus, Prisma, Role } from "@prisma/client";
+import {
+  ExecutorAccountStatus,
+  NotificationKind,
+  OrderStatus,
+  PaymentStatus,
+  Prisma,
+  Role,
+  VerificationStatus,
+} from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
+import { getAntifraudPlatformSettings } from "@/lib/platform-antifraud";
 import { isPrismaTransactionConflict } from "@/lib/prisma-errors";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { createProposalSchema, customerOrderActionSchema } from "@/schemas/order";
@@ -38,6 +47,44 @@ export async function executorCreateProposalAction(raw: unknown): Promise<Action
     parsed.data.offeredRubles !== undefined
       ? Math.round(parsed.data.offeredRubles * 100)
       : undefined;
+
+  const profile = await prisma.user.findUnique({
+    where: { id: user.id },
+    include: { executorProfile: true },
+  });
+  if (!profile?.isActive) {
+    return { ok: false, error: "Учётная запись отключена" };
+  }
+  const ep = profile.executorProfile;
+  if (!ep || ep.accountStatus !== ExecutorAccountStatus.ACTIVE) {
+    return {
+      ok: false,
+      error:
+        "Отклики доступны при статусе исполнителя «Активен» после модерации анкеты. Пока заявка на рассмотрении — дождитесь решения.",
+    };
+  }
+
+  const af = await getAntifraudPlatformSettings();
+  if (af.requireExecutorVerificationForProposals && ep.verificationStatus !== VerificationStatus.APPROVED) {
+    return {
+      ok: false,
+      error:
+        "Чтобы откликаться на заказы, пройдите верификацию: загрузите документы в профиле исполнителя и дождитесь одобрения.",
+    };
+  }
+
+  if (af.maxExecutorProposalsPerDay > 0) {
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const recent = await prisma.proposal.count({
+      where: { executorId: user.id, createdAt: { gte: since } },
+    });
+    if (recent >= af.maxExecutorProposalsPerDay) {
+      return {
+        ok: false,
+        error: `Достигнут лимит откликов за сутки (${af.maxExecutorProposalsPerDay}). Попробуйте позже — это снижает спам и накрутку.`,
+      };
+    }
+  }
 
   let orderIdNotify = "";
   let orderTitleNotify = "";

@@ -5,6 +5,7 @@ import {
   PaymentStatus,
   ProposalStatus,
   Role,
+  VerificationStatus,
   VisibilityType,
 } from "@prisma/client";
 import bcrypt from "bcryptjs";
@@ -59,6 +60,7 @@ export async function createExecutorUser(heldCents: number, balanceCents: number
         create: {
           displayName: "Vitest executor",
           accountStatus: ExecutorAccountStatus.ACTIVE,
+          verificationStatus: VerificationStatus.APPROVED,
           heldCents,
           balanceCents,
         },

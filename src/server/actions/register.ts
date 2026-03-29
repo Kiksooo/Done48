@@ -3,6 +3,7 @@
 import bcrypt from "bcryptjs";
 import { Role } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { isContactBlocklisted } from "@/lib/contact-blocklist";
 import { registerSchema } from "@/schemas/auth";
 
 export type RegisterState =
@@ -29,6 +30,10 @@ export async function registerUser(
   }
 
   const email = parsed.data.email.toLowerCase();
+  if (await isContactBlocklisted("EMAIL", email)) {
+    return { ok: false, error: "Регистрация с этого адреса недоступна. Свяжитесь с поддержкой, если это ошибка." };
+  }
+
   const exists = await prisma.user.findUnique({ where: { email } });
   if (exists) {
     return { ok: false, error: "Пользователь с таким email уже есть" };

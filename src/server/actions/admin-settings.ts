@@ -32,10 +32,16 @@ export async function adminUpdatePlatformSettingsAction(raw: unknown): Promise<A
       id: "default",
       platformFeePercent: new Prisma.Decimal(parsed.data.platformFeePercent),
       minPayoutCents,
+      moderateAllNewOrders: parsed.data.moderateAllNewOrders,
+      requireExecutorVerificationForProposals: parsed.data.requireExecutorVerificationForProposals,
+      maxExecutorProposalsPerDay: parsed.data.maxExecutorProposalsPerDay,
     },
     update: {
       platformFeePercent: new Prisma.Decimal(parsed.data.platformFeePercent),
       minPayoutCents,
+      moderateAllNewOrders: parsed.data.moderateAllNewOrders,
+      requireExecutorVerificationForProposals: parsed.data.requireExecutorVerificationForProposals,
+      maxExecutorProposalsPerDay: parsed.data.maxExecutorProposalsPerDay,
     },
   });
 
@@ -48,11 +54,17 @@ export async function adminUpdatePlatformSettingsAction(raw: unknown): Promise<A
       ? {
           platformFeePercent: Number(before.platformFeePercent),
           minPayoutCents: before.minPayoutCents,
+          moderateAllNewOrders: before.moderateAllNewOrders,
+          requireExecutorVerificationForProposals: before.requireExecutorVerificationForProposals,
+          maxExecutorProposalsPerDay: before.maxExecutorProposalsPerDay,
         }
       : null,
     newValue: {
       platformFeePercent: parsed.data.platformFeePercent,
       minPayoutCents,
+      moderateAllNewOrders: parsed.data.moderateAllNewOrders,
+      requireExecutorVerificationForProposals: parsed.data.requireExecutorVerificationForProposals,
+      maxExecutorProposalsPerDay: parsed.data.maxExecutorProposalsPerDay,
     },
   });
 

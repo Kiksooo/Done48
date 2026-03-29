@@ -1,9 +1,10 @@
-import { OrderStatus, type Role } from "@prisma/client";
+import { OrderStatus, ProposalStatus, type Role } from "@prisma/client";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { OrderChat } from "@/components/orders/order-chat";
 import { OrderPanels } from "@/components/orders/order-panels";
+import { OrderReportSection } from "@/components/orders/order-report-section";
 import { OrderReviewsSection, type OrderReviewRow } from "@/components/reviews/order-reviews-section";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { Badge } from "@/components/ui/badge";
@@ -133,6 +134,36 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
     reviewerAvatarUrl: reviewerAvatarUrl(r.fromUser),
   }));
 
+  let reportTargetId: string | null = null;
+  if (user.role !== "ADMIN") {
+    if (user.role === "CUSTOMER" && user.id === order.customerId && order.executorId) {
+      reportTargetId = order.executorId;
+    } else if (user.role === "EXECUTOR") {
+      const assigned = order.executorId === user.id;
+      const pendingProp =
+        !assigned &&
+        (await prisma.proposal.findFirst({
+          where: {
+            orderId: order.id,
+            executorId: user.id,
+            status: ProposalStatus.PENDING,
+          },
+        }));
+      if (assigned || pendingProp) {
+        reportTargetId = order.customerId;
+      }
+    }
+  }
+
+  const reportTargetEmail =
+    reportTargetId &&
+    (
+      await prisma.user.findUnique({
+        where: { id: reportTargetId },
+        select: { email: true },
+      })
+    )?.email;
+
   const proposals = order.proposals.map((p) => ({
     id: p.id,
     status: p.status,
@@ -260,6 +291,10 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
           alreadyReviewed={Boolean(myReviewRow)}
           reviews={orderReviewRows}
         />
+
+        {reportTargetId && reportTargetEmail ? (
+          <OrderReportSection orderId={order.id} targetEmail={reportTargetEmail} />
+        ) : null}
 
         <OrderPanels
           orderId={order.id}

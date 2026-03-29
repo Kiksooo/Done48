@@ -67,6 +67,11 @@ model User {
 
   disputesOpened   Dispute[] @relation("DisputeOpenedBy")
 
+  reportsFiled     UserReport[] @relation("ReportReporter")
+  reportsAgainst   UserReport[] @relation("ReportTarget")
+  reportsHandled   UserReport[] @relation("ReportHandler")
+  blocklistCreated ContactBlocklist[] @relation("BlocklistCreator")
+
   passwordResetTokens PasswordResetToken[]
 }
 
@@ -229,6 +234,63 @@ enum VisibilityType {
   OPEN_FOR_RESPONSES
 }
 
+enum UserReportCategory {
+  SCAM
+  HARASSMENT
+  FAKE_IDENTITY
+  SPAM
+  OTHER
+}
+
+enum UserReportStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
+enum ContactBlocklistKind {
+  EMAIL
+  PHONE
+  TELEGRAM
+}
+
+model UserReport {
+  id           String   @id @default(cuid())
+  reporterId   String
+  reporter     User     @relation("ReportReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  targetUserId String
+  targetUser   User     @relation("ReportTarget", fields: [targetUserId], references: [id], onDelete: Cascade)
+  orderId      String?
+  order        Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  category    UserReportCategory
+  description String   @db.Text
+  status      UserReportStatus @default(OPEN)
+  adminNote   String?  @db.Text
+  handledById String?
+  handledBy   User?    @relation("ReportHandler", fields: [handledById], references: [id], onDelete: SetNull)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@index([targetUserId])
+  @@index([reporterId])
+}
+
+model ContactBlocklist {
+  id          String   @id @default(cuid())
+  kind        ContactBlocklistKind
+  valueNorm   String
+  reason      String?  @db.Text
+  createdById String?
+  createdBy   User?    @relation("BlocklistCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+
+  @@unique([kind, valueNorm])
+}
+
 model Order {
   id              String   @id @default(cuid())
   publicId        String   @unique @default(cuid())
@@ -278,6 +340,7 @@ model Order {
   transactions    Transaction[]
   disputes        Dispute[]
   reviews         Review[]
+  userReports     UserReport[]
 }
 
 model OrderAttachment {
@@ -542,6 +605,14 @@ model PlatformSettings {
   id                 String   @id @default("default")
   platformFeePercent Decimal  @default(10) @db.Decimal(5, 2)
   minPayoutCents     Int      @default(1000)
+
+  /// Все новые заказы только «На модерации» (админ публикует вручную)
+  moderateAllNewOrders                   Boolean  @default(true)
+  /// Откликаться могут только исполнители с верификацией APPROVED
+  requireExecutorVerificationForProposals Boolean @default(true)
+  /// Макс. откликов одного исполнителя за сутки; 0 = без лимита
+  maxExecutorProposalsPerDay             Int      @default(30)
+
   updatedAt          DateTime @updatedAt
 }
 

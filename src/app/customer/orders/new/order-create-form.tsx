@@ -35,7 +35,13 @@ export type CategoryOption = {
   subcategories: { id: string; name: string }[];
 };
 
-export function OrderCreateForm({ categories }: { categories: CategoryOption[] }) {
+export function OrderCreateForm({
+  categories,
+  moderateAllNewOrders,
+}: {
+  categories: CategoryOption[];
+  moderateAllNewOrders: boolean;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -52,7 +58,7 @@ export function OrderCreateForm({ categories }: { categories: CategoryOption[] }
       urgency: false,
       visibilityType: VisibilityType.OPEN_FOR_RESPONSES,
       executorRequirements: "",
-      initialStatus: "NEW",
+      initialStatus: moderateAllNewOrders ? "ON_MODERATION" : "NEW",
       isOfflineWork: false,
       workAddress: "",
       workLat: undefined,
@@ -73,6 +79,12 @@ export function OrderCreateForm({ categories }: { categories: CategoryOption[] }
   useEffect(() => {
     form.setValue("subcategoryId", "");
   }, [categoryId, form]);
+
+  useEffect(() => {
+    if (moderateAllNewOrders) {
+      form.setValue("initialStatus", "ON_MODERATION");
+    }
+  }, [moderateAllNewOrders, form]);
 
   function onSubmit(values: CreateOrderInput) {
     startTransition(async () => {
@@ -201,17 +213,23 @@ export function OrderCreateForm({ categories }: { categories: CategoryOption[] }
               </select>
             </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="initialStatus">Стартовый статус</Label>
-            <select
-              id="initialStatus"
-              className="flex h-10 w-full rounded-md border border-neutral-300 bg-transparent px-3 text-sm dark:border-neutral-700"
-              {...form.register("initialStatus")}
-            >
-              <option value="NEW">Новый</option>
-              <option value="ON_MODERATION">На модерации</option>
-            </select>
-          </div>
+          {moderateAllNewOrders ? (
+            <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100">
+              Новые заказы проходят проверку модератором перед публикацией для исполнителей.
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <Label htmlFor="initialStatus">Стартовый статус</Label>
+              <select
+                id="initialStatus"
+                className="flex h-10 w-full rounded-md border border-neutral-300 bg-transparent px-3 text-sm dark:border-neutral-700"
+                {...form.register("initialStatus")}
+              >
+                <option value="NEW">Новый</option>
+                <option value="ON_MODERATION">На модерации</option>
+              </select>
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <input id="urgency" type="checkbox" className="h-4 w-4 rounded border-neutral-300" {...form.register("urgency")} />
             <Label htmlFor="urgency" className="font-normal">
