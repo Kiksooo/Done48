@@ -3,6 +3,7 @@ import {
   ExecutorAccountStatus,
   OrderStatus,
   PaymentStatus,
+  ProposalStatus,
   Role,
   VisibilityType,
 } from "@prisma/client";
@@ -105,6 +106,47 @@ export async function createUnpaidOrder(params: {
     data: { chatId: chat.id, userId: params.customerId },
   });
   return order;
+}
+
+export async function createAssignedOrder(params: {
+  customerId: string;
+  executorId: string;
+  categoryId: string;
+  budgetCents?: number;
+}) {
+  const order = await prisma.order.create({
+    data: {
+      customerId: params.customerId,
+      executorId: params.executorId,
+      title: "Vitest assigned order",
+      description: "Vitest",
+      categoryId: params.categoryId,
+      budgetCents: params.budgetCents ?? 5000,
+      budgetType: BudgetType.FIXED,
+      status: OrderStatus.ASSIGNED,
+      visibilityType: VisibilityType.PLATFORM_ASSIGN,
+      paymentStatus: PaymentStatus.UNPAID,
+    },
+  });
+  const chat = await prisma.chat.create({ data: { orderId: order.id } });
+  await prisma.chatMember.createMany({
+    data: [
+      { chatId: chat.id, userId: params.customerId },
+      { chatId: chat.id, userId: params.executorId },
+    ],
+  });
+  return order;
+}
+
+export async function createPendingProposal(params: { orderId: string; executorId: string }) {
+  return prisma.proposal.create({
+    data: {
+      orderId: params.orderId,
+      executorId: params.executorId,
+      status: ProposalStatus.PENDING,
+      message: "Vitest proposal body text",
+    },
+  });
 }
 
 export async function deleteUserCascade(userId: string) {

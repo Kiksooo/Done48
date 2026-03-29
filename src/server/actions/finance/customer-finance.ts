@@ -3,6 +3,7 @@
 import { PaymentStatus, Prisma, Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
+import { isPrismaTransactionConflict } from "@/lib/prisma-errors";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { demoTopUpSchema, reserveOrderSchema } from "@/schemas/finance";
 import { assertOrderWritableByCustomer } from "@/server/orders/access";
@@ -123,7 +124,7 @@ export async function customerReserveOrderAction(raw: unknown): Promise<ActionRe
     if (code === "RESERVE_BLOCKED") {
       return { ok: false, error: "Нельзя зарезервировать для этого статуса" };
     }
-    if (e && typeof e === "object" && "code" in e && (e as { code?: string }).code === "P2034") {
+    if (isPrismaTransactionConflict(e)) {
       return { ok: false, error: "Конфликт при сохранении, попробуйте ещё раз" };
     }
     throw e;

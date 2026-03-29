@@ -3,6 +3,7 @@
 import { NotificationKind, OrderStatus, Prisma, Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
+import { isPrismaTransactionConflict } from "@/lib/prisma-errors";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { createProposalSchema, customerOrderActionSchema } from "@/schemas/order";
 import { assertOrderWritableByExecutor, canExecutorSeePublishedOpen } from "@/server/orders/access";
@@ -77,7 +78,7 @@ export async function executorCreateProposalAction(raw: unknown): Promise<Action
     const msg = e instanceof Error ? e.message : "";
     if (msg === "NO_ORDER") return { ok: false, error: "Отклик недоступен для этого заказа" };
     if (msg === "DUPE") return { ok: false, error: "Вы уже откликались на этот заказ" };
-    if (e && typeof e === "object" && "code" in e && (e as { code?: string }).code === "P2034") {
+    if (isPrismaTransactionConflict(e)) {
       return { ok: false, error: "Конфликт при сохранении, попробуйте ещё раз" };
     }
     throw e;
@@ -152,7 +153,7 @@ export async function executorStartWorkAction(raw: unknown): Promise<ActionResul
     if (msg === "STATE") {
       return { ok: false, error: "Старт работы недоступен для текущего статуса" };
     }
-    if (e && typeof e === "object" && "code" in e && (e as { code?: string }).code === "P2034") {
+    if (isPrismaTransactionConflict(e)) {
       return { ok: false, error: "Конфликт при сохранении, попробуйте ещё раз" };
     }
     throw e;
@@ -228,7 +229,7 @@ export async function executorSubmitWorkAction(raw: unknown): Promise<ActionResu
     if (msg === "STATE") {
       return { ok: false, error: "Сдача недоступна для текущего статуса" };
     }
-    if (e && typeof e === "object" && "code" in e && (e as { code?: string }).code === "P2034") {
+    if (isPrismaTransactionConflict(e)) {
       return { ok: false, error: "Конфликт при сохранении, попробуйте ещё раз" };
     }
     throw e;

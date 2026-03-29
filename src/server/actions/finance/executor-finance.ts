@@ -3,6 +3,7 @@
 import { PayoutStatus, Prisma, Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
+import { isPrismaTransactionConflict } from "@/lib/prisma-errors";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { payoutRequestSchema } from "@/schemas/finance";
 import type { ActionResult } from "@/server/actions/orders/create-order";
@@ -67,7 +68,7 @@ export async function executorRequestPayoutAction(raw: unknown): Promise<ActionR
           "Недостаточно доступных средств (холд, баланс и незавершённые заявки на вывод)",
       };
     }
-    if (e && typeof e === "object" && "code" in e && (e as { code?: string }).code === "P2034") {
+    if (isPrismaTransactionConflict(e)) {
       return { ok: false, error: "Конфликт при сохранении, попробуйте ещё раз" };
     }
     throw e;

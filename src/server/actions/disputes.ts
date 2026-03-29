@@ -9,6 +9,7 @@ import {
 } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
+import { isPrismaTransactionConflict } from "@/lib/prisma-errors";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { writeAuditLog } from "@/server/audit/log";
 import { appendStatusHistory } from "@/server/orders/status";
@@ -121,7 +122,7 @@ export async function openDisputeAction(raw: unknown): Promise<ActionResult> {
     if (msg === "ORDER_STATE") {
       return { ok: false, error: "Статус заказа изменился, обновите страницу" };
     }
-    if (e && typeof e === "object" && "code" in e && (e as { code?: string }).code === "P2034") {
+    if (isPrismaTransactionConflict(e)) {
       return { ok: false, error: "Конфликт при сохранении, попробуйте ещё раз" };
     }
     throw e;

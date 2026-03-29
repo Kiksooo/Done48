@@ -40,8 +40,9 @@ export async function getSessionUserForAction(): Promise<SessionUser | null> {
   return base;
 }
 
+/** Для кода, где нужен throw при отсутствии сессии или неактивном пользователе. */
 export async function requireSessionUser() {
-  const user = await getSessionUser();
+  const user = await getSessionUserForAction();
   if (!user) {
     throw new Error("Unauthorized");
   }

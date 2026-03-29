@@ -1,13 +1,12 @@
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth";
-import { dashboardPath, isAppRole } from "@/lib/routes";
+import { getSessionUserForAction } from "@/lib/rbac";
+import { dashboardPath } from "@/lib/routes";
 
 export default async function HomePage() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id || !isAppRole(session.user.role)) {
+  const user = await getSessionUserForAction();
+  if (!user) {
     redirect("/login");
   }
 
-  redirect(dashboardPath(session.user.role, session.user.onboardingDone));
+  redirect(dashboardPath(user.role, user.onboardingDone));
 }

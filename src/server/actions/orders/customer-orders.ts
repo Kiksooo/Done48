@@ -9,6 +9,7 @@ import {
 } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
+import { isPrismaTransactionConflict } from "@/lib/prisma-errors";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { customerOrderActionSchema } from "@/schemas/order";
 import { assertOrderWritableByCustomer } from "@/server/orders/access";
@@ -135,7 +136,7 @@ export async function customerCancelOrderAction(raw: unknown): Promise<ActionRes
     if (msg === "STATE") {
       return { ok: false, error: "Заказ уже обновлён, обновите страницу" };
     }
-    if (e && typeof e === "object" && "code" in e && (e as { code?: string }).code === "P2034") {
+    if (isPrismaTransactionConflict(e)) {
       return { ok: false, error: "Конфликт при сохранении, попробуйте ещё раз" };
     }
     throw e;
@@ -257,7 +258,7 @@ export async function customerAcceptWorkAction(raw: unknown): Promise<ActionResu
         error: "Не удалось провести списание (проверьте резерв и статус)",
       };
     }
-    if (e && typeof e === "object" && "code" in e && (e as { code?: string }).code === "P2034") {
+    if (isPrismaTransactionConflict(e)) {
       return { ok: false, error: "Конфликт при сохранении, попробуйте ещё раз" };
     }
     throw e;
@@ -326,7 +327,7 @@ export async function customerRequestRevisionAction(raw: unknown): Promise<Actio
     if (msg === "STATE") {
       return { ok: false, error: "Доработка недоступна для текущего статуса" };
     }
-    if (e && typeof e === "object" && "code" in e && (e as { code?: string }).code === "P2034") {
+    if (isPrismaTransactionConflict(e)) {
       return { ok: false, error: "Конфликт при сохранении, попробуйте ещё раз" };
     }
     throw e;

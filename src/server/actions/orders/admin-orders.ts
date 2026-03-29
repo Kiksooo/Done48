@@ -22,6 +22,7 @@ import {
   createNotificationsForUsers,
   notifySafe,
 } from "@/server/notifications/service";
+import { isPrismaTransactionConflict } from "@/lib/prisma-errors";
 import { writeAuditLog } from "@/server/audit/log";
 import type { ActionResult } from "./create-order";
 
@@ -29,10 +30,6 @@ async function requireAdmin() {
   const user = await getSessionUserForAction();
   if (!user || user.role !== Role.ADMIN) return null;
   return user;
-}
-
-function isPrismaConflict(e: unknown) {
-  return e && typeof e === "object" && "code" in e && (e as { code?: string }).code === "P2034";
 }
 
 export async function adminPublishOrder(orderId: string): Promise<ActionResult> {
@@ -86,7 +83,7 @@ export async function adminPublishOrder(orderId: string): Promise<ActionResult> 
     if (msg === "BAD_STATUS" || msg === "STATE") {
       return { ok: false, error: "Публикация недоступна для текущего статуса" };
     }
-    if (isPrismaConflict(e)) {
+    if (isPrismaTransactionConflict(e)) {
       return { ok: false, error: "Конфликт при сохранении, попробуйте ещё раз" };
     }
     throw e;
@@ -245,7 +242,7 @@ export async function adminAssignExecutorAction(
     if (msg === "BAD_STATUS" || msg === "STATE") {
       return { ok: false, error: "Назначение недоступно для текущего статуса" };
     }
-    if (isPrismaConflict(e)) {
+    if (isPrismaTransactionConflict(e)) {
       return { ok: false, error: "Конфликт при сохранении, попробуйте ещё раз" };
     }
     throw e;
@@ -330,7 +327,7 @@ export async function adminSetOrderStatusAction(raw: unknown): Promise<ActionRes
     if (msg === "STATE") {
       return { ok: false, error: "Статус заказа уже изменён, обновите страницу" };
     }
-    if (isPrismaConflict(e)) {
+    if (isPrismaTransactionConflict(e)) {
       return { ok: false, error: "Конфликт при сохранении, попробуйте ещё раз" };
     }
     throw e;
@@ -501,7 +498,7 @@ export async function adminAcceptProposalAction(raw: unknown): Promise<ActionRes
     if (msg === "ORDER_BAD" || msg === "ORDER_STATE") {
       return { ok: false, error: "Назначение по отклику недоступно" };
     }
-    if (isPrismaConflict(e)) {
+    if (isPrismaTransactionConflict(e)) {
       return { ok: false, error: "Конфликт при сохранении, попробуйте ещё раз" };
     }
     throw e;

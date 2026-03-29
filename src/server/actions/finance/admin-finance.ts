@@ -3,6 +3,7 @@
 import { NotificationKind, PayoutStatus, Prisma, Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
+import { isPrismaTransactionConflict } from "@/lib/prisma-errors";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { adminPayoutActionSchema } from "@/schemas/finance";
 import type { ActionResult } from "@/server/actions/orders/create-order";
@@ -139,7 +140,7 @@ export async function adminMarkPayoutPaidAction(raw: unknown): Promise<ActionRes
     if (msg === "PROFILE_RACE" || msg === "PAYOUT_RACE") {
       return { ok: false, error: "Данные изменились, обновите страницу и попробуйте снова" };
     }
-    if (e && typeof e === "object" && "code" in e && (e as { code?: string }).code === "P2034") {
+    if (isPrismaTransactionConflict(e)) {
       return { ok: false, error: "Конфликт при сохранении, попробуйте ещё раз" };
     }
     throw e;
