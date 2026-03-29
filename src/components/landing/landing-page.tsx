@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { LandingHeader } from "@/components/landing/landing-header";
 import { Button } from "@/components/ui/button";
+import { SITE_EMAIL_INFO } from "@/lib/site-contact";
 import { cn } from "@/lib/utils";
 
 const categories = [
@@ -485,6 +486,14 @@ export function LandingPage() {
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
               Маркетплейс микро-услуг: заказчики и исполнители в одной экосистеме с балансом, чатом и модерацией.
             </p>
+            <p className="mt-3 text-sm">
+              <a
+                href={`mailto:${SITE_EMAIL_INFO}`}
+                className="font-medium text-primary underline-offset-4 hover:underline"
+              >
+                {SITE_EMAIL_INFO}
+              </a>
+            </p>
           </div>
           <div className="flex flex-col gap-6 sm:items-end sm:text-right">
             <nav className="flex flex-wrap gap-x-8 gap-y-2 text-sm font-medium" aria-label="Нижняя навигация">
@@ -497,6 +506,12 @@ export function LandingPage() {
               <a href="#how" className="text-muted-foreground transition-colors hover:text-foreground">
                 Как работает
               </a>
+              <Link href="/legal/terms" className="text-muted-foreground transition-colors hover:text-foreground">
+                Условия
+              </Link>
+              <Link href="/legal/privacy" className="text-muted-foreground transition-colors hover:text-foreground">
+                Конфиденциальность
+              </Link>
             </nav>
             <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} DONE48</p>
           </div>

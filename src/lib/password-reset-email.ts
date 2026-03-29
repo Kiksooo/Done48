@@ -1,13 +1,15 @@
+import { SITE_EMAIL_INFO } from "@/lib/site-contact";
+
 /**
- * Отправка ссылки сброса пароля. В проде задайте RESEND_API_KEY и EMAIL_FROM (например onboarding@resend.dev).
+ * Отправка ссылки сброса пароля. Нужен RESEND_API_KEY; EMAIL_FROM по умолчанию — info@done48.ru (домен должен быть подтверждён в Resend).
  */
 export async function sendPasswordResetEmail(to: string, resetUrl: string): Promise<boolean> {
   const key = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM;
-  if (!key || !from) {
+  const from = process.env.EMAIL_FROM?.trim() || `DONE48 <${SITE_EMAIL_INFO}>`;
+  if (!key) {
     if (process.env.NODE_ENV === "development") {
       // eslint-disable-next-line no-console
-      console.warn("[password-reset] Письмо не отправлено (нет RESEND_API_KEY). Ссылка:", resetUrl);
+      console.warn("[password-reset] Нет RESEND_API_KEY. Ссылка сброса:", resetUrl);
     }
     return false;
   }

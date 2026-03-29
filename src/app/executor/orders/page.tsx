@@ -35,9 +35,16 @@ export default async function ExecutorOrdersPage() {
             {rows.map((o) => (
               <tr key={o.id} className="border-b border-neutral-100 dark:border-neutral-900">
                 <td className="px-3 py-2">
-                  <Link href={`/orders/${o.id}`} className="font-medium hover:underline">
-                    {o.title}
-                  </Link>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Link href={`/orders/${o.id}`} className="font-medium hover:underline">
+                      {o.title}
+                    </Link>
+                    {o.isOfflineWork ? (
+                      <span className="shrink-0 rounded-md bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-900 dark:bg-amber-950/50 dark:text-amber-200">
+                        Выезд
+                      </span>
+                    ) : null}
+                  </div>
                 </td>
                 <td className="px-3 py-2">{formatMoneyFromCents(o.budgetCents)}</td>
                 <td className="px-3 py-2">

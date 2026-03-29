@@ -45,6 +45,12 @@ export async function createOrderAction(raw: unknown): Promise<ActionResult<{ or
     data.initialStatus === "ON_MODERATION" ? OrderStatus.ON_MODERATION : OrderStatus.NEW;
 
   const orderId = await prisma.$transaction(async (tx) => {
+    const offline = Boolean(data.isOfflineWork);
+    const workLat = offline && data.workLat != null ? data.workLat : null;
+    const workLng = offline && data.workLng != null ? data.workLng : null;
+    const workAddress =
+      offline && data.workAddress && data.workAddress.length > 0 ? data.workAddress : null;
+
     const order = await tx.order.create({
       data: {
         customerId: user.id,
@@ -59,6 +65,10 @@ export async function createOrderAction(raw: unknown): Promise<ActionResult<{ or
         status,
         visibilityType: data.visibilityType,
         executorRequirements: data.executorRequirements ?? undefined,
+        isOfflineWork: offline,
+        workAddress,
+        workLat,
+        workLng,
       },
     });
 

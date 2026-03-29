@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BudgetType, VisibilityType } from "@prisma/client";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useTransition } from "react";
@@ -11,8 +12,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { DEFAULT_MAP_LAT, DEFAULT_MAP_LNG } from "@/lib/geo-defaults";
 import { createOrderSchema, type CreateOrderInput } from "@/schemas/order";
 import { createOrderAction } from "@/server/actions/orders/create-order";
+
+const WorkLocationPicker = dynamic(
+  () =>
+    import("@/components/maps/work-location-picker").then((m) => ({
+      default: m.WorkLocationPicker,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[280px] animate-pulse rounded-lg bg-neutral-100 dark:bg-neutral-800" />
+    ),
+  },
+);
 
 export type CategoryOption = {
   id: string;
@@ -38,10 +53,18 @@ export function OrderCreateForm({ categories }: { categories: CategoryOption[] }
       visibilityType: VisibilityType.OPEN_FOR_RESPONSES,
       executorRequirements: "",
       initialStatus: "NEW",
+      isOfflineWork: false,
+      workAddress: "",
+      workLat: undefined,
+      workLng: undefined,
     },
   });
 
   const categoryId = form.watch("categoryId");
+  const isOfflineWork = form.watch("isOfflineWork");
+  const workLat = form.watch("workLat");
+  const workLng = form.watch("workLng");
+
   const subs = useMemo(() => {
     const c = categories.find((x) => x.id === categoryId);
     return c?.subcategories ?? [];
@@ -199,6 +222,70 @@ export function OrderCreateForm({ categories }: { categories: CategoryOption[] }
             <Label htmlFor="executorRequirements">Требования к исполнителю</Label>
             <Textarea id="executorRequirements" {...form.register("executorRequirements")} />
           </div>
+
+          <div className="space-y-3 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
+            <div className="flex items-start gap-2">
+              <input
+                id="isOfflineWork"
+                type="checkbox"
+                className="mt-1 h-4 w-4 rounded border-neutral-300"
+                checked={isOfflineWork}
+                onChange={(e) => {
+                  const v = e.target.checked;
+                  form.setValue("isOfflineWork", v, { shouldValidate: true });
+                  if (v) {
+                    const lat = form.getValues("workLat");
+                    const lng = form.getValues("workLng");
+                    if (lat == null || lng == null) {
+                      form.setValue("workLat", DEFAULT_MAP_LAT, { shouldValidate: true });
+                      form.setValue("workLng", DEFAULT_MAP_LNG, { shouldValidate: true });
+                    }
+                  } else {
+                    form.setValue("workLat", undefined, { shouldValidate: true });
+                    form.setValue("workLng", undefined, { shouldValidate: true });
+                    form.setValue("workAddress", "", { shouldValidate: true });
+                  }
+                }}
+              />
+              <div>
+                <Label htmlFor="isOfflineWork" className="font-medium">
+                  Задача с выездом (офлайн)
+                </Label>
+                <p className="mt-1 text-xs text-neutral-500">
+                  Укажите на карте, где нужно выполнить работу или встретиться — так исполнителю проще оценить
+                  логистику.
+                </p>
+              </div>
+            </div>
+            {isOfflineWork ? (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="workAddress">Адрес или ориентир (необязательно)</Label>
+                  <Input
+                    id="workAddress"
+                    placeholder="Например: м. Технопарк, БЦ «Сириус», подъезд 2"
+                    {...form.register("workAddress")}
+                  />
+                </div>
+                {workLat != null && workLng != null ? (
+                  <WorkLocationPicker
+                    lat={workLat}
+                    lng={workLng}
+                    onChange={(lat, lng) => {
+                      form.setValue("workLat", lat, { shouldValidate: true });
+                      form.setValue("workLng", lng, { shouldValidate: true });
+                    }}
+                  />
+                ) : null}
+                {form.formState.errors.workLat ? (
+                  <p className="text-sm text-red-600" role="alert">
+                    {form.formState.errors.workLat.message}
+                  </p>
+                ) : null}
+              </>
+            ) : null}
+          </div>
+
           <div className="flex flex-wrap gap-3">
             <Button type="submit" disabled={pending}>
               {pending ? "Создание…" : "Создать заказ"}

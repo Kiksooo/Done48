@@ -3,7 +3,13 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { dashboardPath, isAppRole, roleMatchesCabinet } from "@/lib/routes";
 
-const PUBLIC_PREFIXES = ["/login", "/register", "/forgot-password", "/reset-password"];
+const PUBLIC_PREFIXES = [
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/legal",
+];
 
 function isPublicPath(pathname: string): boolean {
   if (PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {

@@ -31,13 +31,20 @@ export default async function ExecutorAvailableOrdersPage() {
               <Link href={`/orders/${o.id}`} className="text-base font-medium hover:underline">
                 {o.title}
               </Link>
-              <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-                {o.category.name}
-                {o.subcategory ? ` · ${o.subcategory.name}` : ""} ·{" "}
-                {formatMoneyFromCents(o.budgetCents)} · дедлайн {formatDateTime(o.deadlineAt)}
-                {o.customer.customerProfile?.city
-                  ? ` · город: ${o.customer.customerProfile.city}`
-                  : ""}
+              <p className="mt-1 flex flex-wrap items-center gap-x-1 gap-y-1 text-sm text-neutral-600 dark:text-neutral-400">
+                <span>
+                  {o.category.name}
+                  {o.subcategory ? ` · ${o.subcategory.name}` : ""} ·{" "}
+                  {formatMoneyFromCents(o.budgetCents)} · дедлайн {formatDateTime(o.deadlineAt)}
+                  {o.customer.customerProfile?.city
+                    ? ` · город: ${o.customer.customerProfile.city}`
+                    : ""}
+                </span>
+                {o.isOfflineWork ? (
+                  <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-900 dark:bg-amber-950/50 dark:text-amber-200">
+                    Выезд
+                  </span>
+                ) : null}
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-2">

@@ -82,6 +82,17 @@ export function RegisterForm() {
               <p className="text-sm text-red-600">{state.fieldErrors.role[0]}</p>
             )}
           </div>
+          <p className="text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+            Нажимая «Зарегистрироваться», вы принимаете{" "}
+            <Link href="/legal/terms" className="font-medium text-neutral-900 underline underline-offset-2 dark:text-neutral-100">
+              пользовательское соглашение
+            </Link>{" "}
+            и{" "}
+            <Link href="/legal/privacy" className="font-medium text-neutral-900 underline underline-offset-2 dark:text-neutral-100">
+              политику конфиденциальности
+            </Link>
+            .
+          </p>
           <SubmitButton />
           <p className="text-center text-sm text-neutral-600 dark:text-neutral-400">
             Уже есть аккаунт?{" "}

@@ -261,6 +261,12 @@ model Order {
 
   executorRequirements String? @db.Text
 
+  /// Задача с выездом / на месте у заказчика — координаты для карты
+  isOfflineWork   Boolean  @default(false)
+  workAddress     String?  @db.Text
+  workLat         Float?
+  workLng         Float?
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

@@ -1,4 +1,5 @@
 import { OrderStatus, type Role } from "@prisma/client";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { OrderChat } from "@/components/orders/order-chat";
@@ -22,6 +23,19 @@ import { prisma } from "@/lib/db";
 import { getDisputeOpenFlagsForOrder } from "@/server/queries/disputes";
 import { reviewerAvatarUrl, reviewerDisplayName } from "@/lib/review-display";
 import { findReviewByOrderAndAuthor, listReviewsForOrder } from "@/server/queries/reviews";
+
+const OrderLocationMap = dynamic(
+  () =>
+    import("@/components/maps/order-location-map").then((m) => ({
+      default: m.OrderLocationMap,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-60 animate-pulse rounded-lg bg-neutral-100 dark:bg-neutral-800" />
+    ),
+  },
+);
 
 export default async function OrderPage({ params }: { params: { id: string } }) {
   const { id } = params;
@@ -221,6 +235,24 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
             </>
           ) : null}
         </section>
+
+        {order.isOfflineWork ? (
+          <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
+            <h2 className="text-sm font-semibold">Место выполнения (офлайн)</h2>
+            {order.workAddress ? (
+              <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">{order.workAddress}</p>
+            ) : null}
+            {order.workLat != null && order.workLng != null ? (
+              <div className={order.workAddress ? "mt-4" : "mt-2"}>
+                <OrderLocationMap lat={order.workLat} lng={order.workLng} />
+              </div>
+            ) : (
+              <p className="mt-2 text-sm text-neutral-500">
+                Точка на карте не указана — уточните адрес в чате с заказчиком.
+              </p>
+            )}
+          </section>
+        ) : null}
 
         <OrderReviewsSection
           orderId={order.id}
