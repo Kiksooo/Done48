@@ -33,10 +33,3 @@ export async function sendPasswordResetEmail(to: string, resetUrl: string): Prom
     return false;
   }
 }
-
-export function appBaseUrl(): string {
-  const u = process.env.NEXTAUTH_URL?.trim();
-  if (u) return u.replace(/\/$/, "");
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL.replace(/\/$/, "")}`;
-  return "http://localhost:3000";
-}

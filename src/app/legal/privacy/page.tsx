@@ -5,6 +5,7 @@ import { SITE_EMAIL_INFO } from "@/lib/site-contact";
 export const metadata: Metadata = {
   title: "Политика конфиденциальности — DONE48",
   description: "Обработка персональных данных пользователей сервиса DONE48.",
+  alternates: { canonical: "/legal/privacy" },
 };
 
 export default function PrivacyPage() {

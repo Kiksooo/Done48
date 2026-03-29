@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Юридическая информация — DONE48",
+  description: "Документы и правила сервиса DONE48.",
+  alternates: { canonical: "/legal" },
+};
 
 export default function LegalIndexPage() {
   return (

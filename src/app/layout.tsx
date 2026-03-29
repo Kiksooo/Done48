@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
-
-export const dynamic = "force-dynamic";
 import localFont from "next/font/local";
 import { YandexMetrika } from "@/components/analytics/yandex-metrika";
 import { AppProviders } from "@/components/providers/app-providers";
+import { SITE_SEO_DESCRIPTION, SITE_SEO_KEYWORDS, SITE_SEO_TITLE } from "@/lib/site-seo";
+import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
+
+export const dynamic = "force-dynamic";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -17,10 +19,31 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
+const siteUrl = getSiteUrl();
+
 export const metadata: Metadata = {
-  title: "DONE48 — маркетплейс микро-услуг для заказчиков и исполнителей",
-  description:
-    "DONE48: публикуйте задачи или находите заказы, ведите сделки в кабинете с балансом и статусами — единый цикл сделки на одной платформе.",
+  metadataBase: new URL(siteUrl),
+  title: SITE_SEO_TITLE,
+  description: SITE_SEO_DESCRIPTION,
+  keywords: SITE_SEO_KEYWORDS,
+  authors: [{ name: "DONE48" }],
+  creator: "DONE48",
+  openGraph: {
+    type: "website",
+    locale: "ru_RU",
+    siteName: "DONE48",
+    title: SITE_SEO_TITLE,
+    description: SITE_SEO_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_SEO_TITLE,
+    description: SITE_SEO_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

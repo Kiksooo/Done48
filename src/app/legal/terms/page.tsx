@@ -5,6 +5,7 @@ import { SITE_EMAIL_INFO } from "@/lib/site-contact";
 export const metadata: Metadata = {
   title: "Пользовательское соглашение — DONE48",
   description: "Условия использования сервиса DONE48 и правила площадки.",
+  alternates: { canonical: "/legal/terms" },
 };
 
 export default function TermsPage() {

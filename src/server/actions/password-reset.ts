@@ -4,7 +4,8 @@ import crypto from "node:crypto";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { forgotPasswordSchema, resetPasswordSchema } from "@/schemas/auth";
-import { appBaseUrl, sendPasswordResetEmail } from "@/lib/password-reset-email";
+import { sendPasswordResetEmail } from "@/lib/password-reset-email";
+import { appBaseUrl } from "@/lib/site-url";
 
 const TOKEN_TTL_MS = 60 * 60 * 1000;
 

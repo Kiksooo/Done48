@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { LandingHeader } from "@/components/landing/landing-header";
 import { landingNavLinks } from "@/components/landing/nav-data";
+import { LandingJsonLd } from "@/components/seo/landing-json-ld";
 import { Button } from "@/components/ui/button";
 import { SITE_EMAIL_INFO } from "@/lib/site-contact";
 import { cn } from "@/lib/utils";
@@ -143,6 +144,7 @@ function SectionEyebrow({ children, className }: { children: ReactNode; classNam
 export function LandingPage() {
   return (
     <div className="landing-page-theme min-h-screen bg-background text-foreground">
+      <LandingJsonLd />
       <LandingHeader />
 
       <main>
