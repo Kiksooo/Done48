@@ -18,6 +18,7 @@ import {
   Zap,
 } from "lucide-react";
 import { LandingHeader } from "@/components/landing/landing-header";
+import { landingNavLinks } from "@/components/landing/nav-data";
 import { Button } from "@/components/ui/button";
 import { SITE_EMAIL_INFO } from "@/lib/site-contact";
 import { cn } from "@/lib/utils";
@@ -503,9 +504,16 @@ export function LandingPage() {
               <Link href="/register" className="text-muted-foreground transition-colors hover:text-foreground">
                 Регистрация
               </Link>
-              <a href="#how" className="text-muted-foreground transition-colors hover:text-foreground">
-                Как работает
-              </a>
+              {landingNavLinks.map((l) => (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  title={l.hint}
+                  className="text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  {l.label}
+                </a>
+              ))}
               <Link href="/legal/terms" className="text-muted-foreground transition-colors hover:text-foreground">
                 Условия
               </Link>

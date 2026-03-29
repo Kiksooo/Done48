@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,10 @@ const mobileNavTop = "top-[3.75rem] sm:top-16";
 
 function LandingMobileNavPanel({ onClose }: { onClose: () => void }) {
   return (
-    <nav className="mx-auto max-w-7xl space-y-1 px-4 py-4" aria-label="Меню на мобильном">
+    <nav
+      className="mx-auto max-w-7xl space-y-1 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+      aria-label="Меню на мобильном"
+    >
       {landingNavLinks.map((l) => (
         <a
           key={l.href}
@@ -38,6 +41,7 @@ function LandingMobileNavPanel({ onClose }: { onClose: () => void }) {
 export function LandingHeader() {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -50,7 +54,25 @@ export function LandingHeader() {
     };
   }, [open]);
 
-  const close = () => setOpen(false);
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setOpen(false);
+        requestAnimationFrame(() => menuButtonRef.current?.focus());
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
+
+  const close = useCallback(() => setOpen(false), []);
+
+  const closeOverlay = useCallback(() => {
+    setOpen(false);
+    requestAnimationFrame(() => menuButtonRef.current?.focus());
+  }, []);
 
   return (
     <Fragment>
@@ -96,6 +118,7 @@ export function LandingHeader() {
               <Link href="/register">Регистрация</Link>
             </Button>
             <Button
+              ref={menuButtonRef}
               type="button"
               variant="ghost"
               size="sm"
@@ -121,12 +144,12 @@ export function LandingHeader() {
                   mobileNavTop,
                 )}
                 aria-label="Закрыть меню"
-                onClick={close}
+                onClick={closeOverlay}
               />
               <div
                 id="landing-mobile-nav"
                 className={cn(
-                  "fixed inset-x-0 z-[105] max-h-[min(85dvh,calc(100dvh-3.75rem))] overflow-y-auto border-b border-border/50 bg-card shadow-2xl md:hidden sm:max-h-[min(85dvh,calc(100dvh-4rem))]",
+                  "fixed inset-x-0 z-[105] max-h-[min(85dvh,calc(100dvh-3.75rem))] overflow-y-auto rounded-b-3xl border-b border-border/50 bg-card shadow-2xl md:hidden sm:max-h-[min(85dvh,calc(100dvh-4rem))]",
                   "motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-2 duration-200",
                   mobileNavTop,
                 )}
