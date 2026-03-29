@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 import localFont from "next/font/local";
+import { YandexMetrika } from "@/components/analytics/yandex-metrika";
 import { AppProviders } from "@/components/providers/app-providers";
 import "./globals.css";
 
@@ -17,8 +18,9 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "DONE48",
-  description: "Платформа микро-услуг — внутренний MVP",
+  title: "DONE48 — маркетплейс микро-услуг для заказчиков и исполнителей",
+  description:
+    "DONE48: публикуйте задачи или находите заказы, ведите сделки в кабинете с балансом и статусами. Удобно как на Fiverr, заточено под ваш процесс.",
 };
 
 export default function RootLayout({
@@ -28,7 +30,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru">
-      <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen font-sans antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} font-sans`}>
+        <YandexMetrika />
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

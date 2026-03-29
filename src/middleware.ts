@@ -30,7 +30,7 @@ export async function middleware(request: NextRequest) {
 
   if (pathname === "/") {
     if (!token) {
-      return NextResponse.redirect(new URL("/login", request.url));
+      return NextResponse.next();
     }
     const role = token.role;
     const onboardingDone = Boolean(token.onboardingDone);

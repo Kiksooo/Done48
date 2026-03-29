@@ -3,24 +3,55 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f3f6fb;
+  --foreground: #0a0f1a;
+  --card: #ffffff;
+  --card-foreground: #0a0f1a;
+  --muted: #e8edf5;
+  --muted-foreground: #5a6578;
+  --border: #d8e0eb;
+  --primary: #0b7dd4;
+  --primary-foreground: #ffffff;
+  --ring: #0b7dd4;
+  --radius: 0.75rem;
+  --elevated: 0 1px 2px rgb(10 15 26 / 0.04), 0 12px 32px -8px rgb(10 15 26 / 0.1);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #06080d;
+    --foreground: #eef1f7;
+    --card: #0f131a;
+    --card-foreground: #eef1f7;
+    --muted: #161c26;
+    --muted-foreground: #94a0b8;
+    --border: #252d3a;
+    --primary: #3ba3f5;
+    --primary-foreground: #030712;
+    --ring: #3ba3f5;
+    --elevated: 0 1px 2px rgb(0 0 0 / 0.35), 0 16px 40px -12px rgb(0 0 0 / 0.45);
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply min-h-screen bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  ::selection {
+    color: var(--foreground);
+    background-color: color-mix(in srgb, var(--primary) 22%, transparent);
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  .shadow-elevated {
+    box-shadow: var(--elevated);
   }
 }

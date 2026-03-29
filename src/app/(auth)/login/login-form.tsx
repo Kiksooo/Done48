@@ -91,9 +91,9 @@ export function LoginForm() {
           <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting ? "Вход…" : "Войти"}
           </Button>
-          <p className="text-center text-sm text-neutral-600 dark:text-neutral-400">
+          <p className="text-center text-sm text-muted-foreground">
             Нет аккаунта?{" "}
-            <Link href="/register" className="font-medium text-neutral-900 underline dark:text-neutral-100">
+            <Link href="/register" className="font-medium text-primary underline-offset-4 hover:underline">
               Регистрация
             </Link>
           </p>
