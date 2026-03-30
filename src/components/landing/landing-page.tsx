@@ -13,6 +13,7 @@ import {
   Search,
   Shield,
   Sparkles,
+  Wrench,
   Users,
   Wallet,
   Zap,
@@ -29,6 +30,7 @@ const categories = [
   { icon: PenLine, title: "Тексты и контент", desc: "Копирайт, статьи, сценарии, редактура" },
   { icon: Code2, title: "Разработка и техника", desc: "Скрипты, правки сайта, мелкие задачи по коду" },
   { icon: Megaphone, title: "Маркетинг и SMM", desc: "Креативы, воронки, настройка рекламы" },
+  { icon: Wrench, title: "Бытовые услуги", desc: "Уборка, сантехнические работы, сборка мебели и мелкий ремонт" },
 ];
 
 const forCustomers = [
@@ -175,6 +177,10 @@ export function LandingPage() {
               <p className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl opacity-0 animate-fade-up [animation-delay:200ms]">
                 Здесь можно спокойно опубликовать запрос или откликнуться, переписываться по делу и не гадать, где лежат
                 статусы и цифры — мы собрали это в одном месте, чтобы вам было проще.
+                <span className="mt-3 block">
+                  Помимо IT: уборка квартиры, сантехнические работы, сборка мебели и другие бытовые задачи — всё превращается в понятный
+                  заказ и закрывается по статусам.
+                </span>
               </p>
 
               <div className="mt-5 flex flex-wrap gap-2 opacity-0 animate-fade-up [animation-delay:240ms]">
@@ -222,7 +228,7 @@ export function LandingPage() {
                   <div className="flex items-center gap-3 rounded-2xl bg-muted/50 px-4 py-3.5">
                     <Search className="h-5 w-5 shrink-0 text-primary" aria-hidden />
                     <span className="text-sm text-muted-foreground">
-                      Например: лендинг за выходные, обложка подкаста, мелкий текст…
+                      Например: лендинг за выходные, уборка квартиры, замена смесителя, обложка подкаста, мелкий текст…
                     </span>
                   </div>
                 </div>
