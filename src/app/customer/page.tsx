@@ -6,8 +6,8 @@ import {
   DashboardQuickLink,
   DashboardSectionTitle,
   DashboardStatTile,
-  DashboardWelcome,
 } from "@/components/cabinet/dashboard-ui";
+import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
 import { Button } from "@/components/ui/button";
 import { formatMoneyFromCents } from "@/lib/format";
 import { getSessionUserForAction } from "@/lib/rbac";
@@ -37,9 +37,10 @@ export default async function CustomerHomePage() {
 
   return (
     <div className="space-y-10">
-      <DashboardWelcome
-        greeting={`Здравствуйте, ${name}`}
-        subtitle="Здесь сводка по заказам, быстрый доступ к созданию задачи и разделам кабинета. Все сделки ведите в статусах карточки заказа — так проще отслеживать оплату и работу."
+      <CabinetPageHeader
+        breadcrumbs={[{ label: "Дашборд" }]}
+        title={`Здравствуйте, ${name}`}
+        description="Сводка по заказам и быстрый доступ к разделам. Ведите сделки в статусах карточки заказа — так проще отслеживать оплату и работу."
         action={
           <Button asChild size="lg" className="w-full sm:w-auto">
             <Link href="/customer/orders/new">

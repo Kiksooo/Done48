@@ -1,5 +1,6 @@
 import { Role } from "@prisma/client";
 import { redirect } from "next/navigation";
+import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { prisma } from "@/lib/db";
 import { listTransactionsForUser } from "@/server/queries/finance";
@@ -19,28 +20,29 @@ export default async function CustomerBalancePage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Баланс и оплаты</h1>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Пополнение и вывод (демо), безопасные сделки: сумма блокируется на площадке до приёмки работы, затем уходит
-          исполнителю (за вычетом комиссии) — и история операций.
-        </p>
-      </div>
+      <CabinetPageHeader
+        breadcrumbs={[
+          { label: "Дашборд", href: "/customer" },
+          { label: "Баланс" },
+        ]}
+        title="Баланс и оплаты"
+        description="Пополнение и вывод (демо). Безопасная сделка: сумма удерживается до приёмки работы, затем уходит исполнителю (за вычетом комиссии). Ниже — история операций."
+      />
 
-      <div className="rounded-lg border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-950">
-        <p className="text-sm text-neutral-500">Текущий баланс</p>
-        <p className="mt-1 text-3xl font-semibold">
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+        <p className="text-sm text-muted-foreground">Текущий баланс</p>
+        <p className="mt-1 text-3xl font-semibold tracking-tight text-foreground">
           {formatMoneyFromCents(profile?.balanceCents ?? 0)}
         </p>
-        <div className="mt-6 space-y-8 border-t border-neutral-100 pt-6 dark:border-neutral-900">
+        <div className="mt-6 space-y-8 border-t border-border pt-6">
           <div>
-            <h2 className="text-sm font-semibold">Пополнение</h2>
+            <h2 className="text-sm font-semibold text-foreground">Пополнение</h2>
             <div className="mt-3">
               <CustomerTopUpForm />
             </div>
           </div>
           <div>
-            <h2 className="text-sm font-semibold">Вывод средств</h2>
+            <h2 className="text-sm font-semibold text-foreground">Вывод средств</h2>
             <div className="mt-3">
               <CustomerWithdrawForm />
             </div>
@@ -49,10 +51,10 @@ export default async function CustomerBalancePage() {
       </div>
 
       <div>
-        <h2 className="text-sm font-semibold">История операций</h2>
-        <div className="mt-3 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">История операций</h2>
+        <div className="mt-3 overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
           <table className="w-full min-w-[640px] text-left text-sm">
-            <thead className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/40">
+            <thead className="border-b border-border bg-muted/40">
               <tr>
                 <th className="px-3 py-2">Дата</th>
                 <th className="px-3 py-2">Тип</th>
@@ -62,11 +64,11 @@ export default async function CustomerBalancePage() {
             </thead>
             <tbody>
               {txs.map((t) => (
-                <tr key={t.id} className="border-b border-neutral-100 dark:border-neutral-900">
-                  <td className="px-3 py-2 text-neutral-600">{formatDateTime(t.createdAt)}</td>
+                <tr key={t.id} className="border-b border-border/80 last:border-0">
+                  <td className="px-3 py-2 text-muted-foreground">{formatDateTime(t.createdAt)}</td>
                   <td className="px-3 py-2">{TRANSACTION_TYPE_LABELS[t.type]}</td>
                   <td className="px-3 py-2 font-medium">{formatMoneyFromCents(t.amountCents, t.currency)}</td>
-                  <td className="px-3 py-2 text-neutral-600">
+                  <td className="px-3 py-2 text-muted-foreground">
                     {t.order ? t.order.title.slice(0, 40) : "—"}
                   </td>
                 </tr>
@@ -74,7 +76,7 @@ export default async function CustomerBalancePage() {
             </tbody>
           </table>
           {txs.length === 0 ? (
-            <p className="p-4 text-sm text-neutral-500">Операций пока нет.</p>
+            <p className="p-4 text-sm text-muted-foreground">Операций пока нет.</p>
           ) : null}
         </div>
       </div>

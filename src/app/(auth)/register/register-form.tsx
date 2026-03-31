@@ -3,7 +3,7 @@
 import { useFormState, useFormStatus } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,7 @@ export function RegisterForm({ referralCode }: { referralCode?: string }) {
     registerUser,
     undefined,
   );
+  const [landingTaskHint, setLandingTaskHint] = useState<string | null>(null);
 
   useEffect(() => {
     if (state?.ok) {
@@ -32,11 +33,28 @@ export function RegisterForm({ referralCode }: { referralCode?: string }) {
     }
   }, [state, router]);
 
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("done48.landingTaskHint");
+      if (raw?.trim()) {
+        setLandingTaskHint(raw.trim());
+        sessionStorage.removeItem("done48.landingTaskHint");
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Регистрация</CardTitle>
         <CardDescription>Заказчик или исполнитель. Админов добавляет только платформа.</CardDescription>
+        {landingTaskHint ? (
+          <p className="mt-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-foreground">
+            С главной вы искали: «{landingTaskHint}». После регистрации перенесите это в описание заказа или в отклик.
+          </p>
+        ) : null}
       </CardHeader>
       <CardContent>
         <form className="space-y-4" action={formAction}>

@@ -3,7 +3,9 @@ import Link from "next/link";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { Role } from "@prisma/client";
+import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
+import { Button } from "@/components/ui/button";
 import { formatDateTime, formatMoneyFromCents } from "@/lib/format";
 import { listOrdersForCustomer } from "@/server/queries/orders";
 import { cn } from "@/lib/utils";
@@ -32,20 +34,19 @@ export default async function CustomerOrdersPage({ searchParams }: { searchParam
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Мои заказы</h1>
-          <p className="text-sm text-neutral-600 dark:text-neutral-400">
-            Переход к карточке заказа — общий экран для всех ролей.
-          </p>
-        </div>
-        <Link
-          href="/customer/orders/new"
-          className="inline-flex h-10 items-center justify-center rounded-md bg-neutral-900 px-4 text-sm font-medium text-white hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200"
-        >
-          Создать заказ
-        </Link>
-      </div>
+      <CabinetPageHeader
+        breadcrumbs={[
+          { label: "Дашборд", href: "/customer" },
+          { label: "Мои заказы" },
+        ]}
+        title="Мои заказы"
+        description="Карточка заказа открывается для всех ролей участников — статусы, чат и оплата в одном месте."
+        action={
+          <Button asChild className="w-full sm:w-auto">
+            <Link href="/customer/orders/new">Создать заказ</Link>
+          </Button>
+        }
+      />
 
       <div className="flex flex-wrap gap-2">
         {FILTERS.map((f) => (
@@ -53,10 +54,10 @@ export default async function CustomerOrdersPage({ searchParams }: { searchParam
             key={f.key}
             href={f.key === "all" ? "/customer/orders" : `/customer/orders?filter=${f.key}`}
             className={cn(
-              "rounded-full border px-3 py-1 text-sm",
+              "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
               filter === f.key
-                ? "border-neutral-900 bg-neutral-900 text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-900"
-                : "border-neutral-300 text-neutral-700 hover:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-900",
+                ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:bg-muted/60 hover:text-foreground",
             )}
           >
             {f.label}
@@ -64,9 +65,9 @@ export default async function CustomerOrdersPage({ searchParams }: { searchParam
         ))}
       </div>
 
-      <div className="hidden overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800 md:block">
+      <div className="hidden overflow-x-auto rounded-xl border border-border bg-card shadow-sm md:block">
         <table className="w-full min-w-[720px] text-left text-sm">
-          <thead className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/40">
+          <thead className="border-b border-border bg-muted/40">
             <tr>
               <th className="px-4 py-3 font-medium">ID</th>
               <th className="px-4 py-3 font-medium">Название</th>
@@ -79,32 +80,30 @@ export default async function CustomerOrdersPage({ searchParams }: { searchParam
           </thead>
           <tbody>
             {rows.map((o) => (
-              <tr key={o.id} className="border-b border-neutral-100 dark:border-neutral-900">
+              <tr key={o.id} className="border-b border-border/80 last:border-0">
                 <td className="px-4 py-3 font-mono text-xs">
-                  <Link href={`/orders/${o.id}`} className="text-neutral-900 underline dark:text-neutral-100">
+                  <Link href={`/orders/${o.id}`} className="text-primary underline-offset-2 hover:underline">
                     {o.publicId.slice(0, 8)}…
                   </Link>
                 </td>
                 <td className="px-4 py-3">
-                  <Link href={`/orders/${o.id}`} className="font-medium hover:underline">
+                  <Link href={`/orders/${o.id}`} className="font-medium text-foreground hover:underline">
                     {o.title}
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-neutral-600 dark:text-neutral-400">
-                  {o.executor?.email ?? "—"}
-                </td>
+                <td className="px-4 py-3 text-muted-foreground">{o.executor?.email ?? "—"}</td>
                 <td className="px-4 py-3">{formatMoneyFromCents(o.budgetCents, o.currency)}</td>
                 <td className="px-4 py-3">
                   <OrderStatusBadge status={o.status} />
                 </td>
-                <td className="px-4 py-3 text-neutral-600">{formatDateTime(o.deadlineAt)}</td>
-                <td className="px-4 py-3 text-neutral-600">{formatDateTime(o.updatedAt)}</td>
+                <td className="px-4 py-3 text-muted-foreground">{formatDateTime(o.deadlineAt)}</td>
+                <td className="px-4 py-3 text-muted-foreground">{formatDateTime(o.updatedAt)}</td>
               </tr>
             ))}
           </tbody>
         </table>
         {rows.length === 0 ? (
-          <p className="p-6 text-sm text-neutral-500">Нет заказов в этой выборке.</p>
+          <p className="p-6 text-sm text-muted-foreground">Нет заказов в этой выборке.</p>
         ) : null}
       </div>
 
@@ -113,18 +112,18 @@ export default async function CustomerOrdersPage({ searchParams }: { searchParam
           <Link
             key={o.id}
             href={`/orders/${o.id}`}
-            className="block rounded-lg border border-neutral-200 p-4 dark:border-neutral-800"
+            className="block rounded-xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md"
           >
             <div className="flex items-start justify-between gap-2">
-              <h2 className="font-medium">{o.title}</h2>
+              <h2 className="font-medium text-foreground">{o.title}</h2>
               <OrderStatusBadge status={o.status} />
             </div>
-            <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+            <p className="mt-1 text-sm text-muted-foreground">
               {formatMoneyFromCents(o.budgetCents)} · {formatDateTime(o.deadlineAt)}
             </p>
           </Link>
         ))}
-        {rows.length === 0 ? <p className="text-sm text-neutral-500">Нет заказов.</p> : null}
+        {rows.length === 0 ? <p className="text-sm text-muted-foreground">Нет заказов.</p> : null}
       </div>
     </div>
   );

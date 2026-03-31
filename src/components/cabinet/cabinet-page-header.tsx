@@ -1,0 +1,51 @@
+import Link from "next/link";
+import type { ReactNode } from "react";
+import { ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+export type CabinetBreadcrumb = { label: string; href?: string };
+
+type Props = {
+  title: string;
+  description?: ReactNode;
+  breadcrumbs?: CabinetBreadcrumb[];
+  action?: ReactNode;
+  className?: string;
+};
+
+/**
+ * Верх страницы кабинета: «крошки», заголовок и опциональное действие справа.
+ */
+export function CabinetPageHeader({ title, description, breadcrumbs, action, className }: Props) {
+  return (
+    <div className={cn("mb-8 border-b border-border/80 pb-6", className)}>
+      {breadcrumbs?.length ? (
+        <nav className="mb-3 flex flex-wrap items-center gap-x-1 gap-y-1 text-xs text-muted-foreground" aria-label="Навигация">
+          {breadcrumbs.map((b, i) => (
+            <span key={`${b.label}-${i}`} className="inline-flex items-center gap-1">
+              {i > 0 ? <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-45" aria-hidden /> : null}
+              {b.href ? (
+                <Link href={b.href} className="transition-colors hover:text-foreground">
+                  {b.label}
+                </Link>
+              ) : (
+                <span className="font-medium text-foreground/90">{b.label}</span>
+              )}
+            </span>
+          ))}
+        </nav>
+      ) : null}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">{title}</h1>
+          {description != null && description !== "" ? (
+            <div className="mt-2 max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">
+              {description}
+            </div>
+          ) : null}
+        </div>
+        {action ? <div className="shrink-0 sm:pt-0.5">{action}</div> : null}
+      </div>
+    </div>
+  );
+}

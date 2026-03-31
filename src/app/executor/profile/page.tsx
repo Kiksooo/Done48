@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
 import { ExecutorProfileForm } from "@/components/profile/executor-profile-form";
 import { ReferralCard } from "@/components/profile/referral-card";
 import { ProfileReviewsSection } from "@/components/reviews/profile-reviews-section";
@@ -26,30 +27,32 @@ export default async function ExecutorProfilePage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Профиль исполнителя</h1>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Публичные поля профиля и контакты. Одобрение анкеты — в админ-панели (статус «Активен» для откликов).
+      <CabinetPageHeader
+        breadcrumbs={[
+          { label: "Дашборд", href: "/executor" },
+          { label: "Профиль" },
+        ]}
+        title="Профиль исполнителя"
+        description="Публичные поля профиля и контакты. Одобрение анкеты — в админ-панели (статус «Активен» для откликов)."
+      />
+      {profile.username ? (
+        <p className="text-sm text-muted-foreground">
+          Публичная страница:{" "}
+          <Link
+            href={`/u/${profile.username}`}
+            className="font-mono font-medium text-primary underline-offset-2 hover:underline"
+            target="_blank"
+            rel="noreferrer"
+          >
+            /u/{profile.username}
+          </Link>{" "}
+          <span className="text-muted-foreground/90">(видна без входа, если аккаунт ACTIVE)</span>
         </p>
-        {profile.username ? (
-          <p className="mt-2 text-sm">
-            <span className="text-neutral-600 dark:text-neutral-400">Публичная страница: </span>
-            <Link
-              href={`/u/${profile.username}`}
-              className="font-mono text-neutral-900 underline dark:text-neutral-100"
-              target="_blank"
-              rel="noreferrer"
-            >
-              /u/{profile.username}
-            </Link>
-            <span className="text-neutral-500"> (видна без входа, если аккаунт ACTIVE)</span>
-          </p>
-        ) : (
-          <p className="mt-2 text-sm text-amber-800 dark:text-amber-200">
-            Укажите username, чтобы получить публичную страницу портфолио.
-          </p>
-        )}
-      </div>
+      ) : (
+        <p className="text-sm text-amber-800 dark:text-amber-200">
+          Укажите username, чтобы получить публичную страницу портфолио.
+        </p>
+      )}
       <ExecutorProfileForm
         initial={{
           displayName: profile.displayName,

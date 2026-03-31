@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
+import { Button } from "@/components/ui/button";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { Role } from "@prisma/client";
@@ -14,24 +16,26 @@ export default async function ExecutorAvailableOrdersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Доступные заказы</h1>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Опубликованные заказы с открытыми откликами
-        </p>
-      </div>
+      <CabinetPageHeader
+        breadcrumbs={[
+          { label: "Дашборд", href: "/executor" },
+          { label: "Доступные заказы" },
+        ]}
+        title="Доступные заказы"
+        description="Опубликованные задачи с открытыми откликами — откройте карточку, чтобы предложить условия."
+      />
 
       <div className="space-y-3">
         {rows.map((o) => (
           <div
             key={o.id}
-            className="flex flex-col gap-2 rounded-lg border border-neutral-200 p-4 dark:border-neutral-800 sm:flex-row sm:items-center sm:justify-between"
+            className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
           >
             <div>
-              <Link href={`/orders/${o.id}`} className="text-base font-medium hover:underline">
+              <Link href={`/orders/${o.id}`} className="text-base font-medium text-foreground hover:underline">
                 {o.title}
               </Link>
-              <p className="mt-1 flex flex-wrap items-center gap-x-1 gap-y-1 text-sm text-neutral-600 dark:text-neutral-400">
+              <p className="mt-1 flex flex-wrap items-center gap-x-1 gap-y-1 text-sm text-muted-foreground">
                 <span>
                   {o.category.name}
                   {o.subcategory ? ` · ${o.subcategory.name}` : ""} ·{" "}
@@ -49,17 +53,14 @@ export default async function ExecutorAvailableOrdersPage() {
             </div>
             <div className="flex shrink-0 items-center gap-2">
               <OrderStatusBadge status={o.status} />
-              <Link
-                href={`/orders/${o.id}`}
-                className="rounded-md border border-neutral-300 px-3 py-1.5 text-sm hover:bg-neutral-50 dark:border-neutral-600 dark:hover:bg-neutral-900"
-              >
-                Открыть
-              </Link>
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/orders/${o.id}`}>Открыть</Link>
+              </Button>
             </div>
           </div>
         ))}
         {rows.length === 0 ? (
-          <p className="text-sm text-neutral-500">Сейчас нет доступных заказов для отклика.</p>
+          <p className="text-sm text-muted-foreground">Сейчас нет доступных заказов для отклика.</p>
         ) : null}
       </div>
     </div>

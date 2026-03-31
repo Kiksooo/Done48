@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
+  Banknote,
   Briefcase,
   CheckCircle2,
   Code2,
@@ -10,15 +11,16 @@ import {
   MessageSquare,
   Palette,
   PenLine,
-  Search,
   Shield,
-  Sparkles,
+  ShieldCheck,
+  Star,
   Wrench,
   Users,
   Wallet,
   Zap,
 } from "lucide-react";
 import { LandingHeader } from "@/components/landing/landing-header";
+import { LandingHeroSearch } from "@/components/landing/landing-hero-search";
 import { landingNavLinks } from "@/components/landing/nav-data";
 import { LandingJsonLd } from "@/components/seo/landing-json-ld";
 import { Button } from "@/components/ui/button";
@@ -75,6 +77,30 @@ const highlights = [
   { icon: Layers, label: "Один заказ — одна история", sub: "статусы и детали не теряются" },
   { icon: MessageSquare, label: "Пишите по делу", sub: "чат привязан к заказу, контекст всегда с вами" },
   { icon: Wallet, label: "Баланс наглядно", sub: "видно, что куда ушло — без таблиц на коленке" },
+];
+
+/** Короткие опоры доверия в духе маркетплейсов: ясно и без лишней «воды». */
+const marketplaceBenefits = [
+  {
+    icon: MessageSquare,
+    title: "Исполнители откликнутся сами",
+    text: "Опишите задачу — подходящие люди пришлют условия, сроки и детали.",
+  },
+  {
+    icon: Banknote,
+    title: "Сравните предложения",
+    text: "Несколько откликов рядом: проще выбрать по цене и ощущению «своего» человека.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Порядок на площадке",
+    text: "Статусы заказа, модерация и поддержка — по правилам сервиса, не наобум.",
+  },
+  {
+    icon: Star,
+    title: "Отзывы после сделки",
+    text: "Оценка по завершённой работе помогает отличить надёжных исполнителей.",
+  },
 ];
 
 function HeroPreview() {
@@ -151,90 +177,100 @@ export function LandingPage() {
       <LandingHeader />
 
       <main>
-        <section className="relative isolate overflow-hidden border-b border-border/50">
-          <div className="landing-mesh absolute inset-0" aria-hidden />
-          <div className="landing-grid absolute inset-0 opacity-70 dark:opacity-40" aria-hidden />
+        <section className="relative isolate overflow-hidden border-b border-border/50 bg-background">
+          <div className="landing-mesh absolute inset-0 opacity-[0.55] dark:opacity-40" aria-hidden />
+          <div className="landing-grid absolute inset-0 opacity-50 dark:opacity-25" aria-hidden />
           <div
-            className="pointer-events-none absolute -left-32 top-1/4 h-72 w-72 rounded-full bg-primary/20 blur-[100px] dark:bg-primary/25"
+            className="pointer-events-none absolute -left-32 top-1/4 h-64 w-64 rounded-full bg-primary/15 blur-[100px] dark:bg-primary/20"
             aria-hidden
           />
           <div
-            className="pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-primary/10 blur-[90px] dark:bg-primary/15"
+            className="pointer-events-none absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-primary/8 blur-[90px] dark:bg-primary/12"
             aria-hidden
           />
 
-          <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-14 sm:px-6 sm:pb-28 sm:pt-20 lg:grid lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-16 lg:px-10 lg:pb-32 lg:pt-24">
-            <div>
-              <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-4 py-2 text-sm font-medium text-primary shadow-sm opacity-0 animate-fade-up [animation-delay:80ms]">
-                <Sparkles className="h-4 w-4 shrink-0" aria-hidden />
-                Рады видеть вас — микро-задачи и фриланс без лишней суеты
-              </p>
-              <h1 className="text-balance text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.35rem] xl:text-[3.65rem] opacity-0 animate-fade-up [animation-delay:140ms]">
-                Нужен человек на задачу? Или вы сами хотите помочь?{" "}
-                <span className="bg-gradient-to-r from-primary via-sky-500 to-primary bg-clip-text text-transparent dark:from-sky-400 dark:via-primary dark:to-sky-300">
-                  Всё встречается в одном уютном кабинете
-                </span>
-              </h1>
-              <p className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl opacity-0 animate-fade-up [animation-delay:200ms]">
-                Здесь можно спокойно опубликовать запрос или откликнуться, переписываться по делу и не гадать, где лежат
-                статусы и цифры — мы собрали это в одном месте, чтобы вам было проще.
-                <span className="mt-3 block">
-                  Помимо IT: уборка квартиры, сантехнические работы, сборка мебели и другие бытовые задачи — всё превращается в понятный
-                  заказ и закрывается по статусам.
-                </span>
-              </p>
+          <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-12 sm:px-6 sm:pb-24 sm:pt-16 lg:px-10 lg:pb-28 lg:pt-20">
+            <div className="lg:grid lg:grid-cols-[1.08fr_0.92fr] lg:items-start lg:gap-14 xl:gap-16">
+              <div>
+                <h1 className="text-balance text-4xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl lg:text-[2.75rem] xl:text-[3.15rem] opacity-0 animate-fade-up [animation-delay:60ms]">
+                  Быстрый поиск исполнителей под вашу задачу
+                </h1>
+                <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl opacity-0 animate-fade-up [animation-delay:120ms]">
+                  Опишите, что нужно сделать, — и перейдите в кабинет: оформите заказ как заказчик или откликайтесь как исполнитель.
+                  Онлайн-задачи и выезд — в одной логике статусов и переписки.
+                </p>
 
-              <div className="mt-5 flex flex-wrap gap-2 opacity-0 animate-fade-up [animation-delay:240ms]">
-                {["Заказы", "Отклики", "Чат", "Баланс", "Помощь"].map((t) => (
-                  <span
-                    key={t}
-                    className="rounded-full bg-card/90 px-3.5 py-1.5 text-xs font-medium text-muted-foreground shadow-sm ring-1 ring-border/50"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
+                <div className="mt-8 opacity-0 animate-fade-up [animation-delay:180ms]">
+                  <LandingHeroSearch />
+                </div>
 
-              <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center opacity-0 animate-fade-up [animation-delay:280ms]">
-                <Button size="lg" className="h-12 gap-2 rounded-full px-8 text-base shadow-glow" asChild>
-                  <Link href="/register">
-                    Хочу заказать работу
-                    <ArrowRight className="h-4 w-4" aria-hidden />
+                <p className="mt-4 text-sm text-muted-foreground opacity-0 animate-fade-up [animation-delay:220ms]">
+                  Регистрация бесплатно. Уже с нами?{" "}
+                  <Link href="/login" className="font-semibold text-primary underline-offset-4 hover:underline">
+                    Войти
                   </Link>
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-12 rounded-full border-border/80 bg-card/60 px-8 text-base"
-                  asChild
+                </p>
+
+                <div
+                  id="benefits"
+                  className="scroll-mt-24 mt-10 opacity-0 animate-fade-up [animation-delay:260ms] sm:scroll-mt-28"
                 >
-                  <Link href="/register">
-                    <Briefcase className="h-4 w-4" aria-hidden />
-                    Хочу выполнять задачи
-                  </Link>
-                </Button>
-              </div>
-              <p className="mt-6 text-sm text-muted-foreground opacity-0 animate-fade-up [animation-delay:320ms]">
-                Возвращаетесь к нам?{" "}
-                <Link href="/login" className="font-semibold text-primary underline-offset-4 hover:underline">
-                  Войти
-                </Link>
-              </p>
-            </div>
+                  <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 lg:gap-5 xl:grid-cols-4">
+                    {marketplaceBenefits.map(({ icon: Icon, title, text }) => (
+                      <li
+                        key={title}
+                        className="rounded-2xl border border-border/70 bg-card/90 p-4 shadow-sm transition-[border-color,box-shadow] hover:border-primary/20 hover:shadow-md"
+                      >
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                          <Icon className="h-5 w-5" aria-hidden />
+                        </div>
+                        <h2 className="mt-3 text-sm font-semibold leading-snug text-foreground">{title}</h2>
+                        <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{text}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-            <div className="relative mt-16 opacity-0 animate-fade-up [animation-delay:360ms] lg:mt-0">
-              <HeroPreview />
-              <div className="mx-auto mt-8 max-w-xl lg:mx-0 lg:max-w-md">
-                <div className="rounded-[1.35rem] border border-border/60 bg-card/80 p-2 shadow-sm backdrop-blur-md">
-                  <div className="flex items-center gap-3 rounded-2xl bg-muted/50 px-4 py-3.5">
-                    <Search className="h-5 w-5 shrink-0 text-primary" aria-hidden />
-                    <span className="text-sm text-muted-foreground">
-                      Например: лендинг за выходные, уборка квартиры, замена смесителя, обложка подкаста, мелкий текст…
-                    </span>
+                <div className="mt-6 opacity-0 animate-fade-up [animation-delay:300ms]">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Популярные типы задач</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {categories.map((c) => (
+                      <a
+                        key={c.title}
+                        href="#categories"
+                        className="rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-muted-foreground shadow-sm transition-colors hover:border-primary/35 hover:bg-primary/5 hover:text-primary"
+                      >
+                        {c.title}
+                      </a>
+                    ))}
                   </div>
                 </div>
-                <p className="mt-3 text-center text-xs text-muted-foreground lg:text-left">
-                  Зарегистрируйтесь — и можно сразу создавать заказы или смотреть витрину задач.
+
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center opacity-0 animate-fade-up [animation-delay:340ms]">
+                  <Button size="lg" className="h-12 gap-2 rounded-full px-8 text-base shadow-glow" asChild>
+                    <Link href="/register">
+                      Разместить задачу
+                      <ArrowRight className="h-4 w-4" aria-hidden />
+                    </Link>
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="h-12 rounded-full border-border/80 bg-card/80 px-8 text-base"
+                    asChild
+                  >
+                    <Link href="/register">
+                      <Briefcase className="h-4 w-4" aria-hidden />
+                      Стать исполнителем
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+
+              <div className="relative mt-14 opacity-0 animate-fade-up [animation-delay:380ms] lg:mt-4">
+                <HeroPreview />
+                <p className="mx-auto mt-6 max-w-md text-center text-xs text-muted-foreground lg:mx-0 lg:text-left">
+                  Так выглядит карточка заказа: отклики, статус и следующий шаг — на одном экране.
                 </p>
               </div>
             </div>
@@ -352,7 +388,7 @@ export function LandingPage() {
                     key={s.step}
                     className="relative rounded-[1.35rem] border border-border/60 bg-card/90 p-6 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md lg:text-center"
                   >
-                    <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-sky-600 text-sm font-bold text-white shadow-md dark:to-sky-500 lg:mx-auto">
+                    <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-primary text-sm font-bold text-primary-foreground shadow-md lg:mx-auto">
                       {s.step}
                     </span>
                     {i < steps.length - 1 ? (

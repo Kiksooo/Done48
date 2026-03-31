@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { Role } from "@prisma/client";
+import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { formatDateTime, formatMoneyFromCents } from "@/lib/format";
 import { listMyExecutorOrders } from "@/server/queries/orders";
@@ -14,16 +15,18 @@ export default async function ExecutorOrdersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Мои заказы</h1>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Назначенные вам задачи и их статусы
-        </p>
-      </div>
+      <CabinetPageHeader
+        breadcrumbs={[
+          { label: "Дашборд", href: "/executor" },
+          { label: "Мои заказы" },
+        ]}
+        title="Мои заказы"
+        description="Задачи, где вы назначены исполнителем: статусы, дедлайны и переход в карточку заказа."
+      />
 
-      <div className="overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
+      <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
         <table className="w-full min-w-[640px] text-left text-sm">
-          <thead className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/40">
+          <thead className="border-b border-border bg-muted/40">
             <tr>
               <th className="px-3 py-2 font-medium">Заказ</th>
               <th className="px-3 py-2 font-medium">Бюджет</th>
@@ -33,10 +36,10 @@ export default async function ExecutorOrdersPage() {
           </thead>
           <tbody>
             {rows.map((o) => (
-              <tr key={o.id} className="border-b border-neutral-100 dark:border-neutral-900">
+              <tr key={o.id} className="border-b border-border/80 last:border-0">
                 <td className="px-3 py-2">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Link href={`/orders/${o.id}`} className="font-medium hover:underline">
+                    <Link href={`/orders/${o.id}`} className="font-medium text-foreground hover:underline">
                       {o.title}
                     </Link>
                     {o.isOfflineWork ? (
@@ -50,13 +53,13 @@ export default async function ExecutorOrdersPage() {
                 <td className="px-3 py-2">
                   <OrderStatusBadge status={o.status} />
                 </td>
-                <td className="px-3 py-2 text-neutral-600">{formatDateTime(o.deadlineAt)}</td>
+                <td className="px-3 py-2 text-muted-foreground">{formatDateTime(o.deadlineAt)}</td>
               </tr>
             ))}
           </tbody>
         </table>
         {rows.length === 0 ? (
-          <p className="p-4 text-sm text-neutral-500">Пока нет назначенных заказов.</p>
+          <p className="p-4 text-sm text-muted-foreground">Пока нет назначенных заказов.</p>
         ) : null}
       </div>
     </div>

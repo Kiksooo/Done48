@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function DashboardWelcome({
@@ -13,9 +14,9 @@ export function DashboardWelcome({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-border bg-gradient-to-br from-primary/[0.07] via-card to-card px-5 py-6 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-7">
+    <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card px-5 py-6 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-7">
       <div className="min-w-0">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">{greeting}</h1>
+        <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">{greeting}</h2>
         <p className="mt-2 max-w-2xl text-pretty text-sm text-muted-foreground sm:text-base">{subtitle}</p>
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
@@ -35,7 +36,7 @@ export function DashboardStatTile({
   sublabel?: string;
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md">
+    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md">
       <div className="flex items-start gap-3">
         <div
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"
@@ -68,22 +69,28 @@ export function DashboardQuickLink({
     <Link
       href={href}
       className={cn(
-        "flex gap-4 rounded-xl border border-border bg-card p-4 text-left shadow-sm transition-all",
-        "hover:border-primary/30 hover:bg-primary/[0.04] hover:shadow-md",
+        "group flex items-start gap-3 rounded-2xl border border-border bg-card p-4 text-left shadow-sm transition-all",
+        "hover:border-primary/25 hover:bg-primary/[0.03] hover:shadow-md",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
       )}
     >
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-muted text-foreground">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground">
         <Icon className="h-5 w-5" aria-hidden />
       </div>
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <p className="font-semibold text-foreground">{title}</p>
         <p className="mt-1 text-sm leading-snug text-muted-foreground">{description}</p>
       </div>
+      <ChevronRight
+        className="mt-1 h-5 w-5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 sm:opacity-60"
+        aria-hidden
+      />
     </Link>
   );
 }
 
 export function DashboardSectionTitle({ children }: { children: ReactNode }) {
-  return <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{children}</h2>;
+  return (
+    <h2 className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">{children}</h2>
+  );
 }

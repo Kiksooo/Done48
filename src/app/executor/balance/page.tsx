@@ -1,5 +1,6 @@
 import { Role } from "@prisma/client";
 import { redirect } from "next/navigation";
+import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { prisma } from "@/lib/db";
 import { listTransactionsForUser } from "@/server/queries/finance";
@@ -21,35 +22,37 @@ export default async function ExecutorBalancePage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Баланс и выплаты</h1>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Холд после принятых заказов и заявки на вывод (подтверждает админ)
-        </p>
-      </div>
+      <CabinetPageHeader
+        breadcrumbs={[
+          { label: "Дашборд", href: "/executor" },
+          { label: "Баланс" },
+        ]}
+        title="Баланс и выплаты"
+        description="Холд после принятых заказов и заявки на вывод (подтверждает администратор)."
+      />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-          <p className="text-sm text-neutral-500">Баланс (учёт)</p>
-          <p className="mt-1 text-2xl font-semibold">
+        <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+          <p className="text-sm text-muted-foreground">Баланс (учёт)</p>
+          <p className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
             {formatMoneyFromCents(profile?.balanceCents ?? 0)}
           </p>
         </div>
-        <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-          <p className="text-sm text-neutral-500">В холде</p>
-          <p className="mt-1 text-2xl font-semibold">
+        <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+          <p className="text-sm text-muted-foreground">В холде</p>
+          <p className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
             {formatMoneyFromCents(profile?.heldCents ?? 0)}
           </p>
         </div>
-        <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-          <p className="text-sm text-neutral-500">Мин. вывод</p>
-          <p className="mt-1 text-2xl font-semibold">{minRub.toFixed(0)} ₽</p>
+        <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+          <p className="text-sm text-muted-foreground">Мин. вывод</p>
+          <p className="mt-1 text-2xl font-semibold tracking-tight text-foreground">{minRub.toFixed(0)} ₽</p>
         </div>
       </div>
 
-      <div className="rounded-lg border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-950">
-        <h2 className="text-sm font-semibold">Заявка на вывод</h2>
-        <p className="mt-1 text-xs text-neutral-500">
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+        <h2 className="text-sm font-semibold text-foreground">Заявка на вывод</h2>
+        <p className="mt-1 text-xs text-muted-foreground">
           Сумма не больше доступного (баланс + холд). Админ одобрит и отметит выплату вручную.
         </p>
         <div className="mt-4">
@@ -58,10 +61,10 @@ export default async function ExecutorBalancePage() {
       </div>
 
       <div>
-        <h2 className="text-sm font-semibold">История операций</h2>
-        <div className="mt-3 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">История операций</h2>
+        <div className="mt-3 overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
           <table className="w-full min-w-[640px] text-left text-sm">
-            <thead className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/40">
+            <thead className="border-b border-border bg-muted/40">
               <tr>
                 <th className="px-3 py-2">Дата</th>
                 <th className="px-3 py-2">Тип</th>
@@ -71,11 +74,11 @@ export default async function ExecutorBalancePage() {
             </thead>
             <tbody>
               {txs.map((t) => (
-                <tr key={t.id} className="border-b border-neutral-100 dark:border-neutral-900">
-                  <td className="px-3 py-2 text-neutral-600">{formatDateTime(t.createdAt)}</td>
+                <tr key={t.id} className="border-b border-border/80 last:border-0">
+                  <td className="px-3 py-2 text-muted-foreground">{formatDateTime(t.createdAt)}</td>
                   <td className="px-3 py-2">{TRANSACTION_TYPE_LABELS[t.type]}</td>
                   <td className="px-3 py-2 font-medium">{formatMoneyFromCents(t.amountCents, t.currency)}</td>
-                  <td className="px-3 py-2 text-neutral-600">
+                  <td className="px-3 py-2 text-muted-foreground">
                     {t.order ? t.order.title.slice(0, 40) : "—"}
                   </td>
                 </tr>
@@ -83,7 +86,7 @@ export default async function ExecutorBalancePage() {
             </tbody>
           </table>
           {txs.length === 0 ? (
-            <p className="p-4 text-sm text-neutral-500">Операций пока нет.</p>
+            <p className="p-4 text-sm text-muted-foreground">Операций пока нет.</p>
           ) : null}
         </div>
       </div>

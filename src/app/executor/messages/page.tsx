@@ -1,3 +1,4 @@
+import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
 import { MessagesInboxList } from "@/components/messages/messages-inbox";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { listChatsForInbox } from "@/server/queries/chat-inbox";
@@ -11,12 +12,14 @@ export default async function ExecutorMessagesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Сообщения</h1>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Переписки по заказам, где вы участвуете. Чат — в карточке заказа.
-        </p>
-      </div>
+      <CabinetPageHeader
+        breadcrumbs={[
+          { label: "Дашборд", href: "/executor" },
+          { label: "Сообщения" },
+        ]}
+        title="Сообщения"
+        description="Переписки по заказам, где вы участвуете. Полный чат — в карточке заказа."
+      />
       <MessagesInboxList rows={rows} />
     </div>
   );

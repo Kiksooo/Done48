@@ -6,8 +6,8 @@ import {
   DashboardQuickLink,
   DashboardSectionTitle,
   DashboardStatTile,
-  DashboardWelcome,
 } from "@/components/cabinet/dashboard-ui";
+import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
 import { Button } from "@/components/ui/button";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { executorAccountStatusRu } from "@/lib/executor-labels";
@@ -59,9 +59,10 @@ export default async function ExecutorHomePage() {
 
   return (
     <div className="space-y-10">
-      <DashboardWelcome
-        greeting={`Привет, ${name}`}
-        subtitle="Следите за активными задачами, откликайтесь на подходящие заказы и ведите переписку в чате по сделке. Баланс и выплаты — в отдельном разделе."
+      <CabinetPageHeader
+        breadcrumbs={[{ label: "Дашборд" }]}
+        title={`Привет, ${name}`}
+        description="Активные задачи, отклики на заказы и переписка в чате по сделке. Баланс и выплаты — в отдельном разделе."
         action={
           <Button asChild size="lg" variant="secondary" className="w-full sm:w-auto">
             <Link href="/executor/orders/available">

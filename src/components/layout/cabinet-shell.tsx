@@ -41,7 +41,7 @@ export function CabinetShell({
       profileHref={profileHref}
       helpHref={helpHref}
     >
-      <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
+      <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         {showOnboardingCallout ? (
           <div className="mb-6 rounded-xl border border-amber-200/90 bg-amber-50/90 px-4 py-3 dark:border-amber-900/40 dark:bg-amber-950/30">
             <p className="text-sm font-medium text-amber-950 dark:text-amber-100">

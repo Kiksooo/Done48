@@ -1,3 +1,4 @@
+import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
 import { CustomerProfileForm } from "@/components/profile/customer-profile-form";
 import { ReferralCard } from "@/components/profile/referral-card";
 import { ProfileReviewsSection } from "@/components/reviews/profile-reviews-section";
@@ -25,12 +26,14 @@ export default async function CustomerProfilePage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Профиль заказчика</h1>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Контактные данные и город — исполнители увидят их в карточке заказа.
-        </p>
-      </div>
+      <CabinetPageHeader
+        breadcrumbs={[
+          { label: "Дашборд", href: "/customer" },
+          { label: "Профиль" },
+        ]}
+        title="Профиль заказчика"
+        description="Контактные данные и город — исполнители увидят их в карточке заказа."
+      />
       <CustomerProfileForm
         initial={{
           displayName: profile.displayName,

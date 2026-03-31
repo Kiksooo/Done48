@@ -52,14 +52,12 @@ export function CabinetChrome({
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[17rem] flex-col border-r border-border bg-card/95 shadow-elevated backdrop-blur-md transition-transform dark:bg-card/90 lg:static lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 flex w-[17rem] flex-col border-r border-border bg-card shadow-sm transition-transform lg:static lg:translate-x-0",
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
         )}
       >
-        <div className="flex h-14 items-center justify-between gap-2 border-b border-border px-4">
-          <span className="truncate bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-sm font-semibold tracking-tight text-transparent">
-            {brand}
-          </span>
+        <div className="flex h-14 items-center justify-between gap-2 border-b border-border/90 bg-muted/30 px-4">
+          <span className="truncate text-sm font-semibold tracking-tight text-foreground">{brand}</span>
           <Button
             type="button"
             variant="ghost"
@@ -71,7 +69,7 @@ export function CabinetChrome({
             <X className="h-5 w-5" />
           </Button>
         </div>
-        <nav className="flex-1 space-y-1 overflow-y-auto p-3" aria-label="Основное меню">
+        <nav className="flex-1 space-y-0.5 overflow-y-auto p-3" aria-label="Основное меню">
           {nav.map((item) => {
             const active = isNavActive(pathname, item, nav);
             return (
@@ -79,10 +77,10 @@ export function CabinetChrome({
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-[background,color,box-shadow]",
+                  "relative flex w-full items-center gap-3 rounded-lg py-2.5 pl-3 pr-2 text-sm font-medium transition-colors",
                   active
-                    ? "bg-primary/12 text-primary shadow-sm ring-1 ring-primary/10"
-                    : "text-muted-foreground hover:bg-muted/80 hover:text-foreground",
+                    ? "bg-primary/10 text-primary before:absolute before:left-0 before:top-2 before:bottom-2 before:w-[3px] before:rounded-full before:bg-primary"
+                    : "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
                 )}
               >
                 <NavIcon
@@ -107,11 +105,11 @@ export function CabinetChrome({
             );
           })}
         </nav>
-        <div className="space-y-2 border-t border-border p-3">
+        <div className="space-y-2 border-t border-border/90 bg-muted/20 p-3">
           {profileHref ? (
             <Link
               href={profileHref}
-              className="block text-xs font-medium text-primary hover:underline"
+              className="block rounded-md px-1 py-0.5 text-xs font-medium text-primary hover:underline"
             >
               Профиль
             </Link>
@@ -119,19 +117,19 @@ export function CabinetChrome({
           {helpHref ? (
             <Link
               href={helpHref}
-              className="block text-xs text-muted-foreground transition-colors hover:text-foreground"
+              className="block rounded-md px-1 py-0.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
             >
               Помощь и документы
             </Link>
           ) : null}
-          <p className="truncate text-xs text-muted-foreground" title={userEmail}>
+          <p className="truncate rounded-md border border-border/60 bg-card px-2 py-1.5 text-xs text-muted-foreground" title={userEmail}>
             {userEmail}
           </p>
         </div>
       </aside>
 
       <div className="flex min-h-screen flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border/90 bg-background/95 px-4 backdrop-blur-md supports-[backdrop-filter]:bg-background/80">
           <Button
             type="button"
             variant="ghost"
@@ -149,7 +147,7 @@ export function CabinetChrome({
             <SignOutButton />
           </div>
         </header>
-        <main className="flex-1 bg-muted/25 dark:bg-background">{children}</main>
+        <main className="flex-1 bg-muted/35 dark:bg-background">{children}</main>
       </div>
     </div>
   );

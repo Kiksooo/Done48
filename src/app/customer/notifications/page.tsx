@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
 import { NotificationInbox } from "@/components/notifications/notification-inbox";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { listNotificationsForUser } from "@/server/queries/notifications";
@@ -18,5 +19,17 @@ export default async function CustomerNotificationsPage() {
     createdAt: n.createdAt.toISOString(),
   }));
 
-  return <NotificationInbox items={items} />;
+  return (
+    <div className="space-y-6">
+      <CabinetPageHeader
+        breadcrumbs={[
+          { label: "Дашборд", href: "/customer" },
+          { label: "Уведомления" },
+        ]}
+        title="Уведомления"
+        description="События по заказам и платформе. Отметьте прочитанными или перейдите по ссылке."
+      />
+      <NotificationInbox items={items} hideHeading />
+    </div>
+  );
 }

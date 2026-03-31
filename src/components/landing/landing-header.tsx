@@ -88,7 +88,7 @@ export function LandingHeader() {
             className="group flex min-w-0 items-center gap-2.5 rounded-2xl py-1 pr-2 transition-transform active:scale-[0.98]"
             onClick={close}
           >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-sky-600 text-sm font-bold text-white shadow-md shadow-primary/30 ring-4 ring-primary/15 transition-[transform,box-shadow] group-hover:scale-105 group-hover:shadow-lg dark:to-sky-500">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-md shadow-primary/25 ring-2 ring-primary/20 transition-[transform,box-shadow] group-hover:scale-[1.02] group-hover:shadow-lg">
               D
             </span>
             <span className="truncate text-lg font-bold tracking-tight">DONE48</span>
