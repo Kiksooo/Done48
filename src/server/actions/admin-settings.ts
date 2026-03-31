@@ -23,50 +23,66 @@ export async function adminUpdatePlatformSettingsAction(raw: unknown): Promise<A
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Некорректные данные" };
   }
 
-  const before = await prisma.platformSettings.findUnique({ where: { id: "default" } });
+  let before: Awaited<ReturnType<typeof prisma.platformSettings.findUnique>> | null = null;
+  try {
+    before = await prisma.platformSettings.findUnique({ where: { id: "default" } });
+  } catch {
+    before = null;
+  }
   const minPayoutCents = Math.round(parsed.data.minPayoutRubles * 100);
 
-  await prisma.platformSettings.upsert({
-    where: { id: "default" },
-    create: {
-      id: "default",
-      platformFeePercent: new Prisma.Decimal(parsed.data.platformFeePercent),
-      minPayoutCents,
-      moderateAllNewOrders: parsed.data.moderateAllNewOrders,
-      requireExecutorVerificationForProposals: parsed.data.requireExecutorVerificationForProposals,
-      maxExecutorProposalsPerDay: parsed.data.maxExecutorProposalsPerDay,
-    },
-    update: {
-      platformFeePercent: new Prisma.Decimal(parsed.data.platformFeePercent),
-      minPayoutCents,
-      moderateAllNewOrders: parsed.data.moderateAllNewOrders,
-      requireExecutorVerificationForProposals: parsed.data.requireExecutorVerificationForProposals,
-      maxExecutorProposalsPerDay: parsed.data.maxExecutorProposalsPerDay,
-    },
-  });
+  try {
+    await prisma.platformSettings.upsert({
+      where: { id: "default" },
+      create: {
+        id: "default",
+        platformFeePercent: new Prisma.Decimal(parsed.data.platformFeePercent),
+        minPayoutCents,
+        moderateAllNewOrders: parsed.data.moderateAllNewOrders,
+        requireExecutorVerificationForProposals: parsed.data.requireExecutorVerificationForProposals,
+        maxExecutorProposalsPerDay: parsed.data.maxExecutorProposalsPerDay,
+      },
+      update: {
+        platformFeePercent: new Prisma.Decimal(parsed.data.platformFeePercent),
+        minPayoutCents,
+        moderateAllNewOrders: parsed.data.moderateAllNewOrders,
+        requireExecutorVerificationForProposals: parsed.data.requireExecutorVerificationForProposals,
+        maxExecutorProposalsPerDay: parsed.data.maxExecutorProposalsPerDay,
+      },
+    });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && (e.code === "P2021" || e.code === "P2022")) {
+      return { ok: false, error: "Настройки недоступны: таблица PlatformSettings ещё не создана в БД." };
+    }
+    throw e;
+  }
 
-  await writeAuditLog({
-    actorUserId: admin.id,
-    action: "PLATFORM_SETTINGS_UPDATE",
-    entityType: "PlatformSettings",
-    entityId: "default",
-    oldValue: before
-      ? {
-          platformFeePercent: Number(before.platformFeePercent),
-          minPayoutCents: before.minPayoutCents,
-          moderateAllNewOrders: before.moderateAllNewOrders,
-          requireExecutorVerificationForProposals: before.requireExecutorVerificationForProposals,
-          maxExecutorProposalsPerDay: before.maxExecutorProposalsPerDay,
-        }
-      : null,
-    newValue: {
-      platformFeePercent: parsed.data.platformFeePercent,
-      minPayoutCents,
-      moderateAllNewOrders: parsed.data.moderateAllNewOrders,
-      requireExecutorVerificationForProposals: parsed.data.requireExecutorVerificationForProposals,
-      maxExecutorProposalsPerDay: parsed.data.maxExecutorProposalsPerDay,
-    },
-  });
+  try {
+    await writeAuditLog({
+      actorUserId: admin.id,
+      action: "PLATFORM_SETTINGS_UPDATE",
+      entityType: "PlatformSettings",
+      entityId: "default",
+      oldValue: before
+        ? {
+            platformFeePercent: Number(before.platformFeePercent),
+            minPayoutCents: before.minPayoutCents,
+            moderateAllNewOrders: before.moderateAllNewOrders,
+            requireExecutorVerificationForProposals: before.requireExecutorVerificationForProposals,
+            maxExecutorProposalsPerDay: before.maxExecutorProposalsPerDay,
+          }
+        : null,
+      newValue: {
+        platformFeePercent: parsed.data.platformFeePercent,
+        minPayoutCents,
+        moderateAllNewOrders: parsed.data.moderateAllNewOrders,
+        requireExecutorVerificationForProposals: parsed.data.requireExecutorVerificationForProposals,
+        maxExecutorProposalsPerDay: parsed.data.maxExecutorProposalsPerDay,
+      },
+    });
+  } catch {
+    // Аудит не должен блокировать сохранение настроек.
+  }
 
   revalidatePath("/admin/settings");
   revalidatePath("/admin/audit-logs");
