@@ -252,7 +252,6 @@ export function OrderPanels(props: {
           {snapshot.paymentStatus === "UNPAID" &&
           !["CANCELED", "COMPLETED", "DRAFT"].includes(snapshot.status) ? (
             <div className="mt-3 rounded-md border border-dashed border-amber-300/80 bg-amber-50/50 p-3 dark:border-amber-800 dark:bg-amber-950/20">
-              <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200">Как на Авито</p>
               <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
                 Сумма заказа списывается с вашего баланса и удерживается на площадке. Исполнитель получит деньги только
                 после того, как вы примете работу. До этого средства можно вернуть при отмене заказа без назначенного

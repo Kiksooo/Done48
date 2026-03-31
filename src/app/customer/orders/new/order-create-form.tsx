@@ -5,7 +5,7 @@ import { BudgetType, VisibilityType } from "@prisma/client";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -70,6 +70,10 @@ export function OrderCreateForm({
   const isOfflineWork = form.watch("isOfflineWork");
   const workLat = form.watch("workLat");
   const workLng = form.watch("workLng");
+  const workAddress = form.watch("workAddress");
+  const [isGeocodingAddress, setIsGeocodingAddress] = useState(false);
+  const [addressGeoHint, setAddressGeoHint] = useState<string | null>(null);
+  const addressReqSeqRef = useRef(0);
 
   const subs = useMemo(() => {
     const c = categories.find((x) => x.id === categoryId);
@@ -85,6 +89,63 @@ export function OrderCreateForm({
       form.setValue("initialStatus", "ON_MODERATION");
     }
   }, [moderateAllNewOrders, form]);
+
+  useEffect(() => {
+    if (!isOfflineWork) {
+      setIsGeocodingAddress(false);
+      setAddressGeoHint(null);
+      return;
+    }
+
+    const addr = (workAddress ?? "").trim();
+    if (addr.length < 6) {
+      setIsGeocodingAddress(false);
+      setAddressGeoHint(null);
+      return;
+    }
+
+    const reqSeq = ++addressReqSeqRef.current;
+    const timer = window.setTimeout(async () => {
+      try {
+        setIsGeocodingAddress(true);
+        const params = new URLSearchParams({
+          format: "jsonv2",
+          q: addr,
+          limit: "1",
+          addressdetails: "0",
+        });
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`);
+        if (!res.ok) throw new Error("geocode failed");
+        const rows = (await res.json()) as Array<{ lat: string; lon: string }>;
+        if (addressReqSeqRef.current !== reqSeq) return;
+        const first = rows[0];
+        if (!first) {
+          setAddressGeoHint("Адрес не найден, уточните формулировку или поставьте точку вручную.");
+          return;
+        }
+        const lat = Number(first.lat);
+        const lng = Number(first.lon);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+          setAddressGeoHint("Не удалось распознать координаты, поставьте точку вручную.");
+          return;
+        }
+        form.setValue("workLat", lat, { shouldValidate: true });
+        form.setValue("workLng", lng, { shouldValidate: true });
+        setAddressGeoHint("Точка на карте обновлена по адресу.");
+      } catch {
+        if (addressReqSeqRef.current !== reqSeq) return;
+        setAddressGeoHint("Не удалось определить адрес автоматически. Поставьте точку на карте.");
+      } finally {
+        if (addressReqSeqRef.current === reqSeq) {
+          setIsGeocodingAddress(false);
+        }
+      }
+    }, 700);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [form, isOfflineWork, workAddress]);
 
   function onSubmit(values: CreateOrderInput) {
     startTransition(async () => {
@@ -284,6 +345,11 @@ export function OrderCreateForm({
                     placeholder="Например: м. Технопарк, БЦ «Сириус», подъезд 2"
                     {...form.register("workAddress")}
                   />
+                  {isGeocodingAddress ? (
+                    <p className="text-xs text-neutral-500">Ищем адрес на карте…</p>
+                  ) : addressGeoHint ? (
+                    <p className="text-xs text-neutral-500">{addressGeoHint}</p>
+                  ) : null}
                 </div>
                 {workLat != null && workLng != null ? (
                   <WorkLocationPicker

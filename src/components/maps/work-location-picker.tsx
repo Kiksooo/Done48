@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
+import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { ensureLeafletDefaultIcons } from "./leaflet-icons";
 import "leaflet/dist/leaflet.css";
 
@@ -17,6 +17,14 @@ function MapClickSelect({
       if (!disabled) onSelect(e.latlng.lat, e.latlng.lng);
     },
   });
+  return null;
+}
+
+function MapRecenter({ lat, lng }: { lat: number; lng: number }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView([lat, lng], map.getZoom(), { animate: true });
+  }, [lat, lng, map]);
   return null;
 }
 
@@ -45,6 +53,7 @@ export function WorkLocationPicker(props: {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+          <MapRecenter lat={lat} lng={lng} />
           <MapClickSelect onSelect={onChange} disabled={Boolean(disabled)} />
           <Marker
             position={[lat, lng]}
