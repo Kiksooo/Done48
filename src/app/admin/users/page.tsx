@@ -1,4 +1,4 @@
-import { AdminUserActiveCell } from "@/components/admin/admin-user-active-cell";
+import { AdminUserActionsCell } from "@/components/admin/admin-user-actions-cell";
 import { Badge } from "@/components/ui/badge";
 import { formatDateTime } from "@/lib/format";
 import { listUsersForAdmin } from "@/server/queries/users";
@@ -11,7 +11,7 @@ export default async function AdminUsersPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Пользователи</h1>
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Блокировка отключает вход. Жалобы по заказам — в разделе «Модерация».
+          Блокировка отключает вход. Удаление необратимо: снимаются заказы, где пользователь заказчик, и отклики исполнителя. Учётки администраторов не трогаем.
         </p>
       </div>
 
@@ -44,7 +44,7 @@ export default async function AdminUsersPage() {
                 <td className="px-3 py-2">{u.onboardingDone ? "Да" : "Нет"}</td>
                 <td className="px-3 py-2 text-neutral-600">{formatDateTime(u.createdAt)}</td>
                 <td className="px-3 py-2">
-                  <AdminUserActiveCell userId={u.id} role={u.role} isActive={u.isActive} />
+                  <AdminUserActionsCell userId={u.id} email={u.email} role={u.role} isActive={u.isActive} />
                 </td>
               </tr>
             ))}
