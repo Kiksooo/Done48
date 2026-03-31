@@ -1,7 +1,7 @@
 "use server";
 
 import bcrypt from "bcryptjs";
-import { Role } from "@prisma/client";
+import { Prisma, Role } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { isContactBlocklisted } from "@/lib/contact-blocklist";
 import { registerSchema } from "@/schemas/auth";
@@ -30,38 +30,60 @@ export async function registerUser(
   }
 
   const email = parsed.data.email.toLowerCase();
-  if (await isContactBlocklisted("EMAIL", email)) {
-    return { ok: false, error: "Регистрация с этого адреса недоступна. Свяжитесь с поддержкой, если это ошибка." };
+  let blocked = false;
+  try {
+    blocked = await isContactBlocklisted("EMAIL", email);
+  } catch {
+    // Если таблица блок-листа недоступна, не валим регистрацию целиком.
+    blocked = false;
   }
-
-  const exists = await prisma.user.findUnique({ where: { email } });
-  if (exists) {
-    return { ok: false, error: "Пользователь с таким email уже есть" };
+  if (blocked) {
+    return {
+      ok: false,
+      error: "Регистрация с этого адреса недоступна. Свяжитесь с поддержкой, если это ошибка.",
+    };
   }
+  try {
+    const exists = await prisma.user.findUnique({ where: { email } });
+    if (exists) {
+      return { ok: false, error: "Пользователь с таким email уже есть" };
+    }
 
-  const passwordHash = await bcrypt.hash(parsed.data.password, 12);
-  const role = parsed.data.role as Role;
+    const passwordHash = await bcrypt.hash(parsed.data.password, 12);
+    const role = parsed.data.role as Role;
 
-  await prisma.$transaction(async (tx) => {
-    const user = await tx.user.create({
-      data: {
-        email,
-        passwordHash,
-        role,
-        onboardingDone: false,
-      },
+    await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          email,
+          passwordHash,
+          role,
+          onboardingDone: false,
+        },
+      });
+
+      if (role === Role.CUSTOMER) {
+        await tx.customerProfile.create({
+          data: { userId: user.id, displayName: email.split("@")[0] },
+        });
+      } else {
+        await tx.executorProfile.create({
+          data: { userId: user.id, displayName: email.split("@")[0] },
+        });
+      }
     });
 
-    if (role === Role.CUSTOMER) {
-      await tx.customerProfile.create({
-        data: { userId: user.id, displayName: email.split("@")[0] },
-      });
-    } else {
-      await tx.executorProfile.create({
-        data: { userId: user.id, displayName: email.split("@")[0] },
-      });
+    return { ok: true };
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      return { ok: false, error: "Пользователь с таким email уже есть" };
     }
-  });
-
-  return { ok: true };
+    return {
+      ok: false,
+      error: "Не удалось создать аккаунт. Попробуйте ещё раз через пару минут.",
+    };
+  }
 }
