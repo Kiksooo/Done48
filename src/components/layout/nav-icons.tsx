@@ -9,6 +9,7 @@ import {
   FolderTree,
   Inbox,
   LayoutDashboard,
+  Mail,
   MessageSquare,
   PlusCircle,
   Scale,
@@ -40,6 +41,7 @@ const MAP: Record<NavIconName, LucideIcon> = {
   user: User,
   briefcase: Briefcase,
   search: Search,
+  mail: Mail,
 };
 
 export function NavIcon({ name, className }: { name: NavIconName; className?: string }) {

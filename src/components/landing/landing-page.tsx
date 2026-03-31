@@ -24,7 +24,6 @@ import { LandingHeroSearch } from "@/components/landing/landing-hero-search";
 import { landingNavLinks } from "@/components/landing/nav-data";
 import { LandingJsonLd } from "@/components/seo/landing-json-ld";
 import { Button } from "@/components/ui/button";
-import { FeedbackForm } from "@/components/landing/feedback-form";
 import { SITE_EMAIL_INFO } from "@/lib/site-contact";
 import { cn } from "@/lib/utils";
 
@@ -540,7 +539,10 @@ export function LandingPage() {
                 {SITE_EMAIL_INFO}
               </a>
             </p>
-            <FeedbackForm />
+            <p className="mt-4 text-sm text-muted-foreground">
+              Обратная связь доступна в личном кабинете после входа: раздел{" "}
+              <span className="font-medium text-foreground">«Обратная связь»</span> в меню слева.
+            </p>
           </div>
           <div className="flex flex-col gap-6 sm:items-end sm:text-right">
             <nav className="flex flex-wrap gap-x-8 gap-y-2 text-sm font-medium" aria-label="Нижняя навигация">

@@ -21,7 +21,8 @@ export type NavIconName =
   | "user"
   | "briefcase"
   | "search"
-  | "flag";
+  | "flag"
+  | "mail";
 
 export type CabinetNavItem = {
   href: string;
@@ -54,6 +55,7 @@ export const CUSTOMER_NAV: CabinetNavItem[] = [
   { href: "/customer/messages", label: "Сообщения", icon: "messageSquare" },
   { href: "/customer/balance", label: "Баланс", icon: "wallet" },
   { href: "/customer/profile", label: "Профиль", icon: "user" },
+  { href: "/customer/feedback", label: "Обратная связь", icon: "mail" },
   { href: "/customer/notifications", label: "Уведомления", icon: "bell" },
 ];
 
@@ -65,6 +67,7 @@ export const EXECUTOR_NAV: CabinetNavItem[] = [
   { href: "/executor/portfolio", label: "Портфолио", icon: "folderTree" },
   { href: "/executor/balance", label: "Баланс и выплаты", icon: "banknote" },
   { href: "/executor/messages", label: "Сообщения", icon: "messageSquare" },
+  { href: "/executor/feedback", label: "Обратная связь", icon: "mail" },
   { href: "/executor/notifications", label: "Уведомления", icon: "bell" },
 ];
 
