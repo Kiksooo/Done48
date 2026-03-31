@@ -16,14 +16,19 @@ export type SessionUser = {
 };
 
 export async function getSessionUser(): Promise<SessionUser | null> {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id || !isAppRole(session.user.role)) return null;
-  return {
-    id: session.user.id,
-    email: session.user.email ?? "",
-    role: session.user.role,
-    onboardingDone: session.user.onboardingDone,
-  };
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id || !isAppRole(session.user.role)) return null;
+    return {
+      id: session.user.id,
+      email: session.user.email ?? "",
+      role: session.user.role,
+      onboardingDone: session.user.onboardingDone,
+    };
+  } catch {
+    // Ошибки auth-конфига/secret не должны ронять публичные страницы.
+    return null;
+  }
 }
 
 /**
@@ -32,12 +37,17 @@ export async function getSessionUser(): Promise<SessionUser | null> {
 export async function getSessionUserForAction(): Promise<SessionUser | null> {
   const base = await getSessionUser();
   if (!base) return null;
-  const row = await prisma.user.findUnique({
-    where: { id: base.id },
-    select: { isActive: true },
-  });
-  if (!row?.isActive) return null;
-  return base;
+  try {
+    const row = await prisma.user.findUnique({
+      where: { id: base.id },
+      select: { isActive: true },
+    });
+    if (!row?.isActive) return null;
+    return base;
+  } catch {
+    // Временные ошибки БД не должны ломать рендер публичной части.
+    return null;
+  }
 }
 
 /** Для кода, где нужен throw при отсутствии сессии или неактивном пользователе. */
