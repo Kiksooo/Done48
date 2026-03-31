@@ -22,39 +22,103 @@ async function main() {
     update: {},
   });
 
-  const catDesign = await prisma.category.upsert({
-    where: { slug: "design" },
-    create: { name: "Дизайн", slug: "design", sortOrder: 10 },
-    update: {},
-  });
+  const categories = [
+    {
+      name: "Дизайн",
+      slug: "design",
+      sortOrder: 10,
+      subcategories: [
+        { name: "UI/UX", slug: "ui", sortOrder: 1 },
+        { name: "Логотип и фирстиль", slug: "brand", sortOrder: 2 },
+        { name: "Баннеры и креативы", slug: "banners", sortOrder: 3 },
+      ],
+    },
+    {
+      name: "Разработка",
+      slug: "development",
+      sortOrder: 20,
+      subcategories: [
+        { name: "Сайты и лендинги", slug: "web", sortOrder: 1 },
+        { name: "API и интеграции", slug: "api", sortOrder: 2 },
+        { name: "Боты и автоматизация", slug: "automation", sortOrder: 3 },
+      ],
+    },
+    {
+      name: "Маркетинг и SMM",
+      slug: "marketing",
+      sortOrder: 30,
+      subcategories: [
+        { name: "Таргет и реклама", slug: "ads", sortOrder: 1 },
+        { name: "Контент-план и SMM", slug: "smm", sortOrder: 2 },
+        { name: "SEO и аналитика", slug: "seo", sortOrder: 3 },
+      ],
+    },
+    {
+      name: "Тексты и перевод",
+      slug: "content",
+      sortOrder: 40,
+      subcategories: [
+        { name: "Копирайтинг", slug: "copywriting", sortOrder: 1 },
+        { name: "Редактура", slug: "editing", sortOrder: 2 },
+        { name: "Переводы", slug: "translation", sortOrder: 3 },
+      ],
+    },
+    {
+      name: "Бытовые услуги",
+      slug: "home-services",
+      sortOrder: 50,
+      subcategories: [
+        { name: "Уборка", slug: "cleaning", sortOrder: 1 },
+        { name: "Сантехнические работы", slug: "plumbing", sortOrder: 2 },
+        { name: "Электрика", slug: "electricity", sortOrder: 3 },
+        { name: "Сборка мебели", slug: "furniture-assembly", sortOrder: 4 },
+      ],
+    },
+  ] as const;
 
-  const catDev = await prisma.category.upsert({
-    where: { slug: "development" },
-    create: { name: "Разработка", slug: "development", sortOrder: 20 },
-    update: {},
-  });
+  const categoryBySlug = new Map<string, { id: string }>();
+  for (const category of categories) {
+    const cat = await prisma.category.upsert({
+      where: { slug: category.slug },
+      create: {
+        name: category.name,
+        slug: category.slug,
+        sortOrder: category.sortOrder,
+      },
+      update: {
+        name: category.name,
+        sortOrder: category.sortOrder,
+      },
+    });
+    categoryBySlug.set(category.slug, { id: cat.id });
 
-  await prisma.subcategory.upsert({
-    where: { categoryId_slug: { categoryId: catDesign.id, slug: "ui" } },
-    create: { categoryId: catDesign.id, name: "UI/UX", slug: "ui", sortOrder: 1 },
-    update: {},
-  });
-  await prisma.subcategory.upsert({
-    where: { categoryId_slug: { categoryId: catDesign.id, slug: "brand" } },
-    create: { categoryId: catDesign.id, name: "Брендинг", slug: "brand", sortOrder: 2 },
-    update: {},
-  });
+    for (const sub of category.subcategories) {
+      await prisma.subcategory.upsert({
+        where: { categoryId_slug: { categoryId: cat.id, slug: sub.slug } },
+        create: {
+          categoryId: cat.id,
+          name: sub.name,
+          slug: sub.slug,
+          sortOrder: sub.sortOrder,
+        },
+        update: {
+          name: sub.name,
+          sortOrder: sub.sortOrder,
+        },
+      });
+    }
+  }
 
-  const subWeb = await prisma.subcategory.upsert({
+  const catDesign = categoryBySlug.get("design");
+  const catDev = categoryBySlug.get("development");
+  if (!catDesign || !catDev) {
+    throw new Error("Seed categories not initialized");
+  }
+  const subWeb = await prisma.subcategory.findUniqueOrThrow({
     where: { categoryId_slug: { categoryId: catDev.id, slug: "web" } },
-    create: { categoryId: catDev.id, name: "Веб", slug: "web", sortOrder: 1 },
-    update: {},
   });
-
-  const subApi = await prisma.subcategory.upsert({
+  const subApi = await prisma.subcategory.findUniqueOrThrow({
     where: { categoryId_slug: { categoryId: catDev.id, slug: "api" } },
-    create: { categoryId: catDev.id, name: "API", slug: "api", sortOrder: 2 },
-    update: {},
   });
 
   const passwordHash = await bcrypt.hash("demo12345", 12);

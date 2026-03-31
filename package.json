@@ -17,6 +17,7 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:seed": "prisma db seed",
+    "db:sync-categories": "tsx scripts/sync-categories.ts",
     "db:promote-admin": "tsx scripts/promote-admin.ts"
   },
   "prisma": {
