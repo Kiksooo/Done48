@@ -52,29 +52,43 @@ export async function registerUser(
     const passwordHash = await bcrypt.hash(parsed.data.password, 12);
     const role = parsed.data.role as Role;
 
-    await prisma.$transaction(async (tx) => {
-      const user = await tx.user.create({
-        data: {
-          email,
-          passwordHash,
-          role,
-          onboardingDone: false,
-        },
-      });
+    const user = await prisma.user.create({
+      data: {
+        email,
+        passwordHash,
+        role,
+        onboardingDone: false,
+      },
+    });
 
+    // Профиль полезен, но его ошибка не должна блокировать регистрацию аккаунта.
+    try {
       if (role === Role.CUSTOMER) {
-        await tx.customerProfile.create({
-          data: { userId: user.id, displayName: email.split("@")[0] },
+        await prisma.customerProfile.upsert({
+          where: { userId: user.id },
+          update: {},
+          create: { userId: user.id, displayName: email.split("@")[0] },
         });
       } else {
-        await tx.executorProfile.create({
-          data: { userId: user.id, displayName: email.split("@")[0] },
+        await prisma.executorProfile.upsert({
+          where: { userId: user.id },
+          update: {},
+          create: { userId: user.id, displayName: email.split("@")[0] },
         });
       }
-    });
+    } catch (profileError) {
+      if (
+        profileError instanceof Prisma.PrismaClientKnownRequestError &&
+        (profileError.code === "P2021" || profileError.code === "P2022")
+      ) {
+        return { ok: true };
+      }
+      throw profileError;
+    }
 
     return { ok: true };
   } catch (error) {
+    console.error("[register] failed:", error);
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"

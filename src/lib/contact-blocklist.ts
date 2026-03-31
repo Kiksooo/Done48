@@ -40,6 +40,11 @@ export async function isContactBlocklisted(
 ): Promise<boolean> {
   const valueNorm = normalizeBlocklistValue(kind, raw);
   if (!valueNorm) return false;
+  // На старых БД таблицы может не быть: блок-лист в таком случае считаем выключенным.
+  const hasTable = await prisma.$queryRawUnsafe<{ exists: boolean }[]>(
+    "select exists (select 1 from information_schema.tables where table_schema = 'public' and table_name = 'ContactBlocklist')",
+  );
+  if (!hasTable?.[0]?.exists) return false;
   const row = await prisma.contactBlocklist.findUnique({
     where: { kind_valueNorm: { kind, valueNorm } },
   });
