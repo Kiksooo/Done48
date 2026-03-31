@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SITE_EMAIL_INFO } from "@/lib/site-contact";
 
 export const metadata: Metadata = {
   title: "Юридическая информация — DONE48",
@@ -27,6 +28,21 @@ export default function LegalIndexPage() {
           </Link>
         </li>
       </ul>
+
+      <section className="mt-10 rounded-xl border border-border bg-card p-5">
+        <h2 className="text-base font-semibold text-foreground">Помощь и документы</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          По вопросам работы сервиса, документов, споров и технических проблем напишите в поддержку:
+        </p>
+        <p className="mt-2">
+          <a href={`mailto:${SITE_EMAIL_INFO}`} className="font-medium text-primary underline-offset-4 hover:underline">
+            {SITE_EMAIL_INFO}
+          </a>
+        </p>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Чтобы ускорить ответ, укажите ID заказа/пользователя и коротко опишите ситуацию.
+        </p>
+      </section>
     </div>
   );
 }
