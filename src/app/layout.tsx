@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 import { YandexMetrika } from "@/components/analytics/yandex-metrika";
 import { AppProviders } from "@/components/providers/app-providers";
 import { SITE_SEO_DESCRIPTION, SITE_SEO_KEYWORDS, SITE_SEO_TITLE } from "@/lib/site-seo";
-import { getSiteUrl } from "@/lib/site-url";
+import { getMetadataBase } from "@/lib/site-url";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -19,10 +19,8 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-const siteUrl = getSiteUrl();
-
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: getMetadataBase(),
   title: SITE_SEO_TITLE,
   description: SITE_SEO_DESCRIPTION,
   keywords: SITE_SEO_KEYWORDS,
