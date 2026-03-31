@@ -10,7 +10,7 @@ import {
 } from "@/components/cabinet/dashboard-ui";
 import { Button } from "@/components/ui/button";
 import { getSessionUserForAction } from "@/lib/rbac";
-import { executorAccountStatusRu, verificationStatusRu } from "@/lib/executor-labels";
+import { executorAccountStatusRu } from "@/lib/executor-labels";
 import { prisma } from "@/lib/db";
 
 function greetingName(displayName: string | null | undefined, username: string | null | undefined, email: string) {
@@ -37,7 +37,7 @@ export default async function ExecutorHomePage() {
     }),
     prisma.executorProfile.findUnique({
       where: { userId: user.id },
-      select: { displayName: true, username: true, accountStatus: true, verificationStatus: true },
+      select: { displayName: true, username: true, accountStatus: true },
     }),
   ]);
 
@@ -131,7 +131,7 @@ export default async function ExecutorHomePage() {
           <DashboardQuickLink
             href="/executor/orders/available"
             title="Доступные заказы"
-            description="Открытые задачи, на которые можно откликнуться (при активном аккаунте и верификации, если требуется)."
+            description="Открытые задачи, на которые можно откликнуться при активном аккаунте после одобрения анкеты."
             icon={Search}
           />
           <DashboardQuickLink
@@ -154,11 +154,9 @@ export default async function ExecutorHomePage() {
           />
           <DashboardQuickLink
             href="/executor/profile"
-            title="Профиль и верификация"
-            description={`Статус аккаунта: ${
+            title="Профиль"
+            description={`Статус анкеты: ${
               profile?.accountStatus ? executorAccountStatusRu(profile.accountStatus) : "—"
-            } · верификация: ${
-              profile?.verificationStatus ? verificationStatusRu(profile.verificationStatus) : "—"
             }`}
             icon={UserRound}
           />

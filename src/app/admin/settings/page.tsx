@@ -6,7 +6,6 @@ export default async function AdminSettingsPage() {
   const fee = s ? Number(s.platformFeePercent) : 10;
   const minPayoutRubles = s ? s.minPayoutCents / 100 : 10;
   const moderateAllNewOrders = s?.moderateAllNewOrders ?? true;
-  const requireExecutorVerificationForProposals = s?.requireExecutorVerificationForProposals ?? true;
   const maxExecutorProposalsPerDay = s?.maxExecutorProposalsPerDay ?? 30;
 
   return (
@@ -21,7 +20,6 @@ export default async function AdminSettingsPage() {
         platformFeePercent={fee}
         minPayoutRubles={minPayoutRubles}
         moderateAllNewOrders={moderateAllNewOrders}
-        requireExecutorVerificationForProposals={requireExecutorVerificationForProposals}
         maxExecutorProposalsPerDay={maxExecutorProposalsPerDay}
       />
     </div>

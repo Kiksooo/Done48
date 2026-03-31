@@ -1,15 +1,4 @@
-import type { ExecutorAccountStatus, VerificationStatus } from "@prisma/client";
-
-export const VERIFICATION_STATUS_LABELS: Record<VerificationStatus, string> = {
-  NOT_SUBMITTED: "Документы не поданы",
-  PENDING: "На проверке",
-  APPROVED: "Одобрена",
-  REJECTED: "Отклонена",
-};
-
-export function verificationStatusRu(status: string): string {
-  return VERIFICATION_STATUS_LABELS[status as VerificationStatus] ?? status;
-}
+import type { ExecutorAccountStatus } from "@prisma/client";
 
 export const EXECUTOR_ACCOUNT_STATUS_LABELS: Record<ExecutorAccountStatus, string> = {
   PENDING_MODERATION: "На модерации",

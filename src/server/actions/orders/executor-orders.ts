@@ -8,7 +8,6 @@ import {
   PaymentStatus,
   Prisma,
   Role,
-  VerificationStatus,
 } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
@@ -67,14 +66,6 @@ export async function executorCreateProposalAction(raw: unknown): Promise<Action
   }
 
   const af = await getAntifraudPlatformSettings();
-  if (af.requireExecutorVerificationForProposals && ep.verificationStatus !== VerificationStatus.APPROVED) {
-    return {
-      ok: false,
-      error:
-        "Чтобы откликаться на заказы, пройдите верификацию: загрузите документы в профиле исполнителя и дождитесь одобрения.",
-    };
-  }
-
   if (af.maxExecutorProposalsPerDay > 0) {
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const recent = await prisma.proposal.count({

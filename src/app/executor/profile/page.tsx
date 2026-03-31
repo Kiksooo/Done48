@@ -27,9 +27,9 @@ export default async function ExecutorProfilePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Профиль и верификация</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Профиль исполнителя</h1>
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Публичные поля профиля. Загрузка документов для верификации — в следующей итерации.
+          Публичные поля профиля и контакты. Одобрение анкеты — в админ-панели (статус «Активен» для откликов).
         </p>
         {profile.username ? (
           <p className="mt-2 text-sm">
@@ -59,7 +59,6 @@ export default async function ExecutorProfilePage() {
           city: profile.city,
           bio: profile.bio,
           accountStatus: profile.accountStatus,
-          verificationStatus: profile.verificationStatus,
           avatarUrl: profile.avatarUrl,
         }}
       />

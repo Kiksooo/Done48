@@ -6,7 +6,7 @@ import { useTransition } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/format";
-import { EXECUTOR_ACCOUNT_STATUS_LABELS, verificationStatusRu } from "@/lib/executor-labels";
+import { EXECUTOR_ACCOUNT_STATUS_LABELS } from "@/lib/executor-labels";
 import { adminSetExecutorAccountStatusAction } from "@/server/actions/admin-executor-profiles";
 
 export type ExecutorProfileAdminRow = {
@@ -17,7 +17,6 @@ export type ExecutorProfileAdminRow = {
   username: string | null;
   city: string | null;
   accountStatus: ExecutorAccountStatus;
-  verificationStatus: string;
   userCreatedAt: string;
   updatedAt: string;
 };
@@ -74,7 +73,6 @@ export function AdminExecutorProfilesPanel({ rows }: { rows: ExecutorProfileAdmi
             <th className="px-3 py-2 font-medium">Имя / username</th>
             <th className="px-3 py-2 font-medium">Город</th>
             <th className="px-3 py-2 font-medium">Аккаунт</th>
-            <th className="px-3 py-2 font-medium">Верификация</th>
             <th className="px-3 py-2 font-medium">Регистрация</th>
             <th className="px-3 py-2 font-medium">Действия</th>
           </tr>
@@ -120,7 +118,6 @@ function ExecutorProfileRow({ row }: { row: ExecutorProfileAdminRow }) {
           {EXECUTOR_ACCOUNT_STATUS_LABELS[row.accountStatus]}
         </Badge>
       </td>
-      <td className="px-3 py-2 text-xs text-neutral-600">{verificationStatusRu(row.verificationStatus)}</td>
       <td className="px-3 py-2 text-neutral-600">{formatDateTime(row.userCreatedAt)}</td>
       <td className="px-3 py-2">
         <div className="flex flex-col gap-1 sm:flex-row sm:flex-wrap">

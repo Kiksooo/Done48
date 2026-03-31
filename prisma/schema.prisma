@@ -608,8 +608,8 @@ model PlatformSettings {
 
   /// Все новые заказы только «На модерации» (админ публикует вручную)
   moderateAllNewOrders                   Boolean  @default(true)
-  /// Откликаться могут только исполнители с верификацией APPROVED
-  requireExecutorVerificationForProposals Boolean @default(true)
+  /// Устарело: не используется (верификация по документам отключена). Сохраняется для совместимости БД.
+  requireExecutorVerificationForProposals Boolean @default(false)
   /// Макс. откликов одного исполнителя за сутки; 0 = без лимита
   maxExecutorProposalsPerDay             Int      @default(30)
 

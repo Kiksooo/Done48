@@ -7,7 +7,6 @@ import {
   PrismaClient,
   Role,
   TransactionType,
-  VerificationStatus,
   VisibilityType,
 } from "@prisma/client";
 import bcrypt from "bcryptjs";
@@ -219,13 +218,11 @@ async function main() {
       displayName: "Исполнитель демо",
       username: "demo_executor",
       accountStatus: ExecutorAccountStatus.ACTIVE,
-      verificationStatus: VerificationStatus.APPROVED,
     },
     update: {
       displayName: "Исполнитель демо",
       username: "demo_executor",
       accountStatus: ExecutorAccountStatus.ACTIVE,
-      verificationStatus: VerificationStatus.APPROVED,
     },
   });
 

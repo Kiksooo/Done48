@@ -12,7 +12,7 @@ export async function ensurePlatformSettingsTable() {
       "platformFeePercent" DECIMAL(5,2) NOT NULL DEFAULT 10,
       "minPayoutCents" INTEGER NOT NULL DEFAULT 1000,
       "moderateAllNewOrders" BOOLEAN NOT NULL DEFAULT true,
-      "requireExecutorVerificationForProposals" BOOLEAN NOT NULL DEFAULT true,
+      "requireExecutorVerificationForProposals" BOOLEAN NOT NULL DEFAULT false,
       "maxExecutorProposalsPerDay" INTEGER NOT NULL DEFAULT 30,
       "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
       CONSTRAINT "PlatformSettings_pkey" PRIMARY KEY ("id")
@@ -29,7 +29,7 @@ export async function ensurePlatformSettingsTable() {
     ALTER TABLE "PlatformSettings" ADD COLUMN IF NOT EXISTS "moderateAllNewOrders" BOOLEAN NOT NULL DEFAULT true;
   `);
   await prisma.$executeRawUnsafe(`
-    ALTER TABLE "PlatformSettings" ADD COLUMN IF NOT EXISTS "requireExecutorVerificationForProposals" BOOLEAN NOT NULL DEFAULT true;
+    ALTER TABLE "PlatformSettings" ADD COLUMN IF NOT EXISTS "requireExecutorVerificationForProposals" BOOLEAN NOT NULL DEFAULT false;
   `);
   await prisma.$executeRawUnsafe(`
     ALTER TABLE "PlatformSettings" ADD COLUMN IF NOT EXISTS "maxExecutorProposalsPerDay" INTEGER NOT NULL DEFAULT 30;
@@ -72,7 +72,7 @@ export async function ensurePlatformSettingsTable() {
       "requireExecutorVerificationForProposals",
       "maxExecutorProposalsPerDay"
     )
-    VALUES ('default', 10, 1000, true, true, 30)
+    VALUES ('default', 10, 1000, true, false, 30)
     ON CONFLICT ("id") DO NOTHING;
   `);
 }

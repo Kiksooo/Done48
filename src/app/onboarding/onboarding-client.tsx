@@ -33,7 +33,7 @@ export function OnboardingClient() {
       <CardHeader>
         <CardTitle>Онбординг</CardTitle>
         <CardDescription>
-          Краткое знакомство с платформой. Позже здесь будут шаги профиля и верификации.
+          Краткое знакомство с платформой. Позже здесь можно расширить шаги заполнения профиля.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

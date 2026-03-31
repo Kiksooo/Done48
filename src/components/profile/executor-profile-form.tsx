@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AvatarField } from "@/components/profile/avatar-field";
-import { executorAccountStatusRu, verificationStatusRu } from "@/lib/executor-labels";
+import { executorAccountStatusRu } from "@/lib/executor-labels";
 
 type Props = {
   initial: {
@@ -19,7 +19,6 @@ type Props = {
     city: string | null;
     bio: string | null;
     accountStatus: string;
-    verificationStatus: string;
     avatarUrl: string | null;
   };
 };
@@ -39,8 +38,7 @@ export function ExecutorProfileForm({ initial }: Props) {
   return (
     <div className="space-y-6">
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
-        Аккаунт: <span className="font-medium">{executorAccountStatusRu(initial.accountStatus)}</span> · верификация:{" "}
-        <span className="font-medium">{verificationStatusRu(initial.verificationStatus)}</span>
+        Статус анкеты: <span className="font-medium">{executorAccountStatusRu(initial.accountStatus)}</span>
       </p>
       <form
         className="max-w-lg space-y-4 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
