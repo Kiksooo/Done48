@@ -18,6 +18,7 @@
     "db:studio": "prisma studio",
     "db:seed": "prisma db seed",
     "db:sync-categories": "tsx scripts/sync-categories.ts",
+    "db:delete-demo-orders": "tsx scripts/delete-demo-orders.ts",
     "db:promote-admin": "tsx scripts/promote-admin.ts"
   },
   "prisma": {
