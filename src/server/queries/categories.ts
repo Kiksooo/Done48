@@ -1,25 +1,33 @@
 import { prisma } from "@/lib/db";
 
 export async function listCategoriesWithSubcategories() {
-  return prisma.category.findMany({
-    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-    include: {
-      subcategories: { orderBy: [{ sortOrder: "asc" }, { name: "asc" }] },
-    },
-  });
+  try {
+    return await prisma.category.findMany({
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      include: {
+        subcategories: { orderBy: [{ sortOrder: "asc" }, { name: "asc" }] },
+      },
+    });
+  } catch {
+    return [];
+  }
 }
 
 export async function listCategoriesForAdmin() {
-  return prisma.category.findMany({
-    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-    include: {
-      subcategories: {
-        orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-        include: {
-          _count: { select: { orders: true } },
+  try {
+    return await prisma.category.findMany({
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      include: {
+        subcategories: {
+          orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+          include: {
+            _count: { select: { orders: true } },
+          },
         },
+        _count: { select: { orders: true } },
       },
-      _count: { select: { orders: true } },
-    },
-  });
+    });
+  } catch {
+    return [];
+  }
 }
