@@ -1,6 +1,7 @@
 "use server";
 
 import {
+  DisputeStatus,
   ExecutorAccountStatus,
   NotificationKind,
   OrderStatus,
@@ -22,6 +23,7 @@ import {
   notifyActiveAdmins,
   notifySafe,
 } from "@/server/notifications/service";
+import { writeAuditLog } from "@/server/audit/log";
 import type { ActionResult } from "./create-order";
 
 function revalidateOrderPaths(orderId: string) {
@@ -298,6 +300,92 @@ export async function executorSubmitWorkAction(raw: unknown): Promise<ActionResu
       kind: NotificationKind.WORK_SUBMITTED,
       title: "Результат сдан",
       body: `Заказ: ${check.order.title}`,
+      link: `/orders/${orderId}`,
+    });
+  });
+
+  return { ok: true };
+}
+
+const ACTIVE_DISPUTE: DisputeStatus[] = [DisputeStatus.OPEN, DisputeStatus.IN_REVIEW];
+
+/** Исполнитель закрывает заказ после приёмки работы заказчиком (ACCEPTED → COMPLETED). */
+export async function executorCompleteOrderAction(raw: unknown): Promise<ActionResult> {
+  const user = await getSessionUserForAction();
+  if (!user || user.role !== Role.EXECUTOR) {
+    return { ok: false, error: "Нет доступа" };
+  }
+
+  const parsed = customerOrderActionSchema.safeParse(raw);
+  if (!parsed.success) return { ok: false, error: "Некорректные данные" };
+
+  const check = await assertOrderWritableByExecutor(parsed.data.orderId, user.id);
+  if (!check.ok || !check.order) return { ok: false, error: "Нет доступа" };
+
+  if (check.order.status !== OrderStatus.ACCEPTED) {
+    return {
+      ok: false,
+      error: "Закрыть можно только заказ в статусе «Принято» (после приёмки работы заказчиком).",
+    };
+  }
+
+  const orderId = check.order.id;
+  const activeDispute = await prisma.dispute.findFirst({
+    where: { orderId, status: { in: ACTIVE_DISPUTE } },
+    select: { id: true },
+  });
+  if (activeDispute) {
+    return { ok: false, error: "Нельзя закрыть заказ, пока открыт спор" };
+  }
+
+  try {
+    await prisma.$transaction(
+      async (tx) => {
+        const ou = await tx.order.updateMany({
+          where: { id: orderId, executorId: user.id, status: OrderStatus.ACCEPTED },
+          data: { status: OrderStatus.COMPLETED },
+        });
+        if (ou.count !== 1) {
+          throw new Error("STATE");
+        }
+        await appendStatusHistory(tx, {
+          orderId,
+          fromStatus: OrderStatus.ACCEPTED,
+          toStatus: OrderStatus.COMPLETED,
+          actorUserId: user.id,
+          note: "Заказ закрыт исполнителем",
+        });
+      },
+      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+    );
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "";
+    if (msg === "STATE") {
+      return { ok: false, error: "Заказ уже обновлён, обновите страницу" };
+    }
+    if (isPrismaTransactionConflict(e)) {
+      return { ok: false, error: "Конфликт при сохранении, попробуйте ещё раз" };
+    }
+    throw e;
+  }
+
+  await writeAuditLog({
+    actorUserId: user.id,
+    action: "ORDER_EXECUTOR_COMPLETE",
+    entityType: "Order",
+    entityId: orderId,
+    oldValue: { status: OrderStatus.ACCEPTED },
+    newValue: { status: OrderStatus.COMPLETED },
+  });
+
+  revalidateOrderPaths(orderId);
+
+  notifySafe(async () => {
+    await createNotification({
+      userId: check.order.customerId,
+      kind: NotificationKind.GENERIC,
+      title: "Заказ закрыт исполнителем",
+      body: `«${check.order.title}» отмечен как завершённый.`,
       link: `/orders/${orderId}`,
     });
   });

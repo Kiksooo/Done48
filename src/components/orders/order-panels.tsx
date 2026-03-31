@@ -21,9 +21,11 @@ import {
   customerAcceptProposalAction,
   customerAcceptWorkAction,
   customerCancelOrderAction,
+  customerCompleteOrderAction,
   customerRequestRevisionAction,
 } from "@/server/actions/orders/customer-orders";
 import {
+  executorCompleteOrderAction,
   executorCreateProposalAction,
   executorStartWorkAction,
   executorSubmitWorkAction,
@@ -343,25 +345,53 @@ export function OrderPanels(props: {
               </Button>
             ) : null}
             {snapshot.status === "SUBMITTED" ? (
-              <>
-                <Button
-                  type="button"
-                  size="sm"
-                  disabled={pending}
-                  onClick={() => run("accept", () => customerAcceptWorkAction({ orderId }))}
-                >
-                  Принять работу
-                </Button>
+              <div className="w-full space-y-2">
+                <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                  Исполнитель сдал результат. Если всё устраивает, завершите заказ — средства пойдут исполнителю по правилам
+                  безопасной сделки. Иначе отправьте на доработку.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    disabled={pending || snapshot.paymentStatus !== "RESERVED"}
+                    onClick={() => run("accept", () => customerAcceptWorkAction({ orderId }))}
+                  >
+                    Завершить заказ
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    disabled={pending}
+                    onClick={() => run("revision", () => customerRequestRevisionAction({ orderId }))}
+                  >
+                    На доработку
+                  </Button>
+                </div>
+                {snapshot.paymentStatus !== "RESERVED" ? (
+                  <p className="text-xs font-medium text-amber-800 dark:text-amber-200">
+                    Чтобы завершить заказ, сначала заблокируйте сумму в безопасной сделке (блок «бюджет» выше).
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+            {snapshot.status === "ACCEPTED" && !snapshot.hasActiveDispute ? (
+              <div className="mt-3 w-full space-y-2 border-t border-neutral-200 pt-3 dark:border-neutral-800">
+                <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                  Работа принята. При желании окончательно закройте заказ в системе — статус станет «Завершён» (деньги уже
+                  учтены по сделке).
+                </p>
                 <Button
                   type="button"
                   size="sm"
                   variant="secondary"
                   disabled={pending}
-                  onClick={() => run("revision", () => customerRequestRevisionAction({ orderId }))}
+                  onClick={() => run("complete", () => customerCompleteOrderAction({ orderId }))}
                 >
-                  На доработку
+                  Закрыть заказ
                 </Button>
-              </>
+              </div>
             ) : null}
           </div>
           {snapshot.hasActiveDispute ? (
@@ -480,6 +510,27 @@ export function OrderPanels(props: {
                 >
                   Сдать результат
                 </Button>
+              ) : null}
+              {snapshot.status === "SUBMITTED" ? (
+                <p className="w-full text-xs text-neutral-600 dark:text-neutral-400">
+                  Результат сдан — ожидайте, пока заказчик завершит заказ или запросит доработку.
+                </p>
+              ) : null}
+              {snapshot.status === "ACCEPTED" && !snapshot.hasActiveDispute ? (
+                <div className="w-full space-y-2 border-t border-neutral-200 pt-3 dark:border-neutral-800">
+                  <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                    Работа принята заказчиком. Вы можете окончательно закрыть заказ в системе — статус станет «Завершён».
+                  </p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    disabled={pending}
+                    onClick={() => run("ex-complete", () => executorCompleteOrderAction({ orderId }))}
+                  >
+                    Закрыть заказ
+                  </Button>
+                </div>
               ) : null}
             </div>
           ) : null}
