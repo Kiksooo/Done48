@@ -47,7 +47,7 @@ export function RegisterForm({ referralCode }: { referralCode?: string }) {
             </p>
           )}
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Эл. почта</Label>
             <Input id="email" name="email" type="email" autoComplete="email" required />
             {state && !state.ok && state.fieldErrors?.email?.[0] && (
               <p className="text-sm text-red-600">{state.fieldErrors.email[0]}</p>

@@ -118,7 +118,13 @@ export async function getOrderDetailForPage(orderId: string) {
       statusHistory: { orderBy: { createdAt: "asc" } },
       proposals: {
         include: {
-          executor: { select: { id: true, email: true } },
+          executor: {
+            select: {
+              id: true,
+              email: true,
+              executorProfile: { select: { displayName: true, username: true } },
+            },
+          },
         },
         orderBy: { createdAt: "desc" },
       },

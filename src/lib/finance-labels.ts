@@ -1,4 +1,11 @@
-import type { TransactionType } from "@prisma/client";
+import type { PayoutStatus, TransactionType } from "@prisma/client";
+
+export const PAYOUT_STATUS_LABELS: Record<PayoutStatus, string> = {
+  PENDING: "На рассмотрении",
+  APPROVED: "Одобрена",
+  REJECTED: "Отклонена",
+  PAID: "Выплачена",
+};
 
 export const TRANSACTION_TYPE_LABELS: Record<TransactionType, string> = {
   TOPUP: "Пополнение",

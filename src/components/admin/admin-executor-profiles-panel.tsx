@@ -6,6 +6,7 @@ import { useTransition } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/format";
+import { EXECUTOR_ACCOUNT_STATUS_LABELS, verificationStatusRu } from "@/lib/executor-labels";
 import { adminSetExecutorAccountStatusAction } from "@/server/actions/admin-executor-profiles";
 
 export type ExecutorProfileAdminRow = {
@@ -20,21 +21,6 @@ export type ExecutorProfileAdminRow = {
   userCreatedAt: string;
   updatedAt: string;
 };
-
-function statusLabel(s: ExecutorAccountStatus): string {
-  switch (s) {
-    case "PENDING_MODERATION":
-      return "На модерации";
-    case "ACTIVE":
-      return "Активен";
-    case "BLOCKED":
-      return "Заблокирован";
-    case "ARCHIVED":
-      return "Архив";
-    default:
-      return s;
-  }
-}
 
 function statusVariant(s: ExecutorAccountStatus): "warning" | "success" | "danger" | "secondary" {
   switch (s) {
@@ -84,7 +70,7 @@ export function AdminExecutorProfilesPanel({ rows }: { rows: ExecutorProfileAdmi
       <table className="w-full min-w-[860px] text-left text-sm">
         <thead className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/40">
           <tr>
-            <th className="px-3 py-2 font-medium">Email</th>
+            <th className="px-3 py-2 font-medium">Почта</th>
             <th className="px-3 py-2 font-medium">Имя / username</th>
             <th className="px-3 py-2 font-medium">Город</th>
             <th className="px-3 py-2 font-medium">Аккаунт</th>
@@ -120,7 +106,9 @@ function ExecutorProfileRow({ row }: { row: ExecutorProfileAdminRow }) {
     <tr className="border-b border-neutral-100 dark:border-neutral-900">
       <td className="px-3 py-2">
         <div className="font-medium">{row.email}</div>
-        {!row.isActive ? <p className="text-xs text-amber-700 dark:text-amber-400">Вход отключён (User)</p> : null}
+        {!row.isActive ? (
+          <p className="text-xs text-amber-700 dark:text-amber-400">Вход отключён (учётная запись)</p>
+        ) : null}
       </td>
       <td className="px-3 py-2 text-neutral-700 dark:text-neutral-300">
         {row.displayName ?? "—"}
@@ -128,9 +116,11 @@ function ExecutorProfileRow({ row }: { row: ExecutorProfileAdminRow }) {
       </td>
       <td className="px-3 py-2 text-neutral-600">{row.city ?? "—"}</td>
       <td className="px-3 py-2">
-        <Badge variant={statusVariant(row.accountStatus)}>{statusLabel(row.accountStatus)}</Badge>
+        <Badge variant={statusVariant(row.accountStatus)}>
+          {EXECUTOR_ACCOUNT_STATUS_LABELS[row.accountStatus]}
+        </Badge>
       </td>
-      <td className="px-3 py-2 text-xs text-neutral-600">{row.verificationStatus}</td>
+      <td className="px-3 py-2 text-xs text-neutral-600">{verificationStatusRu(row.verificationStatus)}</td>
       <td className="px-3 py-2 text-neutral-600">{formatDateTime(row.userCreatedAt)}</td>
       <td className="px-3 py-2">
         <div className="flex flex-col gap-1 sm:flex-row sm:flex-wrap">

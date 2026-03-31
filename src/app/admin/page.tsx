@@ -53,9 +53,9 @@ export default async function AdminHomePage() {
           />
           <DashboardStatTile
             icon={LayoutDashboard}
-            label="GMV по бюджетам"
+            label="Оборот по бюджетам заказов"
             value={formatMoneyFromCents(o.gmvCents)}
-            sublabel="Оценка без черновиков и отмен"
+            sublabel="Сумма без черновиков и отменённых"
           />
         </div>
       </section>

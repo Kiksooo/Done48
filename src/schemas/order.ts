@@ -54,6 +54,10 @@ export const adminAcceptProposalSchema = z.object({
   proposalId: cuid,
 });
 
+export const customerAcceptProposalSchema = z.object({
+  proposalId: cuid,
+});
+
 export const createProposalSchema = z.object({
   orderId: cuid,
   offeredRubles: z.coerce.number().positive().optional(),

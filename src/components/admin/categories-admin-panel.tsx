@@ -61,7 +61,8 @@ export function CategoriesAdminPanel({ initial }: { initial: CategoryAdminRow[] 
       <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
         <h2 className="text-lg font-semibold">Новая категория</h2>
         <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-          Slug — латиница в нижнем регистре, через дефис (например <code className="text-xs">web-dev</code>).
+          Ярлык в адресе страницы — латиница в нижнем регистре, через дефис (например{" "}
+          <code className="text-xs">web-dev</code>).
         </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <div className="space-y-2">
@@ -74,9 +75,10 @@ export function CategoriesAdminPanel({ initial }: { initial: CategoryAdminRow[] 
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="nc-slug">Slug</Label>
+            <Label htmlFor="nc-slug">Ярлык (латиница)</Label>
             <Input
               id="nc-slug"
+              placeholder="kategoria-v-url"
               value={newCatSlug}
               onChange={(e) => setNewCatSlug(e.target.value.toLowerCase())}
               disabled={pending}
@@ -180,7 +182,7 @@ function CategoryBlock({
           <Input value={name} onChange={(e) => setName(e.target.value)} disabled={pending} />
         </div>
         <div className="space-y-1">
-          <Label className="text-xs">Slug</Label>
+          <Label className="text-xs">Ярлык (латиница)</Label>
           <Input value={slug} onChange={(e) => setSlug(e.target.value.toLowerCase())} disabled={pending} />
         </div>
         <div className="space-y-1">
@@ -232,7 +234,7 @@ function CategoryBlock({
               className="sm:col-span-2"
             />
             <Input
-              placeholder="slug"
+              placeholder="podkategoriya-v-url"
               value={subSlug}
               onChange={(e) => setSubSlug(e.target.value.toLowerCase())}
               disabled={pending}
@@ -300,7 +302,7 @@ function SubcategoryRow({
             <Input value={name} onChange={(e) => setName(e.target.value)} disabled={pending} />
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">Slug</Label>
+            <Label className="text-xs">Ярлык (латиница)</Label>
             <Input value={slug} onChange={(e) => setSlug(e.target.value.toLowerCase())} disabled={pending} />
           </div>
           <div className="space-y-1">

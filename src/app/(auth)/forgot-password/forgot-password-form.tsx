@@ -49,7 +49,7 @@ export function ForgotPasswordForm() {
             </p>
           ) : null}
           <div className="space-y-2">
-            <Label htmlFor="fp-email">Email</Label>
+            <Label htmlFor="fp-email">Эл. почта</Label>
             <Input
               id="fp-email"
               type="email"

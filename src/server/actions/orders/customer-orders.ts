@@ -5,18 +5,27 @@ import {
   OrderStatus,
   PaymentStatus,
   Prisma,
+  ProposalStatus,
   Role,
+  VisibilityType,
 } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { isPrismaTransactionConflict } from "@/lib/prisma-errors";
 import { getSessionUserForAction } from "@/lib/rbac";
-import { customerOrderActionSchema } from "@/schemas/order";
+import {
+  customerAcceptProposalSchema,
+  customerOrderActionSchema,
+} from "@/schemas/order";
 import { assertOrderWritableByCustomer } from "@/server/orders/access";
 import { getPlatformFeePercent, splitOrderBudget } from "@/server/finance/split";
 import { appendStatusHistory } from "@/server/orders/status";
 import { createNotification, notifySafe } from "@/server/notifications/service";
+import { writeAuditLog } from "@/server/audit/log";
 import type { ActionResult } from "./create-order";
+
+const ESCROW_REQUIRED_MSG =
+  "Сначала заблокируйте сумму заказа в безопасной сделке (кнопка выше), затем вы сможете выбрать исполнителя по отклику.";
 
 function revalidateOrderPaths(orderId: string) {
   revalidatePath("/customer");
@@ -25,6 +34,9 @@ function revalidateOrderPaths(orderId: string) {
   revalidatePath(`/orders/${orderId}`);
   revalidatePath("/admin/orders");
   revalidatePath("/admin/payments");
+  revalidatePath("/admin/proposals");
+  revalidatePath("/executor/orders");
+  revalidatePath("/executor/orders/available");
 }
 
 export async function customerCancelOrderAction(raw: unknown): Promise<ActionResult> {
@@ -143,6 +155,211 @@ export async function customerCancelOrderAction(raw: unknown): Promise<ActionRes
   }
 
   revalidateOrderPaths(orderId);
+  return { ok: true };
+}
+
+export async function customerAcceptProposalAction(raw: unknown): Promise<ActionResult> {
+  const user = await getSessionUserForAction();
+  if (!user || user.role !== Role.CUSTOMER) {
+    return { ok: false, error: "Нет доступа" };
+  }
+
+  const parsed = customerAcceptProposalSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { ok: false, error: "Некорректные данные" };
+  }
+
+  const proposalPre = await prisma.proposal.findUnique({
+    where: { id: parsed.data.proposalId },
+    include: { order: true },
+  });
+  if (!proposalPre) return { ok: false, error: "Отклик не найден" };
+  if (proposalPre.order.customerId !== user.id) {
+    return { ok: false, error: "Нет доступа" };
+  }
+  if (proposalPre.status !== ProposalStatus.PENDING) {
+    return { ok: false, error: "Отклик уже обработан" };
+  }
+
+  const orderPre = proposalPre.order;
+  if (orderPre.executorId) {
+    return { ok: false, error: "У заказа уже есть исполнитель" };
+  }
+  if (
+    orderPre.status !== OrderStatus.PUBLISHED ||
+    orderPre.visibilityType !== VisibilityType.OPEN_FOR_RESPONSES
+  ) {
+    return { ok: false, error: "Сейчас нельзя выбрать исполнителя по отклику" };
+  }
+  if (orderPre.paymentStatus !== PaymentStatus.RESERVED) {
+    return { ok: false, error: ESCROW_REQUIRED_MSG };
+  }
+
+  type AcceptOut = {
+    orderId: string;
+    customerId: string;
+    orderTitle: string;
+    executorId: string;
+    proposalId: string;
+    fromStatus: OrderStatus;
+  };
+
+  let acceptOut!: AcceptOut;
+
+  try {
+    await prisma.$transaction(
+      async (tx) => {
+        const prop = await tx.proposal.findUnique({
+          where: { id: parsed.data.proposalId },
+          include: { order: true },
+        });
+        if (!prop) {
+          throw new Error("NOT_FOUND");
+        }
+        if (prop.order.customerId !== user.id) {
+          throw new Error("FORBIDDEN");
+        }
+        if (prop.status !== ProposalStatus.PENDING) {
+          throw new Error("PROPOSAL_STATE");
+        }
+        const ord = prop.order;
+        if (ord.executorId) {
+          throw new Error("ORDER_EXEC");
+        }
+        if (
+          ord.status !== OrderStatus.PUBLISHED ||
+          ord.visibilityType !== VisibilityType.OPEN_FOR_RESPONSES
+        ) {
+          throw new Error("ORDER_BAD");
+        }
+        if (ord.paymentStatus !== PaymentStatus.RESERVED) {
+          throw new Error("NEED_ESCROW");
+        }
+
+        const ou = await tx.order.updateMany({
+          where: {
+            id: ord.id,
+            customerId: user.id,
+            executorId: null,
+            status: OrderStatus.PUBLISHED,
+            visibilityType: VisibilityType.OPEN_FOR_RESPONSES,
+            paymentStatus: PaymentStatus.RESERVED,
+          },
+          data: {
+            executorId: prop.executorId,
+            status: OrderStatus.ASSIGNED,
+            assignedByAdmin: false,
+            visibilityType: VisibilityType.PLATFORM_ASSIGN,
+          },
+        });
+        if (ou.count !== 1) {
+          throw new Error("ORDER_STATE");
+        }
+
+        const pu = await tx.proposal.updateMany({
+          where: { id: prop.id, status: ProposalStatus.PENDING },
+          data: { status: ProposalStatus.ACCEPTED },
+        });
+        if (pu.count !== 1) {
+          throw new Error("PROPOSAL_STATE");
+        }
+
+        await tx.proposal.updateMany({
+          where: {
+            orderId: ord.id,
+            id: { not: prop.id },
+            status: ProposalStatus.PENDING,
+          },
+          data: { status: ProposalStatus.REJECTED },
+        });
+
+        await tx.assignment.create({
+          data: {
+            orderId: ord.id,
+            executorId: prop.executorId,
+            assignedByAdminUserId: null,
+          },
+        });
+
+        await appendStatusHistory(tx, {
+          orderId: ord.id,
+          fromStatus: ord.status,
+          toStatus: OrderStatus.ASSIGNED,
+          actorUserId: user.id,
+          note: "Исполнитель выбран заказчиком по отклику",
+        });
+
+        const chat = await tx.chat.findUnique({ where: { orderId: ord.id } });
+        if (chat) {
+          await tx.chatMember.upsert({
+            where: { chatId_userId: { chatId: chat.id, userId: prop.executorId } },
+            create: { chatId: chat.id, userId: prop.executorId },
+            update: {},
+          });
+        }
+
+        acceptOut = {
+          orderId: ord.id,
+          customerId: ord.customerId,
+          orderTitle: ord.title,
+          executorId: prop.executorId,
+          proposalId: prop.id,
+          fromStatus: ord.status,
+        };
+      },
+      {
+        isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        maxWait: 10_000,
+        timeout: 25_000,
+      },
+    );
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "";
+    if (msg === "NOT_FOUND") return { ok: false, error: "Отклик не найден" };
+    if (msg === "FORBIDDEN") return { ok: false, error: "Нет доступа" };
+    if (msg === "PROPOSAL_STATE") {
+      return { ok: false, error: "Отклик уже обработан" };
+    }
+    if (msg === "ORDER_EXEC") {
+      return { ok: false, error: "У заказа уже есть исполнитель" };
+    }
+    if (msg === "ORDER_BAD" || msg === "ORDER_STATE") {
+      return { ok: false, error: "Сейчас нельзя выбрать исполнителя по отклику" };
+    }
+    if (msg === "NEED_ESCROW") {
+      return { ok: false, error: ESCROW_REQUIRED_MSG };
+    }
+    if (isPrismaTransactionConflict(e)) {
+      return { ok: false, error: "Конфликт при сохранении, попробуйте ещё раз" };
+    }
+    throw e;
+  }
+
+  await writeAuditLog({
+    actorUserId: user.id,
+    action: "ORDER_CUSTOMER_ACCEPT_PROPOSAL",
+    entityType: "Order",
+    entityId: acceptOut.orderId,
+    oldValue: {
+      status: acceptOut.fromStatus,
+      executorId: null,
+      proposalId: acceptOut.proposalId,
+    },
+    newValue: { status: OrderStatus.ASSIGNED, executorId: acceptOut.executorId },
+  });
+
+  revalidateOrderPaths(acceptOut.orderId);
+
+  notifySafe(async () => {
+    await createNotification({
+      userId: acceptOut.executorId,
+      kind: NotificationKind.EXECUTOR_ASSIGNED,
+      title: "Вас выбрали исполнителем",
+      body: acceptOut.orderTitle,
+      link: `/orders/${acceptOut.orderId}`,
+    });
+  });
+
   return { ok: true };
 }
 

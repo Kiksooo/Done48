@@ -1,3 +1,4 @@
+import { auditActionRu, auditEntityTypeRu } from "@/lib/audit-labels";
 import { formatDateTime } from "@/lib/format";
 import { listAuditLogsForAdmin } from "@/server/queries/audit";
 
@@ -38,9 +39,9 @@ export default async function AdminAuditLogsPage() {
                   <td className="whitespace-nowrap px-3 py-2 text-neutral-600">
                     {formatDateTime(r.createdAt)}
                   </td>
-                  <td className="px-3 py-2 font-mono text-xs">{r.action}</td>
+                  <td className="px-3 py-2 text-sm">{auditActionRu(r.action)}</td>
                   <td className="px-3 py-2">
-                    <span className="text-neutral-800 dark:text-neutral-200">{r.entityType}</span>
+                    <span className="text-neutral-800 dark:text-neutral-200">{auditEntityTypeRu(r.entityType)}</span>
                     {r.entityId ? (
                       <span className="ml-1 font-mono text-xs text-neutral-500">{r.entityId}</span>
                     ) : null}

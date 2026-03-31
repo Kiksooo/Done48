@@ -195,14 +195,20 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
     else executorPublicName = "Исполнитель";
   }
 
-  const proposals = order.proposals.map((p) => ({
-    id: p.id,
-    status: p.status,
-    executorId: p.executorId,
-    label: p.executor.email,
-    offeredCents: p.offeredCents,
-    offeredDays: p.offeredDays,
-  }));
+  const proposals = order.proposals.map((p) => {
+    const ep = p.executor.executorProfile;
+    const dn = ep?.displayName?.trim();
+    const un = ep?.username?.trim();
+    const label = dn || (un ? `@${un}` : null) || p.executor.email;
+    return {
+      id: p.id,
+      status: p.status,
+      executorId: p.executorId,
+      label,
+      offeredCents: p.offeredCents,
+      offeredDays: p.offeredDays,
+    };
+  });
 
   const backHref =
     user.role === "ADMIN"

@@ -1,4 +1,5 @@
 import { formatDateTime, formatMoneyFromCents } from "@/lib/format";
+import { PAYOUT_STATUS_LABELS } from "@/lib/finance-labels";
 import { listPayouts } from "@/server/queries/finance";
 import { PayoutActions } from "./payout-actions";
 
@@ -34,7 +35,7 @@ export default async function AdminPayoutsPage() {
                 </td>
                 <td className="px-3 py-2">{p.executor.email}</td>
                 <td className="px-3 py-2 font-medium">{formatMoneyFromCents(p.amountCents, p.currency)}</td>
-                <td className="px-3 py-2">{p.status}</td>
+                <td className="px-3 py-2">{PAYOUT_STATUS_LABELS[p.status]}</td>
                 <td className="max-w-xs truncate px-3 py-2 text-neutral-600" title={p.payoutDetails}>
                   {p.payoutDetails}
                 </td>

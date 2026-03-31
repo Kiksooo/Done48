@@ -10,6 +10,7 @@ import {
 } from "@/components/cabinet/dashboard-ui";
 import { Button } from "@/components/ui/button";
 import { getSessionUserForAction } from "@/lib/rbac";
+import { executorAccountStatusRu, verificationStatusRu } from "@/lib/executor-labels";
 import { prisma } from "@/lib/db";
 
 function greetingName(displayName: string | null | undefined, username: string | null | undefined, email: string) {
@@ -154,7 +155,11 @@ export default async function ExecutorHomePage() {
           <DashboardQuickLink
             href="/executor/profile"
             title="Профиль и верификация"
-            description={`Статус аккаунта: ${profile?.accountStatus ?? "—"} · верификация: ${profile?.verificationStatus ?? "—"}`}
+            description={`Статус аккаунта: ${
+              profile?.accountStatus ? executorAccountStatusRu(profile.accountStatus) : "—"
+            } · верификация: ${
+              profile?.verificationStatus ? verificationStatusRu(profile.verificationStatus) : "—"
+            }`}
             icon={UserRound}
           />
         </div>

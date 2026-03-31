@@ -65,14 +65,14 @@ export function FeedbackForm() {
               <Input id="fb-name" value={name} onChange={(e) => setName(e.target.value)} disabled={pending} />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="fb-email">Email (необязательно)</Label>
+              <Label htmlFor="fb-email">Эл. почта (необязательно)</Label>
               <Input
                 id="fb-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={pending}
-                placeholder="name@email.ru"
+                    placeholder="primer@pochta.ru"
               />
             </div>
           </div>

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatDateTime } from "@/lib/format";
+import { CONTACT_BLOCKLIST_KIND_LABELS } from "@/lib/user-labels";
 import {
   adminAddContactBlocklistAction,
   adminRemoveContactBlocklistAction,
@@ -242,9 +243,9 @@ export function AdminModerationPanel(props: { reports: ModerationReportRow[]; bl
                 value={blKind}
                 onChange={(e) => setBlKind(e.target.value as ContactBlocklistKind)}
               >
-                <option value="EMAIL">Email</option>
-                <option value="PHONE">Телефон</option>
-                <option value="TELEGRAM">Telegram</option>
+                <option value="EMAIL">{CONTACT_BLOCKLIST_KIND_LABELS.EMAIL}</option>
+                <option value="PHONE">{CONTACT_BLOCKLIST_KIND_LABELS.PHONE}</option>
+                <option value="TELEGRAM">{CONTACT_BLOCKLIST_KIND_LABELS.TELEGRAM}</option>
               </select>
             </div>
             <div className="space-y-2">
@@ -280,7 +281,7 @@ export function AdminModerationPanel(props: { reports: ModerationReportRow[]; bl
               <tbody>
                 {props.blocklist.map((b) => (
                   <tr key={b.id} className="border-b border-neutral-100 dark:border-neutral-900">
-                    <td className="px-3 py-2">{b.kind}</td>
+                    <td className="px-3 py-2">{CONTACT_BLOCKLIST_KIND_LABELS[b.kind]}</td>
                     <td className="px-3 py-2 font-mono text-xs">{b.valueNorm}</td>
                     <td className="px-3 py-2 text-xs text-neutral-600">{b.reason ?? "—"}</td>
                     <td className="px-3 py-2 text-neutral-600">{formatDateTime(b.createdAt)}</td>

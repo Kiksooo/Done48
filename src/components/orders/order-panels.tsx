@@ -17,7 +17,12 @@ import { formatMoneyFromCents } from "@/lib/format";
 import { PAYMENT_STATUS_LABELS } from "@/lib/order-labels";
 import { customerReserveOrderAction } from "@/server/actions/finance/customer-finance";
 import { adminAcceptProposalAction, adminAssignExecutorAction, adminPublishOrder, adminSetOrderStatusAction } from "@/server/actions/orders/admin-orders";
-import { customerAcceptWorkAction, customerCancelOrderAction, customerRequestRevisionAction } from "@/server/actions/orders/customer-orders";
+import {
+  customerAcceptProposalAction,
+  customerAcceptWorkAction,
+  customerCancelOrderAction,
+  customerRequestRevisionAction,
+} from "@/server/actions/orders/customer-orders";
 import {
   executorCreateProposalAction,
   executorStartWorkAction,
@@ -274,6 +279,55 @@ export function OrderPanels(props: {
             <p className="mt-2 text-xs text-emerald-800 dark:text-emerald-200/90">
               Сумма заблокирована на площадке до приёмки работы или возврата по правилам заказа.
             </p>
+          ) : null}
+          {snapshot.status === "PUBLISHED" &&
+          snapshot.visibilityType === "OPEN_FOR_RESPONSES" &&
+          !snapshot.executorId ? (
+            <div className="mt-4 border-t border-neutral-200 pt-4 dark:border-neutral-800">
+              <h3 className="text-sm font-medium text-neutral-800 dark:text-neutral-200">Отклики</h3>
+              {snapshot.paymentStatus === "RESERVED" ? (
+                <>
+                  <p className="mt-1 text-xs text-neutral-500">
+                    Выберите исполнителя по одному из откликов. Остальные отклики будут отклонены автоматически.
+                  </p>
+                  <ul className="mt-2 space-y-2 text-sm">
+                    {snapshot.proposals
+                      .filter((p) => p.status === "PENDING")
+                      .map((p) => (
+                        <li
+                          key={p.id}
+                          className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-neutral-100 px-3 py-2 dark:border-neutral-900"
+                        >
+                          <span>
+                            {p.label}
+                            {p.offeredCents != null
+                              ? ` · ${formatMoneyFromCents(p.offeredCents)}`
+                              : ""}
+                            {p.offeredDays != null ? ` · ${p.offeredDays} дн.` : ""}
+                          </span>
+                          <Button
+                            type="button"
+                            size="sm"
+                            disabled={pending}
+                            onClick={() =>
+                              run("pick", () => customerAcceptProposalAction({ proposalId: p.id }))
+                            }
+                          >
+                            Выбрать исполнителем
+                          </Button>
+                        </li>
+                      ))}
+                    {snapshot.proposals.filter((p) => p.status === "PENDING").length === 0 ? (
+                      <li className="text-neutral-500">Пока нет откликов — дождитесь исполнителей.</li>
+                    ) : null}
+                  </ul>
+                </>
+              ) : (
+                <p className="mt-1 text-xs text-amber-800 dark:text-amber-200/90">
+                  Чтобы выбрать исполнителя, сначала заблокируйте сумму заказа в безопасной сделке (кнопка выше).
+                </p>
+              )}
+            </div>
           ) : null}
           <div className="mt-3 flex flex-wrap gap-2">
             {["NEW", "ON_MODERATION", "PUBLISHED"].includes(snapshot.status) &&

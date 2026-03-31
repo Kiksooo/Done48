@@ -27,10 +27,10 @@ import { SITE_EMAIL_INFO } from "@/lib/site-contact";
 import { cn } from "@/lib/utils";
 
 const categories = [
-  { icon: Palette, title: "Дизайн и визуал", desc: "Логотипы, обложки, презентации, UI-наброски" },
+  { icon: Palette, title: "Дизайн и визуал", desc: "Логотипы, обложки, презентации, наброски интерфейсов" },
   { icon: PenLine, title: "Тексты и контент", desc: "Копирайт, статьи, сценарии, редактура" },
   { icon: Code2, title: "Разработка и техника", desc: "Скрипты, правки сайта, мелкие задачи по коду" },
-  { icon: Megaphone, title: "Маркетинг и SMM", desc: "Креативы, воронки, настройка рекламы" },
+  { icon: Megaphone, title: "Маркетинг и соцсети", desc: "Креативы, воронки, настройка рекламы" },
   { icon: Wrench, title: "Бытовые услуги", desc: "Уборка, сантехнические работы, сборка мебели и мелкий ремонт" },
 ];
 

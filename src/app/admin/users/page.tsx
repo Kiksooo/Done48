@@ -1,6 +1,7 @@
 import { AdminUserActionsCell } from "@/components/admin/admin-user-actions-cell";
 import { Badge } from "@/components/ui/badge";
 import { formatDateTime } from "@/lib/format";
+import { ROLE_LABELS } from "@/lib/user-labels";
 import { listUsersForAdmin } from "@/server/queries/users";
 
 export default async function AdminUsersPage() {
@@ -19,7 +20,7 @@ export default async function AdminUsersPage() {
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/40">
             <tr>
-              <th className="px-3 py-2 font-medium">Email</th>
+              <th className="px-3 py-2 font-medium">Почта</th>
               <th className="px-3 py-2 font-medium">Роль</th>
               <th className="px-3 py-2 font-medium">Статус</th>
               <th className="px-3 py-2 font-medium">Онбординг</th>
@@ -32,7 +33,7 @@ export default async function AdminUsersPage() {
               <tr key={u.id} className="border-b border-neutral-100 dark:border-neutral-900">
                 <td className="px-3 py-2">{u.email}</td>
                 <td className="px-3 py-2">
-                  <Badge variant="outline">{u.role}</Badge>
+                  <Badge variant="outline">{ROLE_LABELS[u.role]}</Badge>
                 </td>
                 <td className="px-3 py-2">
                   {u.isActive ? (
