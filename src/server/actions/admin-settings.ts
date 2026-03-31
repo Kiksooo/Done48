@@ -35,8 +35,9 @@ export async function adminUpdatePlatformSettingsAction(raw: unknown): Promise<A
   try {
     await ensurePlatformSettingsTable();
   } catch (e) {
+    // Не блокируем сохранение: в некоторых окружениях нет прав на CREATE/ALTER,
+    // но таблица уже может быть корректной и upsert пройдет успешно.
     console.error("[admin-settings] ensurePlatformSettingsTable failed", e);
-    return { ok: false, error: "Не удалось подготовить таблицу настроек в БД." };
   }
 
   const upsertSettings = async () =>
