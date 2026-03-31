@@ -34,6 +34,7 @@ export type CabinetNavItem = {
 export const ADMIN_NAV: CabinetNavItem[] = [
   { href: "/admin", label: "Дашборд", icon: "layoutDashboard", end: true },
   { href: "/admin/users", label: "Пользователи", icon: "users" },
+  { href: "/admin/executors", label: "Исполнители", icon: "briefcase" },
   { href: "/admin/orders", label: "Заказы", icon: "clipboardList" },
   { href: "/admin/categories", label: "Категории", icon: "folderTree" },
   { href: "/admin/proposals", label: "Отклики", icon: "inbox" },
