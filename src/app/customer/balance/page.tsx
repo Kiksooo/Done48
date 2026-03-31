@@ -6,6 +6,7 @@ import { listTransactionsForUser } from "@/server/queries/finance";
 import { formatDateTime, formatMoneyFromCents } from "@/lib/format";
 import { TRANSACTION_TYPE_LABELS } from "@/lib/finance-labels";
 import { CustomerTopUpForm } from "./top-up-form";
+import { CustomerWithdrawForm } from "./withdraw-form";
 
 export default async function CustomerBalancePage() {
   const user = await getSessionUserForAction();
@@ -21,8 +22,8 @@ export default async function CustomerBalancePage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Баланс и оплаты</h1>
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Пополнение (демо), безопасные сделки: сумма блокируется на площадке до приёмки работы, затем уходит исполнителю
-          (за вычетом комиссии) — и история операций.
+          Пополнение и вывод (демо), безопасные сделки: сумма блокируется на площадке до приёмки работы, затем уходит
+          исполнителю (за вычетом комиссии) — и история операций.
         </p>
       </div>
 
@@ -31,10 +32,18 @@ export default async function CustomerBalancePage() {
         <p className="mt-1 text-3xl font-semibold">
           {formatMoneyFromCents(profile?.balanceCents ?? 0)}
         </p>
-        <div className="mt-6 border-t border-neutral-100 pt-6 dark:border-neutral-900">
-          <h2 className="text-sm font-semibold">Пополнение</h2>
-          <div className="mt-3">
-            <CustomerTopUpForm />
+        <div className="mt-6 space-y-8 border-t border-neutral-100 pt-6 dark:border-neutral-900">
+          <div>
+            <h2 className="text-sm font-semibold">Пополнение</h2>
+            <div className="mt-3">
+              <CustomerTopUpForm />
+            </div>
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold">Вывод средств</h2>
+            <div className="mt-3">
+              <CustomerWithdrawForm />
+            </div>
           </div>
         </div>
       </div>

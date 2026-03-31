@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { isPrismaTransactionConflict } from "@/lib/prisma-errors";
 import { getSessionUserForAction } from "@/lib/rbac";
-import { demoTopUpSchema, reserveOrderSchema } from "@/schemas/finance";
+import { demoTopUpSchema, demoWithdrawSchema, reserveOrderSchema } from "@/schemas/finance";
 import { assertOrderWritableByCustomer } from "@/server/orders/access";
 import type { ActionResult } from "@/server/actions/orders/create-order";
 
@@ -42,6 +42,60 @@ export async function customerDemoTopUpAction(raw: unknown): Promise<ActionResul
       },
     });
   });
+
+  revalidateFinance();
+  return { ok: true };
+}
+
+export async function customerDemoWithdrawAction(raw: unknown): Promise<ActionResult> {
+  const user = await getSessionUserForAction();
+  if (!user || user.role !== Role.CUSTOMER) {
+    return { ok: false, error: "Только для заказчика" };
+  }
+
+  const parsed = demoWithdrawSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Некорректные данные" };
+  }
+
+  const cents = Math.round(parsed.data.rubles * 100);
+
+  try {
+    await prisma.$transaction(
+      async (tx) => {
+        const dec = await tx.customerProfile.updateMany({
+          where: { userId: user.id, balanceCents: { gte: cents } },
+          data: { balanceCents: { decrement: cents } },
+        });
+        if (dec.count === 0) {
+          throw new Error("INSUFFICIENT_FUNDS");
+        }
+        await tx.transaction.create({
+          data: {
+            type: "WITHDRAWAL",
+            amountCents: cents,
+            currency: "RUB",
+            fromUserId: user.id,
+            meta: { source: "demo", note: "Вывод на карту/счёт (демо, без реального платежа)" },
+          },
+        });
+      },
+      {
+        isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        maxWait: 5000,
+        timeout: 10000,
+      },
+    );
+  } catch (e) {
+    const code = e instanceof Error ? e.message : "";
+    if (code === "INSUFFICIENT_FUNDS") {
+      return { ok: false, error: "Недостаточно средств на балансе" };
+    }
+    if (isPrismaTransactionConflict(e)) {
+      return { ok: false, error: "Конфликт при сохранении, попробуйте ещё раз" };
+    }
+    throw e;
+  }
 
   revalidateFinance();
   return { ok: true };

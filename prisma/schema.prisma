@@ -455,6 +455,7 @@ enum TransactionType {
   CAPTURE
   REFUND
   PAYOUT
+  WITHDRAWAL
   ADJUSTMENT
   FEE
 }

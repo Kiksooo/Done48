@@ -13,6 +13,7 @@ export const TRANSACTION_TYPE_LABELS: Record<TransactionType, string> = {
   CAPTURE: "Списание (заказ)",
   REFUND: "Возврат",
   PAYOUT: "Выплата",
+  WITHDRAWAL: "Вывод средств",
   ADJUSTMENT: "Корректировка",
   FEE: "Комиссия платформы",
 };

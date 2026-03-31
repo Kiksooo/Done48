@@ -4,6 +4,10 @@ export const demoTopUpSchema = z.object({
   rubles: z.coerce.number().positive("Сумма должна быть больше 0").max(10_000_000),
 });
 
+export const demoWithdrawSchema = z.object({
+  rubles: z.coerce.number().positive("Сумма должна быть больше 0").max(10_000_000),
+});
+
 export const reserveOrderSchema = z.object({
   orderId: z.string().min(1),
 });
