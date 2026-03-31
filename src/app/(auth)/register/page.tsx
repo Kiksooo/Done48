@@ -12,6 +12,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RegisterPage() {
-  return <RegisterForm />;
+export default function RegisterPage({
+  searchParams,
+}: {
+  searchParams: { ref?: string };
+}) {
+  const ref = searchParams.ref?.trim() || undefined;
+  return <RegisterForm referralCode={ref} />;
 }

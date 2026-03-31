@@ -1,7 +1,9 @@
 import { CustomerProfileForm } from "@/components/profile/customer-profile-form";
+import { ReferralCard } from "@/components/profile/referral-card";
 import { ProfileReviewsSection } from "@/components/reviews/profile-reviews-section";
 import { prisma } from "@/lib/db";
 import { getSessionUserForAction } from "@/lib/rbac";
+import { getSiteUrl } from "@/lib/site-url";
 import { redirect } from "next/navigation";
 import { getReviewStatsForUser, listReviewsReceivedByUser } from "@/server/queries/reviews";
 
@@ -18,6 +20,8 @@ export default async function CustomerProfilePage() {
   if (!profile) {
     return <p className="text-sm text-neutral-600">Профиль не найден.</p>;
   }
+
+  const referralLink = `${getSiteUrl()}/register?ref=${encodeURIComponent(user.id)}`;
 
   return (
     <div className="space-y-6">
@@ -37,6 +41,7 @@ export default async function CustomerProfilePage() {
           avatarUrl: profile.avatarUrl,
         }}
       />
+      <ReferralCard link={referralLink} />
       <ProfileReviewsSection stats={stats} reviews={receivedReviews} mode="full" />
     </div>
   );

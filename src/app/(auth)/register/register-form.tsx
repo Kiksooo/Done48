@@ -19,7 +19,7 @@ function SubmitButton() {
   );
 }
 
-export function RegisterForm() {
+export function RegisterForm({ referralCode }: { referralCode?: string }) {
   const router = useRouter();
   const [state, formAction] = useFormState<RegisterState | undefined, FormData>(
     registerUser,
@@ -40,6 +40,7 @@ export function RegisterForm() {
       </CardHeader>
       <CardContent>
         <form className="space-y-4" action={formAction}>
+          {referralCode ? <input type="hidden" name="ref" value={referralCode} /> : null}
           {state && !state.ok && (
             <p className="text-sm text-red-600 dark:text-red-400" role="alert">
               {state.error}

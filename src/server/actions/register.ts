@@ -1,7 +1,7 @@
 "use server";
 
 import bcrypt from "bcryptjs";
-import { Prisma, Role } from "@prisma/client";
+import { NotificationKind, Prisma, Role } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { isContactBlocklisted } from "@/lib/contact-blocklist";
 import { registerSchema } from "@/schemas/auth";
@@ -30,6 +30,8 @@ export async function registerUser(
   }
 
   const email = parsed.data.email.toLowerCase();
+  const refRaw = formData.get("ref");
+  const referralUserId = typeof refRaw === "string" && refRaw.trim().length > 0 ? refRaw.trim() : null;
   let blocked = false;
   try {
     blocked = await isContactBlocklisted("EMAIL", email);
@@ -84,6 +86,28 @@ export async function registerUser(
         return { ok: true };
       }
       throw profileError;
+    }
+
+    if (referralUserId && referralUserId !== user.id) {
+      try {
+        const inviter = await prisma.user.findUnique({
+          where: { id: referralUserId },
+          select: { id: true },
+        });
+        if (inviter) {
+          await prisma.notification.create({
+            data: {
+              userId: inviter.id,
+              kind: NotificationKind.GENERIC,
+              title: "Новая регистрация по вашей ссылке",
+              body: `${email} зарегистрировался(ась) по вашей реферальной ссылке.`,
+              link: "/",
+            },
+          });
+        }
+      } catch {
+        // Ошибки реферального уведомления не должны блокировать регистрацию.
+      }
     }
 
     return { ok: true };

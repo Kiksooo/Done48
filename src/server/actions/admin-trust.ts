@@ -29,14 +29,21 @@ export async function adminUpdateUserReportAction(raw: unknown): Promise<ActionR
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Некорректные данные" };
   }
 
-  await prisma.userReport.update({
-    where: { id: parsed.data.reportId },
-    data: {
-      status: parsed.data.status,
-      adminNote: parsed.data.adminNote ?? undefined,
-      handledById: admin.id,
-    },
-  });
+  try {
+    await prisma.userReport.update({
+      where: { id: parsed.data.reportId },
+      data: {
+        status: parsed.data.status,
+        adminNote: parsed.data.adminNote ?? undefined,
+        handledById: admin.id,
+      },
+    });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && (e.code === "P2021" || e.code === "P2022")) {
+      return { ok: false, error: "Раздел модерации недоступен: таблица жалоб ещё не создана в БД." };
+    }
+    throw e;
+  }
 
   await writeAuditLog({
     actorUserId: admin.id,
@@ -73,6 +80,9 @@ export async function adminAddContactBlocklistAction(raw: unknown): Promise<Acti
       },
     });
   } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && (e.code === "P2021" || e.code === "P2022")) {
+      return { ok: false, error: "Блоклист недоступен: таблица ещё не создана в БД." };
+    }
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
       return { ok: false, error: "Такая запись уже есть в блоклисте" };
     }
@@ -101,7 +111,14 @@ export async function adminRemoveContactBlocklistAction(raw: unknown): Promise<A
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Некорректные данные" };
   }
 
-  await prisma.contactBlocklist.delete({ where: { id: parsed.data.entryId } });
+  try {
+    await prisma.contactBlocklist.delete({ where: { id: parsed.data.entryId } });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && (e.code === "P2021" || e.code === "P2022")) {
+      return { ok: false, error: "Блоклист недоступен: таблица ещё не создана в БД." };
+    }
+    throw e;
+  }
 
   await writeAuditLog({
     actorUserId: admin.id,
