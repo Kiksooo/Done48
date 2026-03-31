@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { MapContainer, Marker, TileLayer } from "react-leaflet";
+import { MapInvalidateSize } from "./map-invalidate-size";
 import { ensureLeafletDefaultIcons } from "./leaflet-icons";
 import "leaflet/dist/leaflet.css";
 
@@ -20,7 +21,7 @@ export function OrderLocationMap(props: {
 
   return (
     <div className="space-y-2">
-      <div className="overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-700">
+      <div className="relative z-0 overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-700 [&_.leaflet-container]:z-0">
         <MapContainer
           center={[lat, lng]}
           zoom={15}
@@ -31,6 +32,7 @@ export function OrderLocationMap(props: {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+          <MapInvalidateSize />
           <Marker position={[lat, lng]} />
         </MapContainer>
       </div>

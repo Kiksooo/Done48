@@ -6,9 +6,10 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AddressAutocompleteInput } from "@/components/maps/address-autocomplete-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -73,6 +74,7 @@ export function OrderCreateForm({
   const workAddress = form.watch("workAddress");
   const [isGeocodingAddress, setIsGeocodingAddress] = useState(false);
   const [addressGeoHint, setAddressGeoHint] = useState<string | null>(null);
+  const [mapLocatePulse, setMapLocatePulse] = useState(0);
   const addressReqSeqRef = useRef(0);
 
   const subs = useMemo(() => {
@@ -94,6 +96,7 @@ export function OrderCreateForm({
     if (!isOfflineWork) {
       setIsGeocodingAddress(false);
       setAddressGeoHint(null);
+      setMapLocatePulse(0);
       return;
     }
 
@@ -108,29 +111,24 @@ export function OrderCreateForm({
     const timer = window.setTimeout(async () => {
       try {
         setIsGeocodingAddress(true);
-        const params = new URLSearchParams({
-          format: "jsonv2",
-          q: addr,
-          limit: "1",
-          addressdetails: "0",
-        });
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`);
+        const res = await fetch(`/api/geocode/search?q=${encodeURIComponent(addr)}&limit=1`);
         if (!res.ok) throw new Error("geocode failed");
-        const rows = (await res.json()) as Array<{ lat: string; lon: string }>;
+        const body = (await res.json()) as { results: Array<{ displayName: string; lat: number; lng: number }> };
         if (addressReqSeqRef.current !== reqSeq) return;
-        const first = rows[0];
+        const first = body.results?.[0];
         if (!first) {
           setAddressGeoHint("Адрес не найден, уточните формулировку или поставьте точку вручную.");
           return;
         }
-        const lat = Number(first.lat);
-        const lng = Number(first.lon);
+        const lat = first.lat;
+        const lng = first.lng;
         if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
           setAddressGeoHint("Не удалось распознать координаты, поставьте точку вручную.");
           return;
         }
         form.setValue("workLat", lat, { shouldValidate: true });
         form.setValue("workLng", lng, { shouldValidate: true });
+        setMapLocatePulse((p) => p + 1);
         setAddressGeoHint("Точка на карте обновлена по адресу.");
       } catch {
         if (addressReqSeqRef.current !== reqSeq) return;
@@ -340,10 +338,26 @@ export function OrderCreateForm({
               <>
                 <div className="space-y-2">
                   <Label htmlFor="workAddress">Адрес или ориентир (необязательно)</Label>
-                  <Input
-                    id="workAddress"
-                    placeholder="Например: м. Технопарк, БЦ «Сириус», подъезд 2"
-                    {...form.register("workAddress")}
+                  <Controller
+                    name="workAddress"
+                    control={form.control}
+                    render={({ field }) => (
+                      <AddressAutocompleteInput
+                        id="workAddress"
+                        name={field.name}
+                        placeholder="Начните вводить улицу или район — подсказки из России"
+                        value={field.value ?? ""}
+                        onBlur={field.onBlur}
+                        onChange={(v) => field.onChange(v)}
+                        ref={field.ref}
+                        onPick={(hit) => {
+                          form.setValue("workLat", hit.lat, { shouldValidate: true });
+                          form.setValue("workLng", hit.lng, { shouldValidate: true });
+                          setMapLocatePulse((p) => p + 1);
+                          setAddressGeoHint("Адрес выбран из подсказок — точка на карте обновлена.");
+                        }}
+                      />
+                    )}
                   />
                   {isGeocodingAddress ? (
                     <p className="text-xs text-neutral-500">Ищем адрес на карте…</p>
@@ -355,6 +369,7 @@ export function OrderCreateForm({
                   <WorkLocationPicker
                     lat={workLat}
                     lng={workLng}
+                    locatePulse={mapLocatePulse}
                     onChange={(lat, lng) => {
                       form.setValue("workLat", lat, { shouldValidate: true });
                       form.setValue("workLng", lng, { shouldValidate: true });
