@@ -73,3 +73,27 @@ export async function listChatsForInbox(userId: string): Promise<ChatInboxRow[]>
   rows.sort((a, b) => b.lastAt.getTime() - a.lastAt.getTime());
   return rows;
 }
+
+/** Сумма непрочитанных по всем чатам участника (для бейджа в меню кабинета). */
+export async function countTotalUnreadChatMessagesForUser(userId: string): Promise<number> {
+  try {
+    const members = await prisma.chatMember.findMany({
+      where: { userId },
+      select: { chatId: true, lastReadAt: true },
+    });
+    const counts = await Promise.all(
+      members.map((m) =>
+        prisma.chatMessage.count({
+          where: {
+            chatId: m.chatId,
+            createdAt: { gt: m.lastReadAt ?? new Date(0) },
+            NOT: { kind: "USER", senderId: userId },
+          },
+        }),
+      ),
+    );
+    return counts.reduce((acc, n) => acc + n, 0);
+  } catch {
+    return 0;
+  }
+}

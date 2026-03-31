@@ -9,6 +9,8 @@ type CabinetShellProps = {
   userEmail: string;
   /** Непрочитанные in-app уведомления (бейдж у пункта «Уведомления»). */
   unreadNotifications?: number;
+  /** Непрочитанные сообщения в чатах по заказам (бейдж у «Сообщения»). */
+  unreadChatMessages?: number;
   /** Ссылка «Профиль» в подвале боковой панели. */
   profileHref?: string;
   /** Ссылка на помощь / юридические документы. */
@@ -23,6 +25,7 @@ export function CabinetShell({
   nav,
   userEmail,
   unreadNotifications = 0,
+  unreadChatMessages = 0,
   profileHref,
   helpHref = "/legal",
   showOnboardingCallout = false,
@@ -34,6 +37,7 @@ export function CabinetShell({
       nav={nav}
       userEmail={userEmail}
       unreadNotifications={unreadNotifications}
+      unreadChatMessages={unreadChatMessages}
       profileHref={profileHref}
       helpHref={helpHref}
     >

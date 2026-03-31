@@ -95,6 +95,8 @@ export async function sendChatMessageAction(raw: unknown): Promise<ActionResult>
   });
 
   revalidatePath(`/orders/${order.id}`);
+  revalidatePath("/customer", "layout");
+  revalidatePath("/executor", "layout");
   return { ok: true };
 }
 
@@ -118,5 +120,7 @@ export async function markChatReadAction(orderId: string): Promise<ActionResult>
   });
 
   revalidatePath(`/orders/${orderId}`);
+  revalidatePath("/customer", "layout");
+  revalidatePath("/executor", "layout");
   return { ok: true };
 }

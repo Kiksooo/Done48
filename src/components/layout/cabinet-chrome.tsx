@@ -16,6 +16,7 @@ type CabinetChromeProps = {
   nav: CabinetNavItem[];
   userEmail: string;
   unreadNotifications?: number;
+  unreadChatMessages?: number;
   profileHref?: string;
   helpHref?: string;
   children: React.ReactNode;
@@ -26,6 +27,7 @@ export function CabinetChrome({
   nav,
   userEmail,
   unreadNotifications = 0,
+  unreadChatMessages = 0,
   profileHref,
   helpHref = "/legal",
   children,
@@ -91,6 +93,14 @@ export function CabinetChrome({
                 {item.href.includes("/notifications") && unreadNotifications > 0 ? (
                   <span className="shrink-0 rounded-full bg-red-600 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white tabular-nums shadow-sm">
                     {unreadNotifications > 99 ? "99+" : unreadNotifications}
+                  </span>
+                ) : null}
+                {item.href.includes("/messages") && unreadChatMessages > 0 ? (
+                  <span
+                    className="shrink-0 rounded-full bg-red-600 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white tabular-nums shadow-sm"
+                    aria-label={`Непрочитанных сообщений: ${unreadChatMessages}`}
+                  >
+                    {unreadChatMessages > 99 ? "99+" : unreadChatMessages}
                   </span>
                 ) : null}
               </Link>

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { CabinetShell } from "@/components/layout/cabinet-shell";
 import { EXECUTOR_NAV } from "@/config/navigation";
 import { getSessionUserForAction } from "@/lib/rbac";
+import { countTotalUnreadChatMessagesForUser } from "@/server/queries/chat-inbox";
 import { countUnreadNotifications } from "@/server/queries/notifications";
 
 export default async function ExecutorLayout({ children }: { children: ReactNode }) {
@@ -12,7 +13,10 @@ export default async function ExecutorLayout({ children }: { children: ReactNode
     redirect("/login");
   }
 
-  const unreadNotifications = await countUnreadNotifications(user.id);
+  const [unreadNotifications, unreadChatMessages] = await Promise.all([
+    countUnreadNotifications(user.id),
+    countTotalUnreadChatMessagesForUser(user.id),
+  ]);
 
   return (
     <CabinetShell
@@ -20,6 +24,7 @@ export default async function ExecutorLayout({ children }: { children: ReactNode
       nav={EXECUTOR_NAV}
       userEmail={user.email}
       unreadNotifications={unreadNotifications}
+      unreadChatMessages={unreadChatMessages}
       profileHref="/executor/profile"
       showOnboardingCallout={!user.onboardingDone}
     >
