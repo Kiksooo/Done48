@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { writeAuditLog } from "@/server/audit/log";
+import { ensurePlatformSettingsTable } from "@/server/db/ensure-platform-settings";
 import { adminUpdatePlatformSettingsSchema } from "@/schemas/settings";
 import type { ActionResult } from "@/server/actions/orders/create-order";
 
@@ -31,8 +32,8 @@ export async function adminUpdatePlatformSettingsAction(raw: unknown): Promise<A
   }
   const minPayoutCents = Math.round(parsed.data.minPayoutRubles * 100);
 
-  try {
-    await prisma.platformSettings.upsert({
+  const upsertSettings = async () =>
+    prisma.platformSettings.upsert({
       where: { id: "default" },
       create: {
         id: "default",
@@ -50,11 +51,20 @@ export async function adminUpdatePlatformSettingsAction(raw: unknown): Promise<A
         maxExecutorProposalsPerDay: parsed.data.maxExecutorProposalsPerDay,
       },
     });
+
+  try {
+    await upsertSettings();
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && (e.code === "P2021" || e.code === "P2022")) {
-      return { ok: false, error: "Настройки недоступны: таблица PlatformSettings ещё не создана в БД." };
+      try {
+        await ensurePlatformSettingsTable();
+        await upsertSettings();
+      } catch {
+        return { ok: false, error: "Не удалось подготовить таблицу настроек в БД." };
+      }
+    } else {
+      throw e;
     }
-    throw e;
   }
 
   try {
