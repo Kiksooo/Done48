@@ -1,5 +1,6 @@
 "use client";
 
+import type { Role } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { useEffect, useTransition } from "react";
 import { useForm } from "react-hook-form";
@@ -8,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDateTime } from "@/lib/format";
+import { orderChatMessageSenderLine } from "@/lib/order-contact-privacy";
 import { markChatReadAction, sendChatMessageAction } from "@/server/actions/chat";
 
 export type OrderChatMessage = {
@@ -25,6 +27,9 @@ type FormValues = { body: string; attachmentUrl: string };
 export function OrderChat(props: {
   orderId: string;
   viewerId: string;
+  viewerRole: Role;
+  customerId: string;
+  executorId: string | null;
   canPost: boolean;
   initialMessages: OrderChatMessage[];
   unreadCount: number;
@@ -104,7 +109,15 @@ export function OrderChat(props: {
               >
                 <p className="text-xs opacity-80">
                   {formatDateTime(m.createdAt)}
-                  {m.senderEmail ? ` · ${m.senderEmail}` : ""}
+                  {" · "}
+                  {orderChatMessageSenderLine({
+                    viewerRole: props.viewerRole,
+                    viewerId: props.viewerId,
+                    customerId: props.customerId,
+                    executorId: props.executorId,
+                    senderId: m.senderId,
+                    senderEmail: m.senderEmail,
+                  })}
                 </p>
                 <p className="mt-1 whitespace-pre-wrap">{m.body}</p>
                 {m.attachmentUrl ? (

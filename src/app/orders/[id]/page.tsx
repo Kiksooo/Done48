@@ -22,6 +22,7 @@ import { ensureChatMembership, getChatMessagesForOrder } from "@/server/queries/
 import { getOrderDetailForPage, listExecutorsForSelect } from "@/server/queries/orders";
 import { prisma } from "@/lib/db";
 import { getDisputeOpenFlagsForOrder } from "@/server/queries/disputes";
+import { canRevealOrderPartyEmail } from "@/lib/order-contact-privacy";
 import { reviewerAvatarUrl, reviewerDisplayName } from "@/lib/review-display";
 import { findReviewByOrderAndAuthor, listReviewsForOrder } from "@/server/queries/reviews";
 
@@ -155,14 +156,44 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
     }
   }
 
-  const reportTargetEmail =
-    reportTargetId &&
-    (
-      await prisma.user.findUnique({
-        where: { id: reportTargetId },
-        select: { email: true },
-      })
-    )?.email;
+  const reportCounterpartyLabel =
+    reportTargetId === order.customerId
+      ? "Заказчик"
+      : reportTargetId === order.executorId
+        ? "Исполнитель"
+        : "Участник";
+
+  const showCustomerEmail = canRevealOrderPartyEmail({
+    viewerRole: user.role as Role,
+    viewerId: user.id,
+    partyUserId: order.customer.id,
+    customerId: order.customerId,
+    executorId: order.executorId,
+  });
+
+  const customerPublicName =
+    order.customer.customerProfile?.displayName?.trim() ||
+    (showCustomerEmail ? order.customer.email : "Заказчик");
+
+  const showExecutorEmail =
+    order.executor !== null &&
+    canRevealOrderPartyEmail({
+      viewerRole: user.role as Role,
+      viewerId: user.id,
+      partyUserId: order.executor.id,
+      customerId: order.customerId,
+      executorId: order.executorId,
+    });
+
+  let executorPublicName: string | null = null;
+  if (order.executor) {
+    const dn = order.executor.executorProfile?.displayName?.trim();
+    const un = order.executor.executorProfile?.username?.trim();
+    if (dn) executorPublicName = dn;
+    else if (un) executorPublicName = `@${un}`;
+    else if (showExecutorEmail) executorPublicName = order.executor.email;
+    else executorPublicName = "Исполнитель";
+  }
 
   const proposals = order.proposals.map((p) => ({
     id: p.id,
@@ -225,7 +256,12 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
           </div>
           <div>
             <p className="text-neutral-500">Заказчик</p>
-            <p className="font-medium">{order.customer.email}</p>
+            <p className="font-medium">{showCustomerEmail ? order.customer.email : customerPublicName}</p>
+            {!showCustomerEmail ? (
+              <p className="mt-1 text-xs text-neutral-500">
+                Почта скрыта до назначения исполнителя. Общение — в чате по заказу после того, как вас назначат.
+              </p>
+            ) : null}
             {order.customer.customerProfile?.city ? (
               <p className="mt-1 text-neutral-600 dark:text-neutral-400">
                 Город: {order.customer.customerProfile.city}
@@ -236,7 +272,12 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
           </div>
           <div>
             <p className="text-neutral-500">Исполнитель</p>
-            <p className="font-medium">{order.executor?.email ?? "—"}</p>
+            <p className="font-medium">
+              {order.executor ? (showExecutorEmail ? order.executor.email : executorPublicName) : "—"}
+            </p>
+            {order.executor && !showExecutorEmail ? (
+              <p className="mt-1 text-xs text-neutral-500">Контакт исполнителя доступен сторонам сделки.</p>
+            ) : null}
           </div>
           <div>
             <p className="text-neutral-500">Создан / обновлён</p>
@@ -292,8 +333,8 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
           reviews={orderReviewRows}
         />
 
-        {reportTargetId && reportTargetEmail ? (
-          <OrderReportSection orderId={order.id} targetEmail={reportTargetEmail} />
+        {reportTargetId ? (
+          <OrderReportSection orderId={order.id} counterpartyLabel={reportCounterpartyLabel} />
         ) : null}
 
         <OrderPanels
@@ -319,6 +360,9 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
         <OrderChat
           orderId={order.id}
           viewerId={user.id}
+          viewerRole={user.role as Role}
+          customerId={order.customerId}
+          executorId={order.executorId}
           canPost={canPostToChat}
           initialMessages={chatMessages}
           unreadCount={unreadCount}

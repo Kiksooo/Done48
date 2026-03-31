@@ -16,7 +16,7 @@ const CATEGORY_LABELS: Record<UserReportCategory, string> = {
   OTHER: "Другое",
 };
 
-export function OrderReportSection(props: { orderId: string; targetEmail: string }) {
+export function OrderReportSection(props: { orderId: string; counterpartyLabel: string }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [category, setCategory] = useState<UserReportCategory>("SCAM");
@@ -28,8 +28,9 @@ export function OrderReportSection(props: { orderId: string; targetEmail: string
     <section className="rounded-lg border border-amber-200/80 bg-amber-50/50 p-4 dark:border-amber-900/40 dark:bg-amber-950/20">
       <h2 className="text-sm font-semibold text-amber-950 dark:text-amber-100">Жалоба на пользователя</h2>
       <p className="mt-1 text-xs text-amber-900/80 dark:text-amber-200/80">
-        Контрагент по заказу: <span className="font-mono">{props.targetEmail}</span>. Опишите факты — модератор
-        рассмотрит обращение. Злоупотребление жалобами может привести к блокировке.
+        Контрагент по заказу: <span className="font-medium">{props.counterpartyLabel}</span>. Почта и прямые контакты не
+        показываются в интерфейсе; модератор видит детали в админке. Опишите факты — модератор рассмотрит обращение.
+        Злоупотребление жалобами может привести к блокировке.
       </p>
       {ok ? (
         <p className="mt-3 text-sm font-medium text-green-800 dark:text-green-300">

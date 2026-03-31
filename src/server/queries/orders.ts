@@ -105,10 +105,16 @@ export async function getOrderDetailForPage(orderId: string) {
         select: {
           id: true,
           email: true,
-          customerProfile: { select: { city: true } },
+          customerProfile: { select: { city: true, displayName: true } },
         },
       },
-      executor: { select: { id: true, email: true } },
+      executor: {
+        select: {
+          id: true,
+          email: true,
+          executorProfile: { select: { displayName: true, username: true } },
+        },
+      },
       statusHistory: { orderBy: { createdAt: "asc" } },
       proposals: {
         include: {
