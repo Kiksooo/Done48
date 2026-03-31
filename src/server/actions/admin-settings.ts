@@ -32,6 +32,13 @@ export async function adminUpdatePlatformSettingsAction(raw: unknown): Promise<A
   }
   const minPayoutCents = Math.round(parsed.data.minPayoutRubles * 100);
 
+  try {
+    await ensurePlatformSettingsTable();
+  } catch (e) {
+    console.error("[admin-settings] ensurePlatformSettingsTable failed", e);
+    return { ok: false, error: "Не удалось подготовить таблицу настроек в БД." };
+  }
+
   const upsertSettings = async () =>
     prisma.platformSettings.upsert({
       where: { id: "default" },
@@ -55,16 +62,8 @@ export async function adminUpdatePlatformSettingsAction(raw: unknown): Promise<A
   try {
     await upsertSettings();
   } catch (e) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError && (e.code === "P2021" || e.code === "P2022")) {
-      try {
-        await ensurePlatformSettingsTable();
-        await upsertSettings();
-      } catch {
-        return { ok: false, error: "Не удалось подготовить таблицу настроек в БД." };
-      }
-    } else {
-      throw e;
-    }
+    console.error("[admin-settings] platformSettings.upsert failed", e);
+    return { ok: false, error: "Не удалось сохранить настройки. Проверьте права к БД и миграции Prisma." };
   }
 
   try {
