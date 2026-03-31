@@ -1,4 +1,23 @@
 import Link from "next/link";
+import {
+  Banknote,
+  Briefcase,
+  ClipboardList,
+  CreditCard,
+  Flag,
+  FolderTree,
+  LayoutDashboard,
+  Scale,
+  Settings,
+  Users,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DashboardQuickLink,
+  DashboardSectionTitle,
+  DashboardStatTile,
+  DashboardWelcome,
+} from "@/components/cabinet/dashboard-ui";
 import { formatMoneyFromCents } from "@/lib/format";
 import { countAdminOverview } from "@/server/queries/orders";
 
@@ -6,45 +25,95 @@ export default async function AdminHomePage() {
   const o = await countAdminOverview();
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Дашборд</h1>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">Сводка платформы (MVP)</p>
-      </div>
+    <div className="space-y-10">
+      <DashboardWelcome
+        greeting="Админ-панель"
+        subtitle="Сводка по пользователям и заказам, быстрый переход к модерации, финансам и настройкам площадки."
+        action={
+          <Button asChild size="sm" variant="outline" className="w-full sm:w-auto">
+            <Link href="/admin/orders">Заказы</Link>
+          </Button>
+        }
+      />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-          <p className="text-sm text-neutral-500">Пользователи</p>
-          <p className="mt-1 text-2xl font-semibold">{o.users}</p>
-          <p className="mt-1 text-xs text-neutral-500">
-            заказчики {o.customers} · исполнители {o.executors}
-          </p>
+      <section className="space-y-4">
+        <DashboardSectionTitle>Показатели</DashboardSectionTitle>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <DashboardStatTile
+            icon={Users}
+            label="Пользователи"
+            value={o.users}
+            sublabel={`Заказчики ${o.customers} · Исполнители ${o.executors}`}
+          />
+          <DashboardStatTile
+            icon={ClipboardList}
+            label="Активные заказы"
+            value={o.activeOrders}
+            sublabel="Не завнесены и не отменены"
+          />
+          <DashboardStatTile
+            icon={LayoutDashboard}
+            label="GMV по бюджетам"
+            value={formatMoneyFromCents(o.gmvCents)}
+            sublabel="Оценка без черновиков и отмен"
+          />
         </div>
-        <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-          <p className="text-sm text-neutral-500">Активные заказы</p>
-          <p className="mt-1 text-2xl font-semibold">{o.activeOrders}</p>
-        </div>
-        <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-          <p className="text-sm text-neutral-500">GMV (оценка по бюджетам)</p>
-          <p className="mt-1 text-2xl font-semibold">{formatMoneyFromCents(o.gmvCents)}</p>
-          <p className="mt-1 text-xs text-neutral-500">Без отменённых и черновиков</p>
-        </div>
-      </div>
+      </section>
 
-      <div className="flex flex-wrap gap-4 text-sm font-medium">
-        <Link href="/admin/users" className="underline">
-          Пользователи
-        </Link>
-        <Link href="/admin/orders" className="underline">
-          Заказы
-        </Link>
-        <Link href="/admin/payments" className="underline">
-          Платежи
-        </Link>
-        <Link href="/admin/payouts" className="underline">
-          Выплаты
-        </Link>
-      </div>
+      <section className="space-y-4">
+        <DashboardSectionTitle>Управление</DashboardSectionTitle>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <DashboardQuickLink
+            href="/admin/users"
+            title="Пользователи"
+            description="Роли, блокировка и удаление учётных записей."
+            icon={Users}
+          />
+          <DashboardQuickLink
+            href="/admin/executors"
+            title="Исполнители"
+            description="Модерация анкет: статус «Активен» для откликов."
+            icon={Briefcase}
+          />
+          <DashboardQuickLink
+            href="/admin/orders"
+            title="Заказы"
+            description="Статусы, публикация и назначение."
+            icon={ClipboardList}
+          />
+          <DashboardQuickLink
+            href="/admin/moderation"
+            title="Жалобы и блоклист"
+            description="Обращения пользователей и ограничение контактов."
+            icon={Flag}
+          />
+          <DashboardQuickLink
+            href="/admin/categories"
+            title="Категории"
+            description="Таксономия для публикации заказов."
+            icon={FolderTree}
+          />
+          <DashboardQuickLink
+            href="/admin/payments"
+            title="Платежи"
+            description="Операции и безопасная сделка."
+            icon={CreditCard}
+          />
+          <DashboardQuickLink
+            href="/admin/payouts"
+            title="Выплаты"
+            description="Заявки исполнителей на вывод."
+            icon={Banknote}
+          />
+          <DashboardQuickLink href="/admin/disputes" title="Споры" description="Разбор спорных сделок." icon={Scale} />
+          <DashboardQuickLink
+            href="/admin/settings"
+            title="Настройки"
+            description="Комиссия, модерация новых заказов, лимиты откликов."
+            icon={Settings}
+          />
+        </div>
+      </section>
     </div>
   );
 }

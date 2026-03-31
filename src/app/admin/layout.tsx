@@ -20,6 +20,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       nav={ADMIN_NAV}
       userEmail={user.email}
       unreadNotifications={unreadNotifications}
+      profileHref="/admin/settings"
     >
       {children}
     </CabinetShell>

@@ -16,6 +16,8 @@ type CabinetChromeProps = {
   nav: CabinetNavItem[];
   userEmail: string;
   unreadNotifications?: number;
+  profileHref?: string;
+  helpHref?: string;
   children: React.ReactNode;
 };
 
@@ -24,6 +26,8 @@ export function CabinetChrome({
   nav,
   userEmail,
   unreadNotifications = 0,
+  profileHref,
+  helpHref = "/legal",
   children,
 }: CabinetChromeProps) {
   const pathname = usePathname() ?? "";
@@ -93,8 +97,24 @@ export function CabinetChrome({
             );
           })}
         </nav>
-        <div className="border-t border-border p-3 text-xs text-muted-foreground">
-          <p className="truncate" title={userEmail}>
+        <div className="space-y-2 border-t border-border p-3">
+          {profileHref ? (
+            <Link
+              href={profileHref}
+              className="block text-xs font-medium text-primary hover:underline"
+            >
+              Профиль
+            </Link>
+          ) : null}
+          {helpHref ? (
+            <Link
+              href={helpHref}
+              className="block text-xs text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Помощь и документы
+            </Link>
+          ) : null}
+          <p className="truncate text-xs text-muted-foreground" title={userEmail}>
             {userEmail}
           </p>
         </div>
@@ -119,7 +139,7 @@ export function CabinetChrome({
             <SignOutButton />
           </div>
         </header>
-        <main className="flex-1 bg-background">{children}</main>
+        <main className="flex-1 bg-muted/25 dark:bg-background">{children}</main>
       </div>
     </div>
   );

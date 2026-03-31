@@ -1,14 +1,30 @@
 import Link from "next/link";
-import { getSessionUserForAction } from "@/lib/rbac";
+import { Role, ExecutorAccountStatus } from "@prisma/client";
+import { Banknote, Briefcase, MessageSquare, Search, UserRound, Wrench } from "lucide-react";
 import { redirect } from "next/navigation";
-import { Role } from "@prisma/client";
+import {
+  DashboardQuickLink,
+  DashboardSectionTitle,
+  DashboardStatTile,
+  DashboardWelcome,
+} from "@/components/cabinet/dashboard-ui";
+import { Button } from "@/components/ui/button";
+import { getSessionUserForAction } from "@/lib/rbac";
 import { prisma } from "@/lib/db";
+
+function greetingName(displayName: string | null | undefined, username: string | null | undefined, email: string) {
+  const d = displayName?.trim();
+  if (d) return d.split(/\s+/)[0] ?? d;
+  const u = username?.trim();
+  if (u) return u;
+  return email.split("@")[0] || "исполнитель";
+}
 
 export default async function ExecutorHomePage() {
   const user = await getSessionUserForAction();
   if (!user || user.role !== Role.EXECUTOR) redirect("/login");
 
-  const [active, revision, completed] = await Promise.all([
+  const [active, revision, completed, profile] = await Promise.all([
     prisma.order.count({
       where: { executorId: user.id, status: { in: ["ASSIGNED", "IN_PROGRESS", "SUBMITTED"] } },
     }),
@@ -18,38 +34,131 @@ export default async function ExecutorHomePage() {
     prisma.order.count({
       where: { executorId: user.id, status: { in: ["COMPLETED", "ACCEPTED"] } },
     }),
+    prisma.executorProfile.findUnique({
+      where: { userId: user.id },
+      select: { displayName: true, username: true, accountStatus: true, verificationStatus: true },
+    }),
   ]);
 
+  const name = greetingName(profile?.displayName, profile?.username, user.email);
+
+  let statusNote: string | null = null;
+  let statusTone: "neutral" | "amber" | "rose" = "neutral";
+  if (profile?.accountStatus === ExecutorAccountStatus.PENDING_MODERATION) {
+    statusNote =
+      "Анкета на проверке: пока статус не «Активен», отклики на заказы недоступны. Обычно это решает администратор в разделе «Исполнители».";
+    statusTone = "amber";
+  } else if (profile?.accountStatus === ExecutorAccountStatus.BLOCKED) {
+    statusNote = "Аккаунт исполнителя заблокирован. Обратитесь в поддержку площадки.";
+    statusTone = "rose";
+  } else if (profile?.accountStatus === ExecutorAccountStatus.ARCHIVED) {
+    statusNote = "Профиль в архиве. Восстановите статус в кабинете или через поддержку.";
+    statusTone = "amber";
+  }
+
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Дашборд</h1>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">Задачи и доступные заказы</p>
-      </div>
+    <div className="space-y-10">
+      <DashboardWelcome
+        greeting={`Привет, ${name}`}
+        subtitle="Следите за активными задачами, откликайтесь на подходящие заказы и ведите переписку в чате по сделке. Баланс и выплаты — в отдельном разделе."
+        action={
+          <Button asChild size="lg" variant="secondary" className="w-full sm:w-auto">
+            <Link href="/executor/orders/available">
+              <Search className="mr-2 h-4 w-4" aria-hidden />
+              Найти заказы
+            </Link>
+          </Button>
+        }
+      />
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-          <p className="text-sm text-neutral-500">Активные</p>
-          <p className="mt-1 text-2xl font-semibold">{active}</p>
+      {statusNote ? (
+        <div
+          className={
+            statusTone === "rose"
+              ? "rounded-xl border border-red-200/90 bg-red-50/90 px-4 py-3 dark:border-red-900/40 dark:bg-red-950/35"
+              : "rounded-xl border border-amber-200/90 bg-amber-50/90 px-4 py-3 dark:border-amber-900/40 dark:bg-amber-950/30"
+          }
+          role="status"
+        >
+          <p
+            className={
+              statusTone === "rose"
+                ? "text-sm font-medium text-red-950 dark:text-red-100"
+                : "text-sm font-medium text-amber-950 dark:text-amber-100"
+            }
+          >
+            {statusNote}
+          </p>
+          {profile?.accountStatus === ExecutorAccountStatus.PENDING_MODERATION ? (
+            <Link
+              href="/executor/profile"
+              className="mt-2 inline-block text-sm font-semibold text-primary underline underline-offset-2"
+            >
+              Открыть профиль
+            </Link>
+          ) : null}
         </div>
-        <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-          <p className="text-sm text-neutral-500">На доработке</p>
-          <p className="mt-1 text-2xl font-semibold">{revision}</p>
-        </div>
-        <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-          <p className="text-sm text-neutral-500">Завершённые</p>
-          <p className="mt-1 text-2xl font-semibold">{completed}</p>
-        </div>
-      </div>
+      ) : null}
 
-      <div className="flex flex-wrap gap-4 text-sm font-medium">
-        <Link href="/executor/orders/available" className="underline">
-          Доступные заказы
-        </Link>
-        <Link href="/executor/orders" className="underline">
-          Мои заказы
-        </Link>
-      </div>
+      <section className="space-y-4">
+        <DashboardSectionTitle>Мои задачи</DashboardSectionTitle>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <DashboardStatTile
+            icon={Briefcase}
+            label="Активные"
+            value={active}
+            sublabel="Назначены вы, идёт работа или сдача"
+          />
+          <DashboardStatTile
+            icon={Wrench}
+            label="На доработке"
+            value={revision}
+            sublabel="Заказчик запросил правки"
+          />
+          <DashboardStatTile
+            icon={Briefcase}
+            label="Завершённые"
+            value={completed}
+            sublabel="Принято или завершено"
+          />
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <DashboardSectionTitle>Разделы</DashboardSectionTitle>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <DashboardQuickLink
+            href="/executor/orders/available"
+            title="Доступные заказы"
+            description="Открытые задачи, на которые можно откликнуться (при активном аккаунте и верификации, если требуется)."
+            icon={Search}
+          />
+          <DashboardQuickLink
+            href="/executor/orders"
+            title="Мои заказы"
+            description="Всё, где вы назначены исполнителем."
+            icon={Briefcase}
+          />
+          <DashboardQuickLink
+            href="/executor/messages"
+            title="Сообщения"
+            description="Чаты по заказам с вашим участием."
+            icon={MessageSquare}
+          />
+          <DashboardQuickLink
+            href="/executor/balance"
+            title="Баланс и выплаты"
+            description="Заработок, заявки на вывод, история."
+            icon={Banknote}
+          />
+          <DashboardQuickLink
+            href="/executor/profile"
+            title="Профиль и верификация"
+            description={`Статус аккаунта: ${profile?.accountStatus ?? "—"} · верификация: ${profile?.verificationStatus ?? "—"}`}
+            icon={UserRound}
+          />
+        </div>
+      </section>
     </div>
   );
 }

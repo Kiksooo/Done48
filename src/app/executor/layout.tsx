@@ -20,6 +20,8 @@ export default async function ExecutorLayout({ children }: { children: ReactNode
       nav={EXECUTOR_NAV}
       userEmail={user.email}
       unreadNotifications={unreadNotifications}
+      profileHref="/executor/profile"
+      showOnboardingCallout={!user.onboardingDone}
     >
       {children}
     </CabinetShell>

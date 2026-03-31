@@ -20,6 +20,8 @@ export default async function CustomerLayout({ children }: { children: ReactNode
       nav={CUSTOMER_NAV}
       userEmail={user.email}
       unreadNotifications={unreadNotifications}
+      profileHref="/customer/profile"
+      showOnboardingCallout={!user.onboardingDone}
     >
       {children}
     </CabinetShell>

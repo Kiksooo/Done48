@@ -1,61 +1,114 @@
 import Link from "next/link";
-import { getSessionUserForAction } from "@/lib/rbac";
-import { redirect } from "next/navigation";
 import { Role } from "@prisma/client";
+import { ClipboardList, Eye, FolderOpen, Hourglass, MessageSquare, Plus, Wallet } from "lucide-react";
+import { redirect } from "next/navigation";
+import {
+  DashboardQuickLink,
+  DashboardSectionTitle,
+  DashboardStatTile,
+  DashboardWelcome,
+} from "@/components/cabinet/dashboard-ui";
+import { Button } from "@/components/ui/button";
 import { formatMoneyFromCents } from "@/lib/format";
+import { getSessionUserForAction } from "@/lib/rbac";
+import { prisma } from "@/lib/db";
 import { countCustomerOrdersByBucket, sumCustomerSpend } from "@/server/queries/orders";
+
+function greetingName(displayName: string | null | undefined, email: string): string {
+  const d = displayName?.trim();
+  if (d) return d.split(/\s+/)[0] ?? d;
+  return email.split("@")[0] || "заказчик";
+}
 
 export default async function CustomerHomePage() {
   const user = await getSessionUserForAction();
   if (!user || user.role !== Role.CUSTOMER) redirect("/login");
 
-  const [buckets, spendCents] = await Promise.all([
+  const [buckets, spendCents, profile] = await Promise.all([
     countCustomerOrdersByBucket(user.id),
     sumCustomerSpend(user.id),
+    prisma.customerProfile.findUnique({
+      where: { userId: user.id },
+      select: { displayName: true },
+    }),
   ]);
 
+  const name = greetingName(profile?.displayName, user.email);
+
   return (
-    <div className="space-y-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Дашборд</h1>
-          <p className="text-sm text-neutral-600 dark:text-neutral-400">Краткая сводка по заказам</p>
-        </div>
-        <Link
-          href="/customer/orders/new"
-          className="inline-flex h-10 items-center justify-center rounded-md bg-neutral-900 px-4 text-sm font-medium text-white hover:bg-neutral-800 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200"
-        >
-          Новый заказ
-        </Link>
-      </div>
+    <div className="space-y-10">
+      <DashboardWelcome
+        greeting={`Здравствуйте, ${name}`}
+        subtitle="Здесь сводка по заказам, быстрый доступ к созданию задачи и разделам кабинета. Все сделки ведите в статусах карточки заказа — так проще отслеживать оплату и работу."
+        action={
+          <Button asChild size="lg" className="w-full sm:w-auto">
+            <Link href="/customer/orders/new">
+              <Plus className="mr-2 h-4 w-4" aria-hidden />
+              Новый заказ
+            </Link>
+          </Button>
+        }
+      />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-          <p className="text-sm text-neutral-500">В работе</p>
-          <p className="mt-1 text-2xl font-semibold">{buckets.active}</p>
+      <section className="space-y-4">
+        <DashboardSectionTitle>Сводка</DashboardSectionTitle>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <DashboardStatTile
+            icon={ClipboardList}
+            label="В работе"
+            value={buckets.active}
+            sublabel="Назначен исполнитель, идёт выполнение"
+          />
+          <DashboardStatTile
+            icon={Hourglass}
+            label="Ожидание и модерация"
+            value={buckets.waiting}
+            sublabel="Новые и на проверке площадки"
+          />
+          <DashboardStatTile
+            icon={Eye}
+            label="На вашей проверке"
+            value={buckets.review}
+            sublabel="Исполнитель сдал результат"
+          />
+          <DashboardStatTile
+            icon={Wallet}
+            label="Принятые расходы"
+            value={formatMoneyFromCents(spendCents)}
+            sublabel="По завершённым сделкам"
+          />
         </div>
-        <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-          <p className="text-sm text-neutral-500">Ожидание / модерация</p>
-          <p className="mt-1 text-2xl font-semibold">{buckets.waiting}</p>
-        </div>
-        <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-          <p className="text-sm text-neutral-500">На проверке</p>
-          <p className="mt-1 text-2xl font-semibold">{buckets.review}</p>
-        </div>
-        <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
-          <p className="text-sm text-neutral-500">Расходы (принятые)</p>
-          <p className="mt-1 text-2xl font-semibold">{formatMoneyFromCents(spendCents)}</p>
-        </div>
-      </div>
+      </section>
 
-      <div>
-        <Link
-          href="/customer/orders"
-          className="text-sm font-medium text-neutral-900 underline dark:text-neutral-100"
-        >
-          Все заказы →
-        </Link>
-      </div>
+      <section className="space-y-4">
+        <DashboardSectionTitle>Быстрые действия</DashboardSectionTitle>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <DashboardQuickLink
+            href="/customer/orders/new"
+            title="Создать заказ"
+            description="Опишите задачу, бюджет и срок — после модерации заказ появится для исполнителей."
+            icon={Plus}
+          />
+          <DashboardQuickLink
+            href="/customer/orders"
+            title="Мои заказы"
+            description="Фильтры по стадиям: новые, в работе, на проверке и архив."
+            icon={FolderOpen}
+          />
+          <DashboardQuickLink
+            href="/customer/messages"
+            title="Сообщения"
+            description="Чаты по заказам, где вы участник."
+            icon={MessageSquare}
+          />
+          <DashboardQuickLink
+            href="/customer/balance"
+            title="Баланс"
+            description="Пополнение и безопасная сделка по заказам."
+            icon={Wallet}
+          />
+        </div>
+      </section>
     </div>
   );
 }
