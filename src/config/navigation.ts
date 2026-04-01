@@ -44,6 +44,7 @@ export const ADMIN_NAV: CabinetNavItem[] = [
   { href: "/admin/payments", label: "Платежи", icon: "creditCard" },
   { href: "/admin/payouts", label: "Выплаты", icon: "banknote" },
   { href: "/admin/notifications", label: "Уведомления", icon: "bell" },
+  { href: "/admin/support", label: "Чат поддержки", icon: "mail" },
   { href: "/admin/settings", label: "Настройки", icon: "settings" },
   { href: "/admin/audit-logs", label: "Логи", icon: "scrollText" },
 ];
@@ -55,7 +56,7 @@ export const CUSTOMER_NAV: CabinetNavItem[] = [
   { href: "/customer/messages", label: "Сообщения", icon: "messageSquare" },
   { href: "/customer/balance", label: "Баланс", icon: "wallet" },
   { href: "/customer/profile", label: "Профиль", icon: "user" },
-  { href: "/customer/feedback", label: "Обратная связь", icon: "mail" },
+  { href: "/customer/feedback", label: "Чат с админом", icon: "mail" },
   { href: "/customer/notifications", label: "Уведомления", icon: "bell" },
 ];
 
@@ -67,7 +68,7 @@ export const EXECUTOR_NAV: CabinetNavItem[] = [
   { href: "/executor/portfolio", label: "Портфолио", icon: "folderTree" },
   { href: "/executor/balance", label: "Баланс и выплаты", icon: "banknote" },
   { href: "/executor/messages", label: "Сообщения", icon: "messageSquare" },
-  { href: "/executor/feedback", label: "Обратная связь", icon: "mail" },
+  { href: "/executor/feedback", label: "Чат с админом", icon: "mail" },
   { href: "/executor/notifications", label: "Уведомления", icon: "bell" },
 ];
 

@@ -1,20 +1,15 @@
 import { redirect } from "next/navigation";
 import { Role } from "@prisma/client";
 import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
-import { FeedbackForm } from "@/components/feedback/feedback-form";
-import { prisma } from "@/lib/db";
+import { SupportChatPanel } from "@/components/feedback/support-chat-panel";
 import { getSessionUserForAction } from "@/lib/rbac";
+import { listSupportMessagesForUser } from "@/server/queries/support-chat";
 
 export default async function ExecutorFeedbackPage() {
   const user = await getSessionUserForAction();
   if (!user || user.role !== Role.EXECUTOR) redirect("/login");
 
-  const profile = await prisma.executorProfile.findUnique({
-    where: { userId: user.id },
-    select: { displayName: true },
-  });
-
-  const defaultName = profile?.displayName?.trim() || undefined;
+  const messages = await listSupportMessagesForUser(user.id);
 
   return (
     <div className="space-y-6">
@@ -24,9 +19,17 @@ export default async function ExecutorFeedbackPage() {
           { label: "Обратная связь" },
         ]}
         title="Обратная связь"
-        description="Вопрос по заказу, выплатам, модерации или предложение по платформе — сообщение увидят администраторы."
+        description="Чат с администратором: вопросы по заказам, выплатам и модерации."
       />
-      <FeedbackForm defaultEmail={user.email} defaultName={defaultName} />
+      <SupportChatPanel
+        mode="user"
+        messages={messages.map((m) => ({
+          id: m.id,
+          author: m.author,
+          text: m.text,
+          createdAtIso: m.createdAt.toISOString(),
+        }))}
+      />
     </div>
   );
 }
