@@ -37,6 +37,8 @@ model User {
   email           String   @unique
   passwordHash    String
   role            Role
+  marketingOptIn  Boolean  @default(false)
+  marketingOptInAt DateTime?
   onboardingDone  Boolean  @default(false)
   isActive        Boolean  @default(true)
   createdAt       DateTime @default(now())

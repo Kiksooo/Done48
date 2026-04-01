@@ -2,7 +2,12 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { YandexMetrika } from "@/components/analytics/yandex-metrika";
 import { AppProviders } from "@/components/providers/app-providers";
-import { SITE_SEO_DESCRIPTION, SITE_SEO_KEYWORDS, SITE_SEO_TITLE } from "@/lib/site-seo";
+import {
+  SITE_SEO_DESCRIPTION,
+  SITE_SEO_KEYWORDS,
+  SITE_SEO_TITLE,
+  SITE_SEO_TITLE_TEMPLATE,
+} from "@/lib/site-seo";
 import { getMetadataBase } from "@/lib/site-url";
 import "./globals.css";
 
@@ -19,13 +24,30 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
+const searchVerification =
+  process.env.GOOGLE_SITE_VERIFICATION || process.env.YANDEX_VERIFICATION
+    ? {
+        verification: {
+          ...(process.env.GOOGLE_SITE_VERIFICATION && {
+            google: process.env.GOOGLE_SITE_VERIFICATION,
+          }),
+          ...(process.env.YANDEX_VERIFICATION && { yandex: process.env.YANDEX_VERIFICATION }),
+        },
+      }
+    : {};
+
 export const metadata: Metadata = {
   metadataBase: getMetadataBase(),
-  title: SITE_SEO_TITLE,
+  title: {
+    default: SITE_SEO_TITLE,
+    template: SITE_SEO_TITLE_TEMPLATE,
+  },
   description: SITE_SEO_DESCRIPTION,
   keywords: SITE_SEO_KEYWORDS,
   authors: [{ name: "DONE48" }],
   creator: "DONE48",
+  category: "business",
+  ...searchVerification,
   openGraph: {
     type: "website",
     locale: "ru_RU",

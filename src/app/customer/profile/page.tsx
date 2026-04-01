@@ -1,4 +1,5 @@
 import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
+import { MarketingSubscriptionCard } from "@/components/profile/marketing-subscription-card";
 import { CustomerProfileForm } from "@/components/profile/customer-profile-form";
 import { ReferralCard } from "@/components/profile/referral-card";
 import { ProfileReviewsSection } from "@/components/reviews/profile-reviews-section";
@@ -12,10 +13,14 @@ export default async function CustomerProfilePage() {
   const user = await getSessionUserForAction();
   if (!user) redirect("/login");
 
-  const [profile, stats, receivedReviews] = await Promise.all([
+  const [profile, stats, receivedReviews, prefs] = await Promise.all([
     prisma.customerProfile.findUnique({ where: { userId: user.id } }),
     getReviewStatsForUser(user.id),
     listReviewsReceivedByUser(user.id, 40),
+    prisma.user.findUnique({
+      where: { id: user.id },
+      select: { marketingOptIn: true, marketingOptInAt: true },
+    }),
   ]);
 
   if (!profile) {
@@ -43,6 +48,10 @@ export default async function CustomerProfilePage() {
           city: profile.city,
           avatarUrl: profile.avatarUrl,
         }}
+      />
+      <MarketingSubscriptionCard
+        initialEnabled={Boolean(prefs?.marketingOptIn)}
+        initialEnabledAtIso={prefs?.marketingOptInAt?.toISOString() ?? null}
       />
       <ReferralCard link={referralLink} />
       <ProfileReviewsSection stats={stats} reviews={receivedReviews} mode="full" />

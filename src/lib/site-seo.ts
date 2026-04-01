@@ -1,5 +1,10 @@
+export const SITE_SEO_BRAND = "DONE48";
+
 export const SITE_SEO_TITLE =
   "DONE48 — маркетплейс микро-услуг для заказчиков и исполнителей";
+
+/** Шаблон для внутренних страниц: «Заголовок | DONE48». Главная задаёт `title.absolute`. */
+export const SITE_SEO_TITLE_TEMPLATE = `%s | ${SITE_SEO_BRAND}`;
 
 export const SITE_SEO_DESCRIPTION =
   "DONE48: публикуйте задачи или находите заказы, ведите сделки в кабинете с балансом и статусами — единый цикл сделки на одной платформе.";
@@ -11,5 +16,8 @@ export const SITE_SEO_KEYWORDS = [
   "маркетплейс услуг",
   "исполнители",
   "заказчики",
+  "удалённая работа",
+  "онлайн-заказы",
+  "портфолио исполнителя",
   "DONE48",
 ];

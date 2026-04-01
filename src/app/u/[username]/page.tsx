@@ -11,13 +11,34 @@ type Props = { params: { username: string } };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const row = await getPublicExecutorByUsername(params.username);
+  const canonical = `/u/${params.username}`;
   if (!row?.executorProfile) {
-    return { title: "Исполнитель не найден · DONE48" };
+    return {
+      title: { absolute: "Исполнитель не найден · DONE48" },
+      description: "Такого исполнителя нет в каталоге DONE48.",
+      alternates: { canonical },
+      robots: { index: false, follow: true },
+    };
   }
   const name = row.executorProfile.displayName ?? row.executorProfile.username ?? "Исполнитель";
+  const description =
+    row.executorProfile.bio?.slice(0, 160) ?? `Портфолио исполнителя ${name} на DONE48.`;
+  const titleAbs = `${name} · Портфолио · DONE48`;
   return {
-    title: `${name} · Портфолио · DONE48`,
-    description: row.executorProfile.bio?.slice(0, 160) ?? `Портфолио исполнителя ${name}`,
+    title: { absolute: titleAbs },
+    description,
+    alternates: { canonical },
+    openGraph: {
+      title: titleAbs,
+      description,
+      url: canonical,
+      type: "profile",
+    },
+    twitter: {
+      card: "summary",
+      title: titleAbs,
+      description,
+    },
   };
 }
 

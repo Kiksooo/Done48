@@ -44,6 +44,7 @@ export const ADMIN_NAV: CabinetNavItem[] = [
   { href: "/admin/payments", label: "Платежи", icon: "creditCard" },
   { href: "/admin/payouts", label: "Выплаты", icon: "banknote" },
   { href: "/admin/notifications", label: "Уведомления", icon: "bell" },
+  { href: "/admin/marketing", label: "Рассылки", icon: "mail" },
   { href: "/admin/support", label: "Чат поддержки", icon: "mail" },
   { href: "/admin/settings", label: "Настройки", icon: "settings" },
   { href: "/admin/audit-logs", label: "Логи", icon: "scrollText" },

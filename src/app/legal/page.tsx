@@ -3,9 +3,14 @@ import Link from "next/link";
 import { SITE_EMAIL_INFO } from "@/lib/site-contact";
 
 export const metadata: Metadata = {
-  title: "Юридическая информация — DONE48",
+  title: "Юридическая информация",
   description: "Документы и правила сервиса DONE48.",
   alternates: { canonical: "/legal" },
+  openGraph: {
+    title: "Юридическая информация",
+    description: "Документы и правила сервиса DONE48.",
+    url: "/legal",
+  },
 };
 
 export default function LegalIndexPage() {
@@ -25,6 +30,11 @@ export default function LegalIndexPage() {
         <li>
           <Link href="/legal/privacy" className="font-medium text-primary underline-offset-4 hover:underline">
             Политика конфиденциальности и обработка персональных данных
+          </Link>
+        </li>
+        <li>
+          <Link href="/legal/unsubscribe" className="font-medium text-primary underline-offset-4 hover:underline">
+            Управление рекламной рассылкой (подписка/отписка)
           </Link>
         </li>
       </ul>

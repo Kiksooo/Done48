@@ -3,9 +3,14 @@ import { LegalDocument } from "@/components/legal/legal-document";
 import { SITE_EMAIL_INFO } from "@/lib/site-contact";
 
 export const metadata: Metadata = {
-  title: "Пользовательское соглашение — DONE48",
+  title: "Пользовательское соглашение",
   description: "Условия использования сервиса DONE48 и правила площадки.",
   alternates: { canonical: "/legal/terms" },
+  openGraph: {
+    title: "Пользовательское соглашение",
+    description: "Условия использования сервиса DONE48 и правила площадки.",
+    url: "/legal/terms",
+  },
 };
 
 export default function TermsPage() {

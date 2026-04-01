@@ -3,9 +3,14 @@ import { LegalDocument } from "@/components/legal/legal-document";
 import { SITE_EMAIL_INFO } from "@/lib/site-contact";
 
 export const metadata: Metadata = {
-  title: "Политика конфиденциальности — DONE48",
+  title: "Политика конфиденциальности",
   description: "Обработка персональных данных пользователей сервиса DONE48.",
   alternates: { canonical: "/legal/privacy" },
+  openGraph: {
+    title: "Политика конфиденциальности",
+    description: "Обработка персональных данных пользователей сервиса DONE48.",
+    url: "/legal/privacy",
+  },
 };
 
 export default function PrivacyPage() {

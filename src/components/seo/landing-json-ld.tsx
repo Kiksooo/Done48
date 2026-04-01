@@ -5,6 +5,8 @@ import { getSiteUrl } from "@/lib/site-url";
 /** Структурированные данные для главной (лендинг): WebSite + Organization. */
 export function LandingJsonLd() {
   const base = getSiteUrl();
+  const origin = base.endsWith("/") ? base.slice(0, -1) : base;
+  const logoUrl = `${origin}/icon.svg`;
   const idOrg = `${base}/#organization`;
   const idWeb = `${base}/#website`;
 
@@ -25,6 +27,7 @@ export function LandingJsonLd() {
         "@id": idOrg,
         name: "DONE48",
         url: base.endsWith("/") ? base : `${base}/`,
+        logo: logoUrl,
         description: SITE_SEO_DESCRIPTION,
         email: SITE_EMAIL_INFO,
       },

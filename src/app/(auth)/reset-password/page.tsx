@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ResetPasswordForm } from "./reset-password-form";
 
 export const metadata: Metadata = {
-  title: "Новый пароль — DONE48",
+  title: { absolute: "Новый пароль — DONE48" },
   description: "Задайте новый пароль для аккаунта DONE48.",
   robots: { index: false, follow: false },
 };

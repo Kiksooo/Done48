@@ -6,9 +6,9 @@ import { dashboardPath } from "@/lib/routes";
 import { SITE_SEO_DESCRIPTION, SITE_SEO_TITLE } from "@/lib/site-seo";
 
 export const metadata: Metadata = {
-  title: SITE_SEO_TITLE,
+  title: { absolute: SITE_SEO_TITLE },
   description: SITE_SEO_DESCRIPTION,
-  alternates: { canonical: "/" },
+  alternates: { canonical: "/", languages: { "ru-RU": "/" } },
   openGraph: {
     title: SITE_SEO_TITLE,
     description: SITE_SEO_DESCRIPTION,
