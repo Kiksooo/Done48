@@ -37,21 +37,25 @@ export async function createNotification(input: CreateNotificationInput) {
   await revalidateLayoutsForUserIds([input.userId]);
 }
 
+const CREATE_MANY_BATCH = 400;
+
 export async function createNotificationsForUsers(
   userIds: string[],
   payload: Omit<CreateNotificationInput, "userId">,
 ) {
   const unique = Array.from(new Set(userIds.filter(Boolean)));
   if (unique.length === 0) return;
-  await prisma.notification.createMany({
-    data: unique.map((userId) => ({
-      userId,
-      kind: payload.kind,
-      title: payload.title,
-      body: payload.body ?? undefined,
-      link: payload.link ?? undefined,
-    })),
+  const row = (userId: string) => ({
+    userId,
+    kind: payload.kind,
+    title: payload.title,
+    body: payload.body ?? undefined,
+    link: payload.link ?? undefined,
   });
+  for (let i = 0; i < unique.length; i += CREATE_MANY_BATCH) {
+    const slice = unique.slice(i, i + CREATE_MANY_BATCH);
+    await prisma.notification.createMany({ data: slice.map(row) });
+  }
   await revalidateLayoutsForUserIds(unique);
 }
 

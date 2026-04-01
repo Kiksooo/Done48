@@ -1,6 +1,7 @@
 "use server";
 
 import { NotificationKind, Role } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { getSessionUserForAction } from "@/lib/rbac";
 import type { ActionResult } from "@/server/actions/orders/create-order";
@@ -24,26 +25,44 @@ export async function sendMarketingCampaignAction(input: {
   const whereRole =
     input.targetRole === "ALL" ? undefined : input.targetRole === "CUSTOMER" ? Role.CUSTOMER : Role.EXECUTOR;
 
-  const users = await prisma.user.findMany({
-    where: {
-      isActive: true,
-      marketingOptIn: true,
-      role: whereRole,
-    },
-    select: { id: true },
-    take: 10000,
-  });
+  try {
+    const users = await prisma.user.findMany({
+      where: {
+        isActive: true,
+        marketingOptIn: true,
+        role: whereRole,
+      },
+      select: { id: true },
+      take: 10000,
+    });
 
-  const ids = users.map((u) => u.id);
-  if (ids.length === 0) return { ok: true, data: { sent: 0 } };
+    const ids = users.map((u) => u.id);
+    if (ids.length === 0) return { ok: true, data: { sent: 0 } };
 
-  const bodyWithUnsubscribe = `${body}\n\n—\nУправление подпиской: /legal/unsubscribe`;
-  await createNotificationsForUsers(ids, {
-    kind: NotificationKind.GENERIC,
-    title: `Рассылка: ${title}`,
-    body: bodyWithUnsubscribe,
-    link: "/legal/unsubscribe",
-  });
+    const bodyWithUnsubscribe = `${body}\n\n—\nУправление подпиской: /legal/unsubscribe`;
+    await createNotificationsForUsers(ids, {
+      kind: NotificationKind.GENERIC,
+      title: `Рассылка: ${title}`,
+      body: bodyWithUnsubscribe,
+      link: "/legal/unsubscribe",
+    });
 
-  return { ok: true, data: { sent: ids.length } };
+    return { ok: true, data: { sent: ids.length } };
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2022" || e.message.includes("marketingOptIn")) {
+        return {
+          ok: false,
+          error:
+            "В базе нет полей подписки (marketingOptIn). Выполните на сервере: npx prisma migrate deploy",
+        };
+      }
+    }
+    // eslint-disable-next-line no-console
+    console.error("[sendMarketingCampaignAction]", e);
+    return {
+      ok: false,
+      error: "Не удалось выполнить рассылку. Проверьте логи сервера и миграции Prisma.",
+    };
+  }
 }

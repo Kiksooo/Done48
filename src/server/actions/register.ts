@@ -113,11 +113,33 @@ export async function registerUser(
     return { ok: true };
   } catch (error) {
     console.error("[register] failed:", error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2002") {
+        return { ok: false, error: "Пользователь с таким email уже есть" };
+      }
+      if (error.code === "P2022") {
+        return {
+          ok: false,
+          error:
+            "База данных устарела относительно кода: выполните на сервере npx prisma migrate deploy и повторите регистрацию.",
+        };
+      }
+      if (error.code === "P1001") {
+        return {
+          ok: false,
+          error: "Не удаётся подключиться к базе данных. Попробуйте позже или напишите в поддержку.",
+        };
+      }
+    }
+    const msg = error instanceof Error ? error.message : "";
     if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
+      /marketingOptIn|column .+ does not exist|does not exist in the current database/i.test(msg)
     ) {
-      return { ok: false, error: "Пользователь с таким email уже есть" };
+      return {
+        ok: false,
+        error:
+          "База данных устарела относительно кода: выполните на сервере npx prisma migrate deploy и повторите регистрацию.",
+      };
     }
     return {
       ok: false,

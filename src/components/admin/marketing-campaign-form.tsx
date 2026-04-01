@@ -7,7 +7,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { sendMarketingCampaignAction } from "@/server/actions/admin-marketing";
 
-export function MarketingCampaignForm({ subscribersTotal }: { subscribersTotal: number }) {
+export function MarketingCampaignForm({
+  subscribersTotal,
+  disabled = false,
+}: {
+  subscribersTotal: number;
+  /** Страница не смогла загрузить счётчик (например, нет колонок в БД). */
+  disabled?: boolean;
+}) {
   const [pending, startTransition] = useTransition();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -51,7 +58,7 @@ export function MarketingCampaignForm({ subscribersTotal }: { subscribersTotal: 
           className="flex h-10 w-full rounded-md border border-border bg-card px-3 text-sm"
           value={targetRole}
           onChange={(e) => setTargetRole(e.target.value as "ALL" | "CUSTOMER" | "EXECUTOR")}
-          disabled={pending}
+          disabled={pending || disabled}
         >
           <option value="ALL">Всем подписанным</option>
           <option value="CUSTOMER">Только заказчикам</option>
@@ -66,7 +73,7 @@ export function MarketingCampaignForm({ subscribersTotal }: { subscribersTotal: 
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Новая функция в DONE48"
-          disabled={pending}
+          disabled={pending || disabled}
         />
       </div>
 
@@ -78,11 +85,14 @@ export function MarketingCampaignForm({ subscribersTotal }: { subscribersTotal: 
           onChange={(e) => setBody(e.target.value)}
           placeholder="Коротко о пользе, ссылке и следующем шаге."
           className="min-h-[140px]"
-          disabled={pending}
+          disabled={pending || disabled}
         />
       </div>
 
-      <Button type="submit" disabled={pending || title.trim().length < 3 || body.trim().length < 10}>
+      <Button
+        type="submit"
+        disabled={disabled || pending || title.trim().length < 3 || body.trim().length < 10}
+      >
         {pending ? "Отправка..." : "Отправить рассылку"}
       </Button>
     </form>
