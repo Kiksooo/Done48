@@ -18,5 +18,5 @@ export default async function AdminNotificationsPage() {
     createdAt: n.createdAt.toISOString(),
   }));
 
-  return <NotificationInbox items={items} />;
+  return <NotificationInbox items={items} enableDetailsTools />;
 }

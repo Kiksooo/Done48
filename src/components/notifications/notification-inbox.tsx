@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { markAllNotificationsReadAction, markNotificationReadAction } from "@/server/actions/notifications";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -20,11 +20,19 @@ type NotificationInboxProps = {
   items: NotificationInboxItem[];
   /** Заголовок страницы снаружи (например, `CabinetPageHeader`). */
   hideHeading?: boolean;
+  /** Показывать инструменты админа: раскрыть и скопировать. */
+  enableDetailsTools?: boolean;
 };
 
-export function NotificationInbox({ items, hideHeading = false }: NotificationInboxProps) {
+export function NotificationInbox({
+  items,
+  hideHeading = false,
+  enableDetailsTools = false,
+}: NotificationInboxProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({});
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   function openItem(item: NotificationInboxItem) {
     startTransition(async () => {
@@ -32,6 +40,23 @@ export function NotificationInbox({ items, hideHeading = false }: NotificationIn
       if (item.link) router.push(item.link);
       else router.refresh();
     });
+  }
+
+  function toggleExpanded(id: string) {
+    setExpandedIds((prev) => ({ ...prev, [id]: !prev[id] }));
+  }
+
+  async function copyItem(item: NotificationInboxItem) {
+    const text = [item.title, item.body ?? "", item.link ?? ""].filter(Boolean).join("\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(item.id);
+      window.setTimeout(() => {
+        setCopiedId((curr) => (curr === item.id ? null : curr));
+      }, 1500);
+    } catch {
+      setCopiedId(null);
+    }
   }
 
   return (
@@ -67,14 +92,8 @@ export function NotificationInbox({ items, hideHeading = false }: NotificationIn
         <ul className="divide-y divide-border rounded-xl border border-border bg-card shadow-sm">
           {items.map((item) => (
             <li key={item.id}>
-              <button
-                type="button"
-                disabled={pending}
-                onClick={() => openItem(item)}
-                className={cn(
-                  "flex w-full flex-col gap-1 px-4 py-3 text-left text-sm transition-colors hover:bg-muted/60",
-                  !item.readAt && "bg-muted/40",
-                )}
+              <div
+                className={cn("flex flex-col gap-1 px-4 py-3 text-sm", !item.readAt && "bg-muted/40")}
               >
                 <div className="flex items-start justify-between gap-2">
                   <span className="font-medium text-foreground">{item.title}</span>
@@ -92,12 +111,28 @@ export function NotificationInbox({ items, hideHeading = false }: NotificationIn
                   </time>
                 </div>
                 {item.body ? (
-                  <p className="line-clamp-2 text-muted-foreground">{item.body}</p>
+                  <p className={cn("text-muted-foreground", expandedIds[item.id] ? "whitespace-pre-wrap" : "line-clamp-2")}>
+                    {item.body}
+                  </p>
                 ) : null}
-                {item.link ? (
-                  <span className="text-xs text-muted-foreground">Открыть заказ или страницу →</span>
-                ) : null}
-              </button>
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  {item.link ? (
+                    <Button type="button" size="sm" variant="outline" disabled={pending} onClick={() => openItem(item)}>
+                      Открыть
+                    </Button>
+                  ) : null}
+                  {enableDetailsTools && item.body ? (
+                    <Button type="button" size="sm" variant="outline" onClick={() => toggleExpanded(item.id)}>
+                      {expandedIds[item.id] ? "Свернуть" : "Развернуть"}
+                    </Button>
+                  ) : null}
+                  {enableDetailsTools ? (
+                    <Button type="button" size="sm" variant="outline" onClick={() => copyItem(item)}>
+                      {copiedId === item.id ? "Скопировано" : "Копировать"}
+                    </Button>
+                  ) : null}
+                </div>
+              </div>
             </li>
           ))}
         </ul>
