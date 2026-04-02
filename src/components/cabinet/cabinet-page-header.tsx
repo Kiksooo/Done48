@@ -18,7 +18,13 @@ type Props = {
  */
 export function CabinetPageHeader({ title, description, breadcrumbs, action, className }: Props) {
   return (
-    <div className={cn("mb-8 border-b border-border/80 pb-6", className)}>
+    <div
+      className={cn(
+        "relative mb-8 overflow-hidden rounded-2xl border border-border/80 bg-card p-6 shadow-sm backdrop-blur-sm dark:bg-card/80 sm:p-7",
+        "before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-foreground/12 before:to-transparent",
+        className,
+      )}
+    >
       {breadcrumbs?.length ? (
         <nav className="mb-3 flex flex-wrap items-center gap-x-1 gap-y-1 text-xs text-muted-foreground" aria-label="Навигация">
           {breadcrumbs.map((b, i) => (

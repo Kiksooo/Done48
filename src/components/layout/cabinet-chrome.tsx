@@ -52,12 +52,21 @@ export function CabinetChrome({
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[17rem] flex-col border-r border-border bg-card shadow-sm transition-transform lg:static lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 flex w-[17rem] flex-col border-r border-border bg-gradient-to-b from-card via-card to-muted/25 shadow-sm transition-transform lg:static lg:translate-x-0",
+          "before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:z-10 before:w-px before:bg-gradient-to-b before:from-border before:via-foreground/12 before:to-border",
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
         )}
       >
-        <div className="flex h-14 items-center justify-between gap-2 border-b border-border/90 bg-muted/30 px-4">
-          <span className="truncate text-sm font-semibold tracking-tight text-foreground">{brand}</span>
+        <div className="relative z-20 flex h-14 items-center justify-between gap-2 border-b border-border/90 bg-muted/20 px-4 backdrop-blur-sm">
+          <div className="flex min-w-0 flex-1 items-center gap-2.5">
+            <span
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-xs font-bold text-primary-foreground shadow-sm ring-1 ring-black/5 dark:ring-white/10"
+              aria-hidden
+            >
+              D
+            </span>
+            <span className="truncate text-sm font-semibold tracking-tight text-foreground">{brand}</span>
+          </div>
           <Button
             type="button"
             variant="ghost"
@@ -69,7 +78,7 @@ export function CabinetChrome({
             <X className="h-5 w-5" />
           </Button>
         </div>
-        <nav className="flex-1 space-y-0.5 overflow-y-auto p-3" aria-label="Основное меню">
+        <nav className="relative z-20 flex-1 space-y-0.5 overflow-y-auto p-3" aria-label="Основное меню">
           {nav.map((item) => {
             const active = isNavActive(pathname, item, nav);
             return (
@@ -105,7 +114,7 @@ export function CabinetChrome({
             );
           })}
         </nav>
-        <div className="space-y-2 border-t border-border/90 bg-muted/20 p-3">
+        <div className="relative z-20 space-y-2 border-t border-border/90 bg-muted/25 p-3 backdrop-blur-sm">
           {profileHref ? (
             <Link
               href={profileHref}
@@ -122,14 +131,17 @@ export function CabinetChrome({
               Помощь и документы
             </Link>
           ) : null}
-          <p className="truncate rounded-md border border-border/60 bg-card px-2 py-1.5 text-xs text-muted-foreground" title={userEmail}>
+          <p
+            className="truncate rounded-lg border border-border/70 bg-card/90 px-2.5 py-2 text-xs text-muted-foreground shadow-sm"
+            title={userEmail}
+          >
             {userEmail}
           </p>
         </div>
       </aside>
 
       <div className="flex min-h-screen flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border/90 bg-background/95 px-4 backdrop-blur-md supports-[backdrop-filter]:bg-background/80">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border/90 bg-background/90 px-4 shadow-sm backdrop-blur-xl supports-[backdrop-filter]:bg-background/75">
           <Button
             type="button"
             variant="ghost"
@@ -147,7 +159,7 @@ export function CabinetChrome({
             <SignOutButton />
           </div>
         </header>
-        <main className="flex-1 bg-muted/35 dark:bg-background">{children}</main>
+        <main className="cabinet-main-canvas flex-1 bg-muted/40 dark:bg-background">{children}</main>
       </div>
     </div>
   );

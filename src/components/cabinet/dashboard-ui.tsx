@@ -14,8 +14,8 @@ export function DashboardWelcome({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card px-5 py-6 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-7">
-      <div className="min-w-0">
+    <div className="relative flex flex-col gap-4 overflow-hidden rounded-2xl border border-border/80 bg-card px-5 py-6 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-7">
+      <div className="relative min-w-0">
         <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">{greeting}</h2>
         <p className="mt-2 max-w-2xl text-pretty text-sm text-muted-foreground sm:text-base">{subtitle}</p>
       </div>
@@ -36,13 +36,13 @@ export function DashboardStatTile({
   sublabel?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md">
+    <div className="group rounded-2xl border border-border/80 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md">
       <div className="flex items-start gap-3">
         <div
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground/80 ring-1 ring-border/60 transition-[transform,background-color] group-hover:bg-muted/80 group-hover:scale-[1.02]"
           aria-hidden
         >
-          <Icon className="h-5 w-5" />
+          <Icon className="h-5 w-5 text-primary" />
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm text-muted-foreground">{label}</p>
@@ -69,12 +69,12 @@ export function DashboardQuickLink({
     <Link
       href={href}
       className={cn(
-        "group flex items-start gap-3 rounded-2xl border border-border bg-card p-4 text-left shadow-sm transition-all",
-        "hover:border-primary/25 hover:bg-primary/[0.03] hover:shadow-md",
+        "group relative flex items-start gap-3 overflow-hidden rounded-2xl border border-border/80 bg-card p-4 text-left shadow-sm transition-all",
+        "hover:border-border hover:bg-muted/40 hover:shadow-md",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
       )}
     >
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground ring-1 ring-border/60 transition-colors group-hover:bg-muted/80 group-hover:text-primary">
         <Icon className="h-5 w-5" aria-hidden />
       </div>
       <div className="min-w-0 flex-1">
@@ -91,6 +91,10 @@ export function DashboardQuickLink({
 
 export function DashboardSectionTitle({ children }: { children: ReactNode }) {
   return (
-    <h2 className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">{children}</h2>
+    <h2 className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-foreground/25" aria-hidden />
+      {children}
+      <span className="h-px min-w-[2rem] flex-1 max-w-[4rem] bg-gradient-to-r from-border to-transparent" aria-hidden />
+    </h2>
   );
 }

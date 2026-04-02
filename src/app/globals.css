@@ -3,33 +3,33 @@
 @tailwind utilities;
 
 :root {
-  --background: #f2faf8;
+  --background: #f4f6f9;
   --foreground: #0f172a;
   --card: #ffffff;
   --card-foreground: #0f172a;
-  --muted: #e2f2ef;
-  --muted-foreground: #5a6d6a;
-  --border: #c8e4dd;
-  --primary: #0d9488;
+  --muted: #e8ecf2;
+  --muted-foreground: #5c6570;
+  --border: #d5dce6;
+  --primary: #2563eb;
   --primary-foreground: #ffffff;
-  --ring: #14b8a6;
+  --ring: #3b82f6;
   --radius: 0.75rem;
-  --elevated: 0 1px 2px rgb(15 23 42 / 0.05), 0 12px 32px -8px rgb(13 148 136 / 0.14);
+  --elevated: 0 1px 2px rgb(15 23 42 / 0.05), 0 12px 32px -8px rgb(15 23 42 / 0.08);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a1211;
-    --foreground: #ecfdf5;
-    --card: #111b1a;
-    --card-foreground: #ecfdf5;
-    --muted: #1a2826;
-    --muted-foreground: #8fa9a3;
-    --border: #2a4540;
-    --primary: #2dd4bf;
-    --primary-foreground: #042f2e;
-    --ring: #2dd4bf;
-    --elevated: 0 1px 2px rgb(0 0 0 / 0.35), 0 16px 40px -12px rgb(45 212 191 / 0.16);
+    --background: #0c0f14;
+    --foreground: #f1f5f9;
+    --card: #141922;
+    --card-foreground: #f1f5f9;
+    --muted: #1e2530;
+    --muted-foreground: #94a3b8;
+    --border: #2d3644;
+    --primary: #60a5fa;
+    --primary-foreground: #0f172a;
+    --ring: #60a5fa;
+    --elevated: 0 1px 2px rgb(0 0 0 / 0.35), 0 16px 40px -12px rgb(0 0 0 / 0.35);
   }
 }
 
@@ -71,33 +71,32 @@
     mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, black 20%, transparent 75%);
   }
 
-  /* Те же акценты, что и в :root — бирюза/teal, мягче «корпоративного» синего. */
   .landing-page-theme {
-    --background: #eef8f6;
+    --background: #f1f4fa;
     --foreground: #0f172a;
     --card: #ffffff;
     --card-foreground: #0f172a;
-    --muted: #dff3ef;
-    --muted-foreground: #5a6d6a;
-    --border: #c8e4dd;
-    --primary: #0d9488;
+    --muted: #e6ebf4;
+    --muted-foreground: #5c6570;
+    --border: #d5dce6;
+    --primary: #2563eb;
     --primary-foreground: #ffffff;
-    --ring: #14b8a6;
-    --elevated: 0 2px 8px rgb(15 23 42 / 0.06), 0 16px 40px -12px rgb(13 148 136 / 0.16);
+    --ring: #3b82f6;
+    --elevated: 0 2px 8px rgb(15 23 42 / 0.06), 0 16px 40px -12px rgb(15 23 42 / 0.1);
   }
   @media (prefers-color-scheme: dark) {
     .landing-page-theme {
-      --background: #091110;
-      --foreground: #ecfdf5;
-      --card: #111b1a;
-      --card-foreground: #ecfdf5;
-      --muted: #1a2826;
-      --muted-foreground: #94a8a3;
-      --border: #2a4540;
-      --primary: #2dd4bf;
-      --primary-foreground: #042f2e;
-      --ring: #2dd4bf;
-      --elevated: 0 2px 8px rgb(0 0 0 / 0.35), 0 20px 48px -12px rgb(45 212 191 / 0.18);
+      --background: #0b0e14;
+      --foreground: #f1f5f9;
+      --card: #131a24;
+      --card-foreground: #f1f5f9;
+      --muted: #1e2530;
+      --muted-foreground: #94a3b8;
+      --border: #2d3644;
+      --primary: #60a5fa;
+      --primary-foreground: #0f172a;
+      --ring: #60a5fa;
+      --elevated: 0 2px 8px rgb(0 0 0 / 0.35), 0 20px 48px -12px rgb(0 0 0 / 0.4);
     }
   }
 }
@@ -108,4 +107,24 @@
     opacity: 1;
     transform: none;
   }
+}
+
+/* Кабинет: лёгкая «атмосфера» без отдельной темы от лендинга */
+.cabinet-main-canvas {
+  position: relative;
+  isolation: isolate;
+}
+.cabinet-main-canvas::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(ellipse 120% 80% at 100% -20%, color-mix(in srgb, var(--foreground) 4%, transparent) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 60% at -10% 40%, color-mix(in srgb, var(--foreground) 2.5%, transparent) 0%, transparent 50%);
+}
+.cabinet-main-canvas > * {
+  position: relative;
+  z-index: 1;
 }

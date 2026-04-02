@@ -65,8 +65,8 @@ export const metadata: Metadata = {
     follow: true,
   },
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#0d9488" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a1211" },
+    { media: "(prefers-color-scheme: light)", color: "#2563eb" },
+    { media: "(prefers-color-scheme: dark)", color: "#0c0f14" },
   ],
 };
 
