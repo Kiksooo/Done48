@@ -6,6 +6,7 @@ const AUDIT_ACTION_LABELS: Record<string, string> = {
   ORDER_SET_STATUS: "Смена статуса заказа",
   ORDER_ACCEPT_PROPOSAL: "Принят отклик (админ)",
   ORDER_CUSTOMER_ACCEPT_PROPOSAL: "Исполнитель выбран заказчиком",
+  ORDER_CUSTOMER_UNASSIGN_EXECUTOR: "Снятие исполнителя заказчиком",
   ORDER_CUSTOMER_COMPLETE: "Заказ закрыт заказчиком",
   ORDER_EXECUTOR_COMPLETE: "Заказ закрыт исполнителем",
   PLATFORM_SETTINGS_UPDATE: "Обновление настроек платформы",

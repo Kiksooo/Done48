@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
+const REFERRAL_REWARD_RUBLES = 50;
+
 export function ReferralCard({ link }: { link: string }) {
   const [copied, setCopied] = useState(false);
 
@@ -20,7 +22,8 @@ export function ReferralCard({ link }: { link: string }) {
     <div className="rounded-xl border border-neutral-200 bg-card p-4 dark:border-neutral-700">
       <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Реферальная ссылка</h3>
       <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
-        Делитесь ссылкой: если пользователь зарегистрируется по ней, вы получите уведомление в кабинете.
+        Делитесь ссылкой: за каждого приглашённого человека, который зарегистрируется по ней, вы получаете{" "}
+        {REFERRAL_REWARD_RUBLES}&nbsp;₽, а также уведомление в кабинете.
       </p>
       <div className="mt-3 flex flex-col gap-2 sm:flex-row">
         <input

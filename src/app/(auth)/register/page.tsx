@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import { RegisterForm } from "./register-form";
 
+function pickSearchParamRef(raw: string | string[] | undefined): string | undefined {
+  if (raw === undefined) return undefined;
+  const s = Array.isArray(raw) ? raw[0] : raw;
+  const t = typeof s === "string" ? s.trim() : "";
+  return t.length > 0 ? t : undefined;
+}
+
 export const metadata: Metadata = {
   title: "Регистрация",
   description: "Создайте аккаунт DONE48: заказывайте услуги или выполняйте задачи в одном сервисе.",
@@ -15,8 +22,8 @@ export const metadata: Metadata = {
 export default function RegisterPage({
   searchParams,
 }: {
-  searchParams: { ref?: string };
+  searchParams: { ref?: string | string[] };
 }) {
-  const ref = searchParams.ref?.trim() || undefined;
+  const ref = pickSearchParamRef(searchParams.ref);
   return <RegisterForm referralCode={ref} />;
 }

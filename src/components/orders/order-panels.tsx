@@ -23,6 +23,7 @@ import {
   customerCancelOrderAction,
   customerCompleteOrderAction,
   customerRequestRevisionAction,
+  customerUnassignExecutorAction,
 } from "@/server/actions/orders/customer-orders";
 import {
   executorCompleteOrderAction,
@@ -281,6 +282,36 @@ export function OrderPanels(props: {
             <p className="mt-2 text-xs text-emerald-800 dark:text-emerald-200/90">
               Сумма заблокирована на площадке до приёмки работы или возврата по правилам заказа.
             </p>
+          ) : null}
+          {snapshot.status === "ASSIGNED" &&
+          snapshot.executorId &&
+          snapshot.paymentStatus === "RESERVED" &&
+          !snapshot.hasActiveDispute ? (
+            <div className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
+              <p className="text-xs text-neutral-700 dark:text-neutral-300">
+                Пока исполнитель не нажал «Начать работу», вы можете снять назначение: заказ снова появится в поиске,
+                отклики вернутся в ожидание, средства останутся в безопасной сделке.
+              </p>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="mt-2"
+                disabled={pending}
+                onClick={() => {
+                  if (
+                    !window.confirm(
+                      "Снять исполнителя с заказа? Заказ снова станет доступен для откликов, вы сможете выбрать другого исполнителя.",
+                    )
+                  ) {
+                    return;
+                  }
+                  run("unassign", () => customerUnassignExecutorAction({ orderId }));
+                }}
+              >
+                Снять исполнителя
+              </Button>
+            </div>
           ) : null}
           {snapshot.status === "PUBLISHED" &&
           snapshot.visibilityType === "OPEN_FOR_RESPONSES" &&
