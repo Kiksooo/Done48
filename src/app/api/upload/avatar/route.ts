@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { NextResponse } from "next/server";
+import { objectStorageConfigured, putPublicObject } from "@/lib/uploads/object-storage";
 import { getSessionUserForAction } from "@/lib/rbac";
 
 export const runtime = "nodejs";
@@ -46,13 +47,24 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Файл больше 2 МБ" }, { status: 400 });
   }
 
-  const dir = path.join(process.cwd(), "public", "uploads", "avatars");
-  await mkdir(dir, { recursive: true });
-
   const name = `${user.id}-${Date.now()}.${ext}`;
-  const fsPath = path.join(dir, name);
-  await writeFile(fsPath, buf);
+  const key = `avatars/${name}`;
 
-  const url = `/uploads/avatars/${name}`;
+  let url: string;
+  if (objectStorageConfigured()) {
+    try {
+      url = await putPublicObject({ key, body: buf, contentType: mime });
+    } catch (e) {
+      console.error("[upload/avatar] S3", e);
+      return NextResponse.json({ error: "Не удалось сохранить файл в хранилище" }, { status: 502 });
+    }
+  } else {
+    const dir = path.join(process.cwd(), "public", "uploads", "avatars");
+    await mkdir(dir, { recursive: true });
+    const fsPath = path.join(dir, name);
+    await writeFile(fsPath, buf);
+    url = `/uploads/avatars/${name}`;
+  }
+
   return NextResponse.json({ url });
 }

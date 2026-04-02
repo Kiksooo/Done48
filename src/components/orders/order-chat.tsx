@@ -2,10 +2,9 @@
 
 import type { Role } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import { useEffect, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDateTime } from "@/lib/format";
@@ -22,7 +21,7 @@ export type OrderChatMessage = {
   senderEmail: string | null;
 };
 
-type FormValues = { body: string; attachmentUrl: string };
+type FormValues = { body: string };
 
 export function OrderChat(props: {
   orderId: string;
@@ -36,8 +35,9 @@ export function OrderChat(props: {
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [pickedFile, setPickedFile] = useState<File | null>(null);
   const form = useForm<FormValues>({
-    defaultValues: { body: "", attachmentUrl: "" },
+    defaultValues: { body: "" },
   });
 
   useEffect(() => {
@@ -46,13 +46,30 @@ export function OrderChat(props: {
 
   function onSubmit(values: FormValues) {
     startTransition(async () => {
+      let attachmentUrl: string | undefined;
+      if (pickedFile) {
+        const fd = new FormData();
+        fd.set("orderId", props.orderId);
+        fd.set("file", pickedFile);
+        const up = await fetch("/api/upload/chat", { method: "POST", body: fd });
+        const data = (await up.json().catch(() => ({}))) as { error?: string; url?: string };
+        if (!up.ok) {
+          form.setError("root", { message: data.error ?? "Не удалось загрузить файл" });
+          return;
+        }
+        if (data.url) {
+          attachmentUrl = data.url;
+        }
+      }
+
       const res = await sendChatMessageAction({
         orderId: props.orderId,
         body: values.body,
-        attachmentUrl: values.attachmentUrl || undefined,
+        attachmentUrl,
       });
       if (res.ok) {
         form.reset();
+        setPickedFile(null);
         router.refresh();
       } else {
         form.setError("root", { message: res.error });
@@ -127,7 +144,9 @@ export function OrderChat(props: {
                     rel="noopener noreferrer"
                     className={`mt-2 inline-block text-xs underline ${isMine ? "text-white/90" : "text-neutral-600 dark:text-neutral-400"}`}
                   >
-                    Вложение (ссылка)
+                    {m.attachmentUrl.startsWith("/uploads/") || m.attachmentUrl.includes("/chat-orders/")
+                      ? "Скачать вложение"
+                      : "Вложение (ссылка)"}
                   </a>
                 ) : null}
               </div>
@@ -153,14 +172,44 @@ export function OrderChat(props: {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="chat-attach">Ссылка на файл (опционально)</Label>
-            <Input
-              id="chat-attach"
-              type="url"
-              placeholder="https://…"
-              disabled={pending}
-              {...form.register("attachmentUrl")}
-            />
+            <Label htmlFor="chat-attach">Файл (опционально)</Label>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+              До 10 МБ: изображения, PDF, ZIP, TXT или DOCX. Файл отправится на сервер при нажатии «Отправить».
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button type="button" variant="secondary" size="sm" disabled={pending} asChild>
+                <label className="cursor-pointer">
+                  Выбрать файл
+                  <input
+                    id="chat-attach"
+                    type="file"
+                    className="sr-only"
+                    accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,.pdf,application/zip,.zip,text/plain,.txt,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    disabled={pending}
+                    onChange={(e) => {
+                      const f = e.target.files?.[0] ?? null;
+                      setPickedFile(f);
+                    }}
+                  />
+                </label>
+              </Button>
+              {pickedFile ? (
+                <span className="max-w-[min(100%,240px)] truncate text-xs text-neutral-600 dark:text-neutral-400">
+                  {pickedFile.name}
+                </span>
+              ) : null}
+              {pickedFile ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={pending}
+                  onClick={() => setPickedFile(null)}
+                >
+                  Убрать
+                </Button>
+              ) : null}
+            </div>
           </div>
           <Button type="submit" disabled={pending}>
             {pending ? "Отправка…" : "Отправить"}

@@ -4,6 +4,7 @@ import { NotificationKind, type Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getSessionUserForAction } from "@/lib/rbac";
+import { isTrustedChatUploadUrl } from "@/lib/uploads/object-storage";
 import { sendChatMessageSchema } from "@/schemas/chat";
 import { assertOrderReadable } from "@/server/orders/access";
 import type { ActionResult } from "@/server/actions/orders/create-order";
@@ -28,14 +29,18 @@ export async function sendChatMessageAction(raw: unknown): Promise<ActionResult>
   let attachmentUrl: string | undefined;
   const rawUrl = parsed.data.attachmentUrl?.trim();
   if (rawUrl) {
-    try {
-      const u = new URL(rawUrl);
-      if (u.protocol !== "http:" && u.protocol !== "https:") {
-        return { ok: false, error: "Разрешены только http(s) ссылки" };
-      }
+    if (isTrustedChatUploadUrl(parsed.data.orderId, rawUrl)) {
       attachmentUrl = rawUrl;
-    } catch {
-      return { ok: false, error: "Некорректная ссылка на вложение" };
+    } else {
+      try {
+        const u = new URL(rawUrl);
+        if (u.protocol !== "http:" && u.protocol !== "https:") {
+          return { ok: false, error: "Разрешены только загруженные вложения или http(s) ссылки" };
+        }
+        attachmentUrl = rawUrl;
+      } catch {
+        return { ok: false, error: "Некорректная ссылка на вложение" };
+      }
     }
   }
 

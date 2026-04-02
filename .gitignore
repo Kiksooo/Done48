@@ -43,3 +43,5 @@ next-env.d.ts
 # user uploads (keep folder)
 /public/uploads/avatars/*
 !/public/uploads/avatars/.gitkeep
+/public/uploads/chat-orders/**
+!/public/uploads/chat-orders/.gitkeep
