@@ -16,4 +16,5 @@ export const TRANSACTION_TYPE_LABELS: Record<TransactionType, string> = {
   WITHDRAWAL: "Вывод средств",
   ADJUSTMENT: "Корректировка",
   FEE: "Комиссия платформы",
+  REFERRAL_BONUS: "Бонус за приглашение",
 };

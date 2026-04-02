@@ -1,9 +1,16 @@
 "use server";
 
 import bcrypt from "bcryptjs";
-import { ExecutorAccountStatus, NotificationKind, Prisma, Role } from "@prisma/client";
+import {
+  ExecutorAccountStatus,
+  NotificationKind,
+  Prisma,
+  Role,
+  TransactionType,
+} from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { isContactBlocklisted } from "@/lib/contact-blocklist";
+import { REFERRAL_REWARD_CENTS } from "@/lib/referral";
 import { registerSchema } from "@/schemas/auth";
 
 export type RegisterState =
@@ -94,12 +101,61 @@ export async function registerUser(
 
     if (referralUserId && referralUserId !== user.id) {
       try {
-        const inviter = await prisma.user.findUnique({
-          where: { id: referralUserId },
-          select: { id: true },
-        });
-        if (inviter) {
-          await prisma.notification.create({
+        await prisma.$transaction(async (tx) => {
+          const inviter = await tx.user.findUnique({
+            where: { id: referralUserId },
+            select: { id: true, role: true },
+          });
+          if (!inviter) return;
+
+          const payBonus =
+            inviter.role === Role.CUSTOMER || inviter.role === Role.EXECUTOR;
+
+          if (payBonus) {
+            try {
+              await tx.referralSignup.create({
+                data: {
+                  referrerId: inviter.id,
+                  referredUserId: user.id,
+                  rewardCents: REFERRAL_REWARD_CENTS,
+                },
+              });
+            } catch (e) {
+              if (
+                e instanceof Prisma.PrismaClientKnownRequestError &&
+                e.code === "P2002"
+              ) {
+                return;
+              }
+              throw e;
+            }
+
+            if (inviter.role === Role.CUSTOMER) {
+              const up = await tx.customerProfile.updateMany({
+                where: { userId: inviter.id },
+                data: { balanceCents: { increment: REFERRAL_REWARD_CENTS } },
+              });
+              if (up.count !== 1) throw new Error("REFERRAL_PROFILE");
+            } else {
+              const up = await tx.executorProfile.updateMany({
+                where: { userId: inviter.id },
+                data: { balanceCents: { increment: REFERRAL_REWARD_CENTS } },
+              });
+              if (up.count !== 1) throw new Error("REFERRAL_PROFILE");
+            }
+
+            await tx.transaction.create({
+              data: {
+                type: TransactionType.REFERRAL_BONUS,
+                amountCents: REFERRAL_REWARD_CENTS,
+                currency: "RUB",
+                toUserId: inviter.id,
+                meta: { referredUserId: user.id },
+              },
+            });
+          }
+
+          await tx.notification.create({
             data: {
               userId: inviter.id,
               kind: NotificationKind.GENERIC,
@@ -108,9 +164,9 @@ export async function registerUser(
               link: "/",
             },
           });
-        }
+        });
       } catch {
-        // Ошибки реферального уведомления не должны блокировать регистрацию.
+        // Ошибки реферального блока не отменяют уже созданный аккаунт.
       }
     }
 

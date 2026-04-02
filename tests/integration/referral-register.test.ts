@@ -1,6 +1,8 @@
+import { TransactionType } from "@prisma/client";
 import { describe, expect, it } from "vitest";
 import { createCustomerUser, deleteUserCascade, hasTestDatabase } from "../helpers/factories";
 import { prisma } from "@/lib/db";
+import { REFERRAL_REWARD_CENTS } from "@/lib/referral";
 import { registerUser } from "@/server/actions/register";
 
 describe.skipIf(!hasTestDatabase())("registerUser referral ref", () => {
@@ -28,6 +30,30 @@ describe.skipIf(!hasTestDatabase())("registerUser referral ref", () => {
     });
     expect(note).toBeTruthy();
     expect(note?.body ?? "").toContain(email);
+
+    const signup = await prisma.referralSignup.findUnique({
+      where: { referredUserId: newbie!.id },
+    });
+    expect(signup).toBeTruthy();
+    expect(signup?.rewardCents).toBe(REFERRAL_REWARD_CENTS);
+    expect(signup?.referrerId).toBe(inviter.id);
+
+    const inviterAfter = await prisma.customerProfile.findUnique({
+      where: { userId: inviter.id },
+      select: { balanceCents: true },
+    });
+    const startBal = inviter.customerProfile?.balanceCents ?? 0;
+    expect(inviterAfter?.balanceCents).toBe(startBal + REFERRAL_REWARD_CENTS);
+
+    const txRow = await prisma.transaction.findFirst({
+      where: {
+        toUserId: inviter.id,
+        type: TransactionType.REFERRAL_BONUS,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    expect(txRow).toBeTruthy();
+    expect(txRow?.amountCents).toBe(REFERRAL_REWARD_CENTS);
 
     if (newbie) await deleteUserCascade(newbie.id);
     await deleteUserCascade(inviter.id);

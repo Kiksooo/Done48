@@ -75,6 +75,9 @@ model User {
   blocklistCreated ContactBlocklist[] @relation("BlocklistCreator")
 
   passwordResetTokens PasswordResetToken[]
+
+  referrerSignups   ReferralSignup[] @relation("ReferrerSignups")
+  referredBySignup  ReferralSignup?  @relation("ReferredBySignup")
 }
 
 model PasswordResetToken {
@@ -86,6 +89,19 @@ model PasswordResetToken {
   createdAt DateTime @default(now())
 
   @@index([userId])
+}
+
+/// Регистрация по реферальной ссылке: одна строка на приглашённого пользователя.
+model ReferralSignup {
+  id             String   @id @default(cuid())
+  referrerId     String
+  referrer       User     @relation("ReferrerSignups", fields: [referrerId], references: [id], onDelete: Cascade)
+  referredUserId String   @unique
+  referredUser   User     @relation("ReferredBySignup", fields: [referredUserId], references: [id], onDelete: Cascade)
+  rewardCents    Int
+  createdAt      DateTime @default(now())
+
+  @@index([referrerId, createdAt])
 }
 
 model CustomerProfile {
@@ -460,6 +476,7 @@ enum TransactionType {
   WITHDRAWAL
   ADJUSTMENT
   FEE
+  REFERRAL_BONUS
 }
 
 model Transaction {
