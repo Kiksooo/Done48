@@ -3,33 +3,33 @@
 @tailwind utilities;
 
 :root {
-  --background: #f3f6fb;
-  --foreground: #0a0f1a;
+  --background: #f2faf8;
+  --foreground: #0f172a;
   --card: #ffffff;
-  --card-foreground: #0a0f1a;
-  --muted: #e8edf5;
-  --muted-foreground: #5a6578;
-  --border: #d8e0eb;
-  --primary: #0b7dd4;
+  --card-foreground: #0f172a;
+  --muted: #e2f2ef;
+  --muted-foreground: #5a6d6a;
+  --border: #c8e4dd;
+  --primary: #0d9488;
   --primary-foreground: #ffffff;
-  --ring: #0b7dd4;
+  --ring: #14b8a6;
   --radius: 0.75rem;
-  --elevated: 0 1px 2px rgb(10 15 26 / 0.04), 0 12px 32px -8px rgb(10 15 26 / 0.1);
+  --elevated: 0 1px 2px rgb(15 23 42 / 0.05), 0 12px 32px -8px rgb(13 148 136 / 0.14);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #06080d;
-    --foreground: #eef1f7;
-    --card: #0f131a;
-    --card-foreground: #eef1f7;
-    --muted: #161c26;
-    --muted-foreground: #94a0b8;
-    --border: #252d3a;
-    --primary: #3ba3f5;
-    --primary-foreground: #030712;
-    --ring: #3ba3f5;
-    --elevated: 0 1px 2px rgb(0 0 0 / 0.35), 0 16px 40px -12px rgb(0 0 0 / 0.45);
+    --background: #0a1211;
+    --foreground: #ecfdf5;
+    --card: #111b1a;
+    --card-foreground: #ecfdf5;
+    --muted: #1a2826;
+    --muted-foreground: #8fa9a3;
+    --border: #2a4540;
+    --primary: #2dd4bf;
+    --primary-foreground: #042f2e;
+    --ring: #2dd4bf;
+    --elevated: 0 1px 2px rgb(0 0 0 / 0.35), 0 16px 40px -12px rgb(45 212 191 / 0.16);
   }
 }
 
@@ -71,33 +71,33 @@
     mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, black 20%, transparent 75%);
   }
 
-  /* Те же акценты, что и в :root — без отдельной «второй» синей. */
+  /* Те же акценты, что и в :root — бирюза/teal, мягче «корпоративного» синего. */
   .landing-page-theme {
-    --background: #f4f7fc;
-    --foreground: #0c1222;
+    --background: #eef8f6;
+    --foreground: #0f172a;
     --card: #ffffff;
-    --card-foreground: #0c1222;
-    --muted: #e9eef8;
-    --muted-foreground: #5c6477;
-    --border: #d9e2ef;
-    --primary: #0b7dd4;
+    --card-foreground: #0f172a;
+    --muted: #dff3ef;
+    --muted-foreground: #5a6d6a;
+    --border: #c8e4dd;
+    --primary: #0d9488;
     --primary-foreground: #ffffff;
-    --ring: #0b7dd4;
-    --elevated: 0 2px 8px rgb(12 18 34 / 0.05), 0 16px 40px -12px rgb(12 18 34 / 0.12);
+    --ring: #14b8a6;
+    --elevated: 0 2px 8px rgb(15 23 42 / 0.06), 0 16px 40px -12px rgb(13 148 136 / 0.16);
   }
   @media (prefers-color-scheme: dark) {
     .landing-page-theme {
-      --background: #070910;
-      --foreground: #f0f3fa;
-      --card: #10151f;
-      --card-foreground: #f0f3fa;
-      --muted: #181e2b;
-      --muted-foreground: #9aa3b8;
-      --border: #2a3344;
-      --primary: #3ba3f5;
-      --primary-foreground: #030712;
-      --ring: #3ba3f5;
-      --elevated: 0 2px 8px rgb(0 0 0 / 0.35), 0 20px 48px -12px rgb(0 0 0 / 0.5);
+      --background: #091110;
+      --foreground: #ecfdf5;
+      --card: #111b1a;
+      --card-foreground: #ecfdf5;
+      --muted: #1a2826;
+      --muted-foreground: #94a8a3;
+      --border: #2a4540;
+      --primary: #2dd4bf;
+      --primary-foreground: #042f2e;
+      --ring: #2dd4bf;
+      --elevated: 0 2px 8px rgb(0 0 0 / 0.35), 0 20px 48px -12px rgb(45 212 191 / 0.18);
     }
   }
 }

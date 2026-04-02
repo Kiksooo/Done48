@@ -64,6 +64,10 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#0d9488" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a1211" },
+  ],
 };
 
 export default function RootLayout({
