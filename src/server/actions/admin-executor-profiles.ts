@@ -96,5 +96,9 @@ export async function adminSetExecutorAccountStatusAction(raw: unknown): Promise
   revalidatePath("/admin/audit-logs");
   revalidatePath("/executor/profile");
   revalidatePath("/executor/orders/available");
+  revalidatePath("/executors");
+  if (row.username) {
+    revalidatePath(`/u/${row.username}`);
+  }
   return { ok: true };
 }

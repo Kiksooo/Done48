@@ -4,7 +4,8 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig(({ mode }) => {
   const root = __dirname;
-  const env = loadEnv(mode, root, "");
+  /** .env.test / .env.test.local перекрывают базовый .env — чтобы не бить удалённый Neon при npm test. */
+  const env = { ...loadEnv(mode, root, ""), ...loadEnv("test", root, "") };
   if (env.TEST_DATABASE_URL) {
     process.env.DATABASE_URL = env.TEST_DATABASE_URL;
   } else if (env.DATABASE_URL) {

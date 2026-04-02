@@ -10,8 +10,14 @@ import {
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 
+/**
+ * Интеграционные тесты только при наличии URL и успешном ping БД (см. tests/setup.ts → VITEST_DB_REACHABLE).
+ * Иначе describe.skipIf уводит в skip вместо красного PrismaClientInitializationError.
+ */
 export function hasTestDatabase() {
-  return Boolean(process.env.TEST_DATABASE_URL || process.env.DATABASE_URL);
+  const hasUrl = Boolean(process.env.TEST_DATABASE_URL || process.env.DATABASE_URL);
+  if (!hasUrl) return false;
+  return process.env.VITEST_DB_REACHABLE === "1";
 }
 
 function suffix() {

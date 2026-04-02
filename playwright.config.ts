@@ -34,14 +34,15 @@ export default defineConfig({
           command: `npm run start -- -p ${port}`,
           url: baseURL,
           reuseExistingServer: false,
-          timeout: 120_000,
+          timeout: 300_000,
           env: webServerEnv,
         }
       : {
           command: `npm run dev -- -p ${port}`,
           url: baseURL,
-          reuseExistingServer: true,
-          timeout: 120_000,
+          /** Локально по умолчанию поднимаем свой сервер (надёжнее для e2e). `PLAYWRIGHT_REUSE_SERVER=true` — если dev уже на :3000. */
+          reuseExistingServer: process.env.PLAYWRIGHT_REUSE_SERVER === "true",
+          timeout: 300_000,
           env: webServerEnv,
         }
     : undefined,

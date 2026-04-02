@@ -82,7 +82,10 @@ export async function createReviewAction(raw: unknown): Promise<ActionResult> {
     select: { executorProfile: { select: { username: true } } },
   });
   const un = toUser?.executorProfile?.username;
-  if (un) revalidatePath(`/u/${un}`);
+  if (un) {
+    revalidatePath(`/u/${un}`);
+    revalidatePath("/executors");
+  }
 
   return { ok: true };
 }

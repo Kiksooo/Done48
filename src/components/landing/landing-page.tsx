@@ -552,16 +552,27 @@ export function LandingPage() {
               <Link href="/register" className="text-muted-foreground transition-colors hover:text-foreground">
                 Регистрация
               </Link>
-              {landingNavLinks.map((l) => (
-                <a
-                  key={l.href}
-                  href={l.href}
-                  title={l.hint}
-                  className="text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  {l.label}
-                </a>
-              ))}
+              {landingNavLinks.map((l) =>
+                l.href.startsWith("/") ? (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    title={l.hint}
+                    className="text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    {l.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={l.href}
+                    href={l.href}
+                    title={l.hint}
+                    className="text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    {l.label}
+                  </a>
+                ),
+              )}
               <Link href="/legal/terms" className="text-muted-foreground transition-colors hover:text-foreground">
                 Условия
               </Link>

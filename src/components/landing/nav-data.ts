@@ -1,4 +1,5 @@
 export const landingNavLinks = [
+  { href: "/executors", label: "Исполнители", hint: "Каталог портфолио и отзывов" },
   { href: "#benefits", label: "Почему удобно", hint: "Отклики, цены, порядок" },
   { href: "#product", label: "В кабинете", hint: "Заказ и переписка рядом" },
   { href: "#audience", label: "Кому подойдёт", hint: "Заказчикам и исполнителям" },

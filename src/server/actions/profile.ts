@@ -107,6 +107,7 @@ export async function updateExecutorProfileAction(raw: unknown): Promise<ActionR
   });
 
   revalidatePath("/executor/profile");
+  revalidatePath("/executors");
   revalidatePath("/admin/audit-logs");
   if (prevProfile?.username) {
     revalidatePath(`/u/${prevProfile.username}`);

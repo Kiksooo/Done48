@@ -8,6 +8,7 @@
 
 # testing
 /coverage
+.vitest-db-reachable
 /playwright-report/
 /test-results/
 /blob-report/
@@ -30,6 +31,7 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env.test
 
 # vercel
 .vercel

@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-
-export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProfileReviewsSection } from "@/components/reviews/profile-reviews-section";
+import { ExecutorProfileJsonLd } from "@/components/seo/executor-profile-json-ld";
+import { toAbsoluteSiteUrl } from "@/lib/site-url";
 import { getPublicExecutorByUsername } from "@/server/queries/public-executor";
 import { getReviewStatsForUser, listReviewsReceivedByUser } from "@/server/queries/reviews";
+
+export const dynamic = "force-dynamic";
 
 type Props = { params: { username: string } };
 
@@ -24,6 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description =
     row.executorProfile.bio?.slice(0, 160) ?? `Портфолио исполнителя ${name} на DONE48.`;
   const titleAbs = `${name} · Портфолио · DONE48`;
+  const ogImage = row.executorProfile.avatarUrl ? toAbsoluteSiteUrl(row.executorProfile.avatarUrl) : undefined;
   return {
     title: { absolute: titleAbs },
     description,
@@ -33,11 +36,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       url: canonical,
       type: "profile",
+      ...(ogImage ? { images: [{ url: ogImage, alt: `${name} — фото профиля` }] } : {}),
     },
     twitter: {
-      card: "summary",
+      card: ogImage ? "summary_large_image" : "summary",
       title: titleAbs,
       description,
+      ...(ogImage ? { images: [ogImage] } : {}),
     },
   };
 }
@@ -54,11 +59,22 @@ export default async function PublicExecutorPortfolioPage({ params }: Props) {
     listReviewsReceivedByUser(user.id, 30),
   ]);
 
+  const slug = p.username ?? params.username;
+
   return (
     <div className="min-h-screen bg-neutral-50 px-4 py-10 dark:bg-neutral-950 sm:px-6">
+      <ExecutorProfileJsonLd
+        name={name}
+        username={slug}
+        description={p.bio}
+        imageUrl={p.avatarUrl}
+      />
       <div className="mx-auto max-w-3xl space-y-8">
         <header className="space-y-3 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-          <p className="text-xs text-neutral-500">
+          <p className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-neutral-500">
+            <Link href="/executors" className="underline hover:text-neutral-800 dark:hover:text-neutral-200">
+              Все исполнители
+            </Link>
             <Link href="/login" className="underline hover:text-neutral-800 dark:hover:text-neutral-200">
               Войти в DONE48
             </Link>
@@ -67,7 +83,11 @@ export default async function PublicExecutorPortfolioPage({ params }: Props) {
             <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-neutral-200 bg-neutral-100 text-xl font-semibold text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300">
               {p.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={p.avatarUrl} alt="" className="h-full w-full object-cover" />
+                <img
+                  src={p.avatarUrl}
+                  alt={`${name} — фото профиля`}
+                  className="h-full w-full object-cover"
+                />
               ) : (
                 name.charAt(0).toUpperCase()
               )}
@@ -116,7 +136,9 @@ export default async function PublicExecutorPortfolioPage({ params }: Props) {
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={item.imageUrl}
-                        alt=""
+                        alt={
+                          item.title ? `Работа «${item.title}», ${name}` : `Пример работы из портфолио, ${name}`
+                        }
                         className="max-h-64 w-full object-cover"
                       />
                     </div>

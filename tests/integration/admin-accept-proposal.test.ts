@@ -125,7 +125,7 @@ describe.skipIf(!hasTestDatabase())("adminAcceptProposalAction", () => {
 
     const res = await adminAcceptProposalAction({ proposalId: prop.id });
     expect(res.ok).toBe(false);
-    expect(res.error).toMatch(/безопасн/i);
+    if (!res.ok) expect(res.error).toMatch(/безопасн/i);
 
     const ord = await prisma.order.findUniqueOrThrow({ where: { id: order.id } });
     expect(ord.status).toBe(OrderStatus.PUBLISHED);

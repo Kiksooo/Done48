@@ -82,6 +82,12 @@ export async function submitUserReportAction(raw: unknown): Promise<ActionResult
 
   revalidatePath(`/orders/${order.id}`);
   revalidatePath("/admin/moderation");
+  revalidatePath("/executors");
+  const targetProfile = await prisma.executorProfile.findUnique({
+    where: { userId: targetUserId },
+    select: { username: true },
+  });
+  if (targetProfile?.username) revalidatePath(`/u/${targetProfile.username}`);
 
   notifySafe(async () => {
     await notifyActiveAdmins({

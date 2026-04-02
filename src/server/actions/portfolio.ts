@@ -24,6 +24,7 @@ async function revalidatePortfolioPages(executorId: string) {
   if (p?.username) {
     revalidatePath(`/u/${p.username}`);
   }
+  revalidatePath("/executors");
 }
 
 export async function createPortfolioItemAction(raw: unknown): Promise<ActionResult<{ id: string }>> {

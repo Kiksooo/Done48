@@ -29,15 +29,18 @@ export async function adminUpdateUserReportAction(raw: unknown): Promise<ActionR
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Некорректные данные" };
   }
 
+  let targetUserId: string | null = null;
   try {
-    await prisma.userReport.update({
+    const updated = await prisma.userReport.update({
       where: { id: parsed.data.reportId },
       data: {
         status: parsed.data.status,
         adminNote: parsed.data.adminNote ?? undefined,
         handledById: admin.id,
       },
+      select: { targetUserId: true },
     });
+    targetUserId = updated.targetUserId;
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && (e.code === "P2021" || e.code === "P2022")) {
       return { ok: false, error: "Раздел модерации недоступен: таблица жалоб ещё не создана в БД." };
@@ -55,6 +58,14 @@ export async function adminUpdateUserReportAction(raw: unknown): Promise<ActionR
 
   revalidatePath("/admin/moderation");
   revalidatePath("/admin/audit-logs");
+  revalidatePath("/executors");
+  if (targetUserId) {
+    const profile = await prisma.executorProfile.findUnique({
+      where: { userId: targetUserId },
+      select: { username: true },
+    });
+    if (profile?.username) revalidatePath(`/u/${profile.username}`);
+  }
   return { ok: true };
 }
 

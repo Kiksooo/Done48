@@ -10,23 +10,39 @@ import { landingNavLinks } from "@/components/landing/nav-data";
 
 const mobileNavTop = "top-[3.75rem] sm:top-16";
 
+function isInternalLandingHref(href: string) {
+  return href.startsWith("/");
+}
+
 function LandingMobileNavPanel({ onClose }: { onClose: () => void }) {
   return (
     <nav
       className="mx-auto max-w-7xl space-y-1 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
       aria-label="Меню на мобильном"
     >
-      {landingNavLinks.map((l) => (
-        <a
-          key={l.href}
-          href={l.href}
-          className="flex flex-col rounded-2xl px-4 py-3.5 transition-colors hover:bg-primary/8 active:bg-primary/12"
-          onClick={onClose}
-        >
-          <span className="font-semibold text-foreground">{l.label}</span>
-          <span className="text-xs text-muted-foreground">{l.hint}</span>
-        </a>
-      ))}
+      {landingNavLinks.map((l) =>
+        isInternalLandingHref(l.href) ? (
+          <Link
+            key={l.href}
+            href={l.href}
+            className="flex flex-col rounded-2xl px-4 py-3.5 transition-colors hover:bg-primary/8 active:bg-primary/12"
+            onClick={onClose}
+          >
+            <span className="font-semibold text-foreground">{l.label}</span>
+            <span className="text-xs text-muted-foreground">{l.hint}</span>
+          </Link>
+        ) : (
+          <a
+            key={l.href}
+            href={l.href}
+            className="flex flex-col rounded-2xl px-4 py-3.5 transition-colors hover:bg-primary/8 active:bg-primary/12"
+            onClick={onClose}
+          >
+            <span className="font-semibold text-foreground">{l.label}</span>
+            <span className="text-xs text-muted-foreground">{l.hint}</span>
+          </a>
+        ),
+      )}
       <div className="pt-2">
         <Button variant="outline" className="mt-2 w-full rounded-2xl border-dashed" asChild>
           <Link href="/login" onClick={onClose}>
@@ -98,16 +114,27 @@ export function LandingHeader() {
             className="hidden items-center gap-0.5 rounded-full border border-border/40 bg-card/70 px-1 py-1 shadow-sm backdrop-blur-md md:flex"
             aria-label="По странице"
           >
-            {landingNavLinks.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                title={l.hint}
-                className="rounded-full px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground"
-              >
-                {l.label}
-              </a>
-            ))}
+            {landingNavLinks.map((l) =>
+              isInternalLandingHref(l.href) ? (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  title={l.hint}
+                  className="rounded-full px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground"
+                >
+                  {l.label}
+                </Link>
+              ) : (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  title={l.hint}
+                  className="rounded-full px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground"
+                >
+                  {l.label}
+                </a>
+              ),
+            )}
           </nav>
 
           <div className="flex items-center gap-1.5 sm:gap-2">

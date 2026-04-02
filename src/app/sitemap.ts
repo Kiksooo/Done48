@@ -29,15 +29,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const executors = await listPublicExecutorUsernames();
-  const dynamic = executors
-    .map((r) => r.executorProfile?.username)
-    .filter(Boolean)
-    .map((username) => ({
-      url: `${origin}/u/${username}`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.6,
-    }));
+  const dynamic = executors.flatMap((r) => {
+    const username = r.executorProfile?.username;
+    if (!username) return [];
+    return [
+      {
+        url: `${origin}/u/${username}`,
+        lastModified: r.updatedAt,
+        changeFrequency: "weekly" as const,
+        priority: 0.6,
+      },
+    ];
+  });
 
   return [...fixed, ...dynamic];
 }

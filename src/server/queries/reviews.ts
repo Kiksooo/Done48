@@ -27,6 +27,29 @@ export async function getReviewStatsForUser(userId: string): Promise<{ avg: numb
   };
 }
 
+/** Для каталога исполнителей: одна группировка вместо N запросов. */
+export async function getReviewStatsForUsers(
+  userIds: string[],
+): Promise<Map<string, { avg: number | null; count: number }>> {
+  const map = new Map<string, { avg: number | null; count: number }>();
+  if (userIds.length === 0) return map;
+
+  const rows = await prisma.review.groupBy({
+    by: ["toUserId"],
+    where: { toUserId: { in: userIds } },
+    _avg: { rating: true },
+    _count: { _all: true },
+  });
+
+  for (const r of rows) {
+    map.set(r.toUserId, {
+      avg: r._avg.rating != null ? Math.round(r._avg.rating * 10) / 10 : null,
+      count: r._count._all,
+    });
+  }
+  return map;
+}
+
 export async function listReviewsReceivedByUser(userId: string, take = 30): Promise<ReviewWithFrom[]> {
   return prisma.review.findMany({
     where: { toUserId: userId },

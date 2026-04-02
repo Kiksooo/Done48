@@ -47,6 +47,16 @@ export function getSiteHost(): string {
   }
 }
 
+/** Абсолютный URL для OG/изображений: уже https — как есть, иначе дополняем origin сайта. */
+export function toAbsoluteSiteUrl(pathOrUrl: string): string {
+  const t = pathOrUrl.trim();
+  if (!t) return getSiteUrl();
+  if (/^https?:\/\//i.test(t)) return t;
+  const base = getSiteUrl().replace(/\/$/, "");
+  const path = t.startsWith("/") ? t : `/${t}`;
+  return `${base}${path}`;
+}
+
 /** @deprecated Используйте getSiteUrl; оставлено для совместимости импортов. */
 export function appBaseUrl(): string {
   return getSiteUrl();
