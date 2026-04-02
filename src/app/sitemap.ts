@@ -2,10 +2,8 @@ import type { MetadataRoute } from "next";
 import { getSiteUrl } from "@/lib/site-url";
 import { listPublicExecutorUsernames } from "@/server/queries/public-executor";
 
-type ChangeFrequency = NonNullable<MetadataRoute.Sitemap[0]["changeFrequency"]>;
-
 /** Публичные URL для индексации (кабинеты и API закрыты в robots.txt). */
-const PATHS: { path: string; changeFrequency: ChangeFrequency; priority: number }[] = [
+const PATHS = [
   { path: "/", changeFrequency: "weekly", priority: 1 },
   { path: "/executors", changeFrequency: "weekly", priority: 0.7 },
   { path: "/login", changeFrequency: "monthly", priority: 0.6 },
@@ -14,7 +12,7 @@ const PATHS: { path: string; changeFrequency: ChangeFrequency; priority: number 
   { path: "/legal", changeFrequency: "monthly", priority: 0.5 },
   { path: "/legal/terms", changeFrequency: "yearly", priority: 0.4 },
   { path: "/legal/privacy", changeFrequency: "yearly", priority: 0.4 },
-];
+] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = getSiteUrl();
