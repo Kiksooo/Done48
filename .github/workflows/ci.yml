@@ -43,18 +43,27 @@ jobs:
 
       - run: npx tsc --noEmit
 
-      - run: npx prisma db push
+      # Как на проде: только миграции, без db push (ловит расхождения схемы и CI).
+      - run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci?schema=public
+
+      - run: npm run db:seed
         env:
           DATABASE_URL: postgresql://ci:ci@localhost:5432/ci?schema=public
 
       - run: npm run build
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci?schema=public
 
-      - run: npm run test
-
-      - run: npm run db:seed
+      - run: npm test
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci?schema=public
+          REQUIRE_TEST_DB: "1"
 
       - run: npx playwright install --with-deps chromium
 
       - run: npm run test:e2e
         env:
           CI: "true"
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci?schema=public

@@ -47,7 +47,7 @@ export default async function ExecutorHomePage() {
   let statusTone: "neutral" | "amber" | "rose" = "neutral";
   if (profile?.accountStatus === ExecutorAccountStatus.PENDING_MODERATION) {
     statusNote =
-      "Анкета на проверке: пока статус не «Активен», отклики на заказы недоступны. Обычно это решает администратор в разделе «Исполнители».";
+      "Анкета на проверке у администратора: пока статус не «Активен», отклики на заказы недоступны. Статус меняется в разделе «Исполнители».";
     statusTone = "amber";
   } else if (profile?.accountStatus === ExecutorAccountStatus.BLOCKED) {
     statusNote = "Аккаунт исполнителя заблокирован. Обратитесь в поддержку площадки.";
@@ -132,7 +132,7 @@ export default async function ExecutorHomePage() {
           <DashboardQuickLink
             href="/executor/orders/available"
             title="Доступные заказы"
-            description="Открытые задачи, на которые можно откликнуться при активном аккаунте после одобрения анкеты."
+            description="Открытые задачи, на которые можно откликнуться при статусе аккаунта «Активен»."
             icon={Search}
           />
           <DashboardQuickLink

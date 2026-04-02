@@ -128,7 +128,7 @@ model ExecutorProfile {
   portfolioLinks String[] @default([])
   avatarUrl    String?
 
-  accountStatus ExecutorAccountStatus @default(PENDING_MODERATION)
+  accountStatus ExecutorAccountStatus @default(ACTIVE)
   verificationStatus VerificationStatus @default(NOT_SUBMITTED)
   idDocumentUrl    String?
   selfieUrl        String?

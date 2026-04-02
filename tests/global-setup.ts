@@ -67,6 +67,12 @@ export default async function globalSetup() {
     if (!open) warnDbUnavailableOnce();
   }
 
+  if (process.env.REQUIRE_TEST_DB === "1" && reachable !== "1") {
+    throw new Error(
+      "[vitest] REQUIRE_TEST_DB=1: Postgres недоступен по DATABASE_URL/TEST_DATABASE_URL. В CI проверьте сервис postgres; локально — test:db:up, test:db:migrate и .env.test.",
+    );
+  }
+
   writeFileSync(REACH_FILE, reachable, "utf8");
 
   return async () => {

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SITE_SEO_BRAND, SITE_SEO_TITLE_TEMPLATE } from "@/lib/site-seo";
 import {
   countPublicExecutors,
   listPublicExecutorCities,
@@ -12,10 +13,27 @@ export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 12;
 
+const executorsOgTitle = SITE_SEO_TITLE_TEMPLATE.replace("%s", "Исполнители");
+const executorsDescription =
+  "Каталог активных исполнителей DONE48. Просматривайте портфолио и отзывы.";
+
 export const metadata: Metadata = {
   title: "Исполнители",
-  description: "Каталог активных исполнителей DONE48. Просматривайте портфолио и отзывы.",
+  description: executorsDescription,
   alternates: { canonical: "/executors" },
+  openGraph: {
+    title: executorsOgTitle,
+    description: executorsDescription,
+    url: "/executors",
+    type: "website",
+    siteName: SITE_SEO_BRAND,
+    locale: "ru_RU",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: executorsOgTitle,
+    description: executorsDescription,
+  },
 };
 
 type Props = {

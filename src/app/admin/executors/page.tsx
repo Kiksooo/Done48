@@ -24,8 +24,9 @@ export default async function AdminExecutorsPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Исполнители</h1>
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Модерация анкет: статус <strong className="font-medium text-neutral-800 dark:text-neutral-200">«Активен»</strong> нужен,
-          чтобы исполнитель мог откликаться на заказы. Раздел «Модерация» в меню — это жалобы и блоклист контактов, не анкеты.
+          Статус <strong className="font-medium text-neutral-800 dark:text-neutral-200">«Активен»</strong> нужен, чтобы
+          исполнитель мог откликаться на заказы (новые регистрации получают его по умолчанию; при необходимости переведите в
+          «На модерации» или заблокируйте). Раздел «Модерация» в меню — жалобы и блоклист контактов, не анкеты.
         </p>
       </div>
       <AdminExecutorProfilesPanel rows={rows} />

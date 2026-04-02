@@ -1,7 +1,7 @@
 "use server";
 
 import bcrypt from "bcryptjs";
-import { NotificationKind, Prisma, Role } from "@prisma/client";
+import { ExecutorAccountStatus, NotificationKind, Prisma, Role } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { isContactBlocklisted } from "@/lib/contact-blocklist";
 import { registerSchema } from "@/schemas/auth";
@@ -74,8 +74,12 @@ export async function registerUser(
       } else {
         await prisma.executorProfile.upsert({
           where: { userId: user.id },
-          update: {},
-          create: { userId: user.id, displayName: email.split("@")[0] },
+          update: { accountStatus: ExecutorAccountStatus.ACTIVE },
+          create: {
+            userId: user.id,
+            displayName: email.split("@")[0],
+            accountStatus: ExecutorAccountStatus.ACTIVE,
+          },
         });
       }
     } catch (profileError) {

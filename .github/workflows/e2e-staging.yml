@@ -1,0 +1,30 @@
+# Smoke против уже задеплоенного staging. Запуск: Actions → E2E staging smoke → Run workflow → укажите base_url.
+name: E2E staging smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Полный URL staging (например https://staging.example.com)"
+        required: true
+        type: string
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps chromium
+
+      - run: npm run test:e2e:smoke
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ github.event.inputs.base_url }}
+          CI: "true"

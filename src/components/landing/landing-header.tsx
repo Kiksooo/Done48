@@ -101,13 +101,13 @@ export function LandingHeader() {
         <div className="mx-auto flex h-[3.75rem] max-w-7xl items-center justify-between gap-3 px-4 sm:h-16 sm:px-6 lg:px-10">
           <Link
             href="/"
-            className="group flex min-w-0 items-center gap-2.5 rounded-2xl py-1 pr-2 transition-transform active:scale-[0.98]"
+            className="group flex shrink-0 items-center gap-2.5 rounded-2xl py-1 pr-2 transition-transform active:scale-[0.98]"
             onClick={close}
           >
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-md shadow-primary/25 ring-2 ring-primary/20 transition-[transform,box-shadow] group-hover:scale-[1.02] group-hover:shadow-lg">
               D
             </span>
-            <span className="truncate text-lg font-bold tracking-tight">DONE48</span>
+            <span className="whitespace-nowrap text-lg font-bold tracking-tight">DONE48</span>
           </Link>
 
           <nav

@@ -72,7 +72,7 @@ export default async function AdminHomePage() {
           <DashboardQuickLink
             href="/admin/executors"
             title="Исполнители"
-            description="Модерация анкет: статус «Активен» для откликов."
+            description="Статусы анкет исполнителей: «Активен» для откликов и ручные смены при необходимости."
             icon={Briefcase}
           />
           <DashboardQuickLink

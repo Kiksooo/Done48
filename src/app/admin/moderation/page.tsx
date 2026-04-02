@@ -49,8 +49,8 @@ export default async function AdminModerationPage() {
         <h1 className="text-2xl font-semibold tracking-tight">Модерация и блоклист</h1>
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
           Жалобы пользователей по заказам, смена статуса обращения, блокировка контрагента и запрет контактов (email /
-          телефон / Telegram) при регистрации и в профиле. Одобрение анкет исполнителей (статус «Активен» для откликов) — в
-          разделе{" "}
+          телефон / Telegram) при регистрации и в профиле. Управление статусом анкеты исполнителя (в т. ч. «Активен» для
+          откликов) — в разделе{" "}
           <Link href="/admin/executors" className="font-medium text-primary underline underline-offset-2">
             Исполнители
           </Link>

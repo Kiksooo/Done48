@@ -18,7 +18,9 @@ export default async function AdminMarketingPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Рассылки</h1>
         <p className="text-sm text-muted-foreground">
-          Рекламные и продуктовые уведомления только по opt-in подписке пользователей.
+          Рекламные и продуктовые уведомления только по opt-in подписке пользователей. Рассылка ниже создаёт уведомления в
+          кабинете; при настроенных <code className="text-xs">MAILERLITE_*</code> переключатель подписки в профиле
+          синхронизируется с MailerLite для email-кампаний.
         </p>
       </div>
       {loadError ? (
