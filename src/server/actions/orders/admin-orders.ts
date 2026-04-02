@@ -1,6 +1,7 @@
 "use server";
 
 import {
+  DisputeStatus,
   NotificationKind,
   OrderStatus,
   PaymentStatus,
@@ -16,6 +17,7 @@ import {
   adminAcceptProposalSchema,
   adminAssignExecutorSchema,
   adminSetOrderStatusSchema,
+  customerOrderActionSchema,
 } from "@/schemas/order";
 import { appendStatusHistory } from "@/server/orders/status";
 import {
@@ -29,6 +31,8 @@ import type { ActionResult } from "./create-order";
 
 const ESCROW_REQUIRED_MSG =
   "Сначала заказчик должен заблокировать сумму заказа в безопасной сделке (карточка заказа → кнопка блокировки с баланса).";
+
+const ACTIVE_DISPUTE: DisputeStatus[] = [DisputeStatus.OPEN, DisputeStatus.IN_REVIEW];
 
 async function requireAdmin() {
   const user = await getSessionUserForAction();
@@ -287,6 +291,148 @@ export async function adminAssignExecutorAction(
       kind: NotificationKind.EXECUTOR_ASSIGNED,
       title: "Исполнитель назначен",
       body: `Заказ: ${assignResult.title}`,
+      link: `/orders/${orderId}`,
+    });
+  });
+
+  return { ok: true };
+}
+
+/** До начала работы исполнителем: как у заказчика — заказ снова в поиске, отклики восстанавливаются. */
+export async function adminUnassignExecutorAction(raw: unknown): Promise<ActionResult> {
+  const admin = await requireAdmin();
+  if (!admin) return { ok: false, error: "Нет доступа" };
+
+  const parsed = customerOrderActionSchema.safeParse(raw);
+  if (!parsed.success) return { ok: false, error: "Некорректные данные" };
+
+  const orderId = parsed.data.orderId;
+
+  const orderPre = await prisma.order.findUnique({ where: { id: orderId } });
+  if (!orderPre) return { ok: false, error: "Заказ не найден" };
+  if (orderPre.status !== OrderStatus.ASSIGNED) {
+    return {
+      ok: false,
+      error: "Снять исполнителя можно только пока заказ «Назначен» и работа ещё не начата.",
+    };
+  }
+  if (!orderPre.executorId) {
+    return { ok: false, error: "Исполнитель не назначен" };
+  }
+  if (orderPre.paymentStatus !== PaymentStatus.RESERVED) {
+    return { ok: false, error: "Снятие назначения недоступно в текущем платёжном статусе" };
+  }
+
+  const activeDispute = await prisma.dispute.findFirst({
+    where: { orderId, status: { in: ACTIVE_DISPUTE } },
+    select: { id: true },
+  });
+  if (activeDispute) {
+    return { ok: false, error: "Нельзя снять исполнителя, пока открыт спор" };
+  }
+
+  const formerExecutorId = orderPre.executorId;
+  const customerId = orderPre.customerId;
+  const orderTitle = orderPre.title;
+
+  try {
+    await prisma.$transaction(
+      async (tx) => {
+        const ord = await tx.order.findUnique({ where: { id: orderId } });
+        if (!ord) {
+          throw new Error("NOT_FOUND");
+        }
+        if (
+          ord.status !== OrderStatus.ASSIGNED ||
+          !ord.executorId ||
+          ord.executorId !== formerExecutorId ||
+          ord.paymentStatus !== PaymentStatus.RESERVED
+        ) {
+          throw new Error("STATE");
+        }
+
+        const ou = await tx.order.updateMany({
+          where: {
+            id: orderId,
+            executorId: formerExecutorId,
+            status: OrderStatus.ASSIGNED,
+            paymentStatus: PaymentStatus.RESERVED,
+          },
+          data: {
+            executorId: null,
+            status: OrderStatus.PUBLISHED,
+            visibilityType: VisibilityType.OPEN_FOR_RESPONSES,
+            assignedByAdmin: false,
+          },
+        });
+        if (ou.count !== 1) {
+          throw new Error("STATE");
+        }
+
+        await tx.proposal.updateMany({
+          where: {
+            orderId,
+            status: { in: [ProposalStatus.ACCEPTED, ProposalStatus.REJECTED] },
+          },
+          data: { status: ProposalStatus.PENDING },
+        });
+
+        const chat = await tx.chat.findUnique({ where: { orderId } });
+        if (chat) {
+          await tx.chatMember.deleteMany({
+            where: { chatId: chat.id, userId: formerExecutorId },
+          });
+        }
+
+        await appendStatusHistory(tx, {
+          orderId,
+          fromStatus: OrderStatus.ASSIGNED,
+          toStatus: OrderStatus.PUBLISHED,
+          actorUserId: admin.id,
+          note: "Назначение исполнителя снято администратором",
+        });
+      },
+      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+    );
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "";
+    if (msg === "NOT_FOUND") return { ok: false, error: "Заказ не найден" };
+    if (msg === "STATE") {
+      return {
+        ok: false,
+        error: "Снять исполнителя сейчас нельзя (возможно, исполнитель уже начал работу). Обновите страницу.",
+      };
+    }
+    if (isPrismaTransactionConflict(e)) {
+      return { ok: false, error: "Конфликт при сохранении, попробуйте ещё раз" };
+    }
+    throw e;
+  }
+
+  await writeAuditLog({
+    actorUserId: admin.id,
+    action: "ORDER_ADMIN_UNASSIGN_EXECUTOR",
+    entityType: "Order",
+    entityId: orderId,
+    oldValue: { status: OrderStatus.ASSIGNED, executorId: formerExecutorId },
+    newValue: { status: OrderStatus.PUBLISHED, executorId: null },
+  });
+
+  revalidateOrderPaths(orderId);
+
+  notifySafe(async () => {
+    await createNotification({
+      userId: formerExecutorId,
+      kind: NotificationKind.GENERIC,
+      title: "Назначение по заказу отменено",
+      body: `Администратор снял вас с задачи «${orderTitle}». Заказ снова открыт для откликов.`,
+      link: `/orders/${orderId}`,
+    });
+    await createNotification({
+      userId: customerId,
+      kind: NotificationKind.GENERIC,
+      title: "Исполнитель снят администратором",
+      body: `По заказу «${orderTitle}» назначение снято. Заказ снова в поиске исполнителя, средства остаются в безопасной сделке.`,
       link: `/orders/${orderId}`,
     });
   });

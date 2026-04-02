@@ -16,7 +16,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { formatMoneyFromCents } from "@/lib/format";
 import { PAYMENT_STATUS_LABELS } from "@/lib/order-labels";
 import { customerReserveOrderAction } from "@/server/actions/finance/customer-finance";
-import { adminAcceptProposalAction, adminAssignExecutorAction, adminPublishOrder, adminSetOrderStatusAction } from "@/server/actions/orders/admin-orders";
+import {
+  adminAcceptProposalAction,
+  adminAssignExecutorAction,
+  adminPublishOrder,
+  adminSetOrderStatusAction,
+  adminUnassignExecutorAction,
+} from "@/server/actions/orders/admin-orders";
+import { adminDeleteOrderAction, customerDeleteOrderAction } from "@/server/actions/orders/delete-order";
 import {
   customerAcceptProposalAction,
   customerAcceptWorkAction,
@@ -43,6 +50,56 @@ type ProposalRow = {
 };
 
 type ExecutorOption = { id: string; label: string };
+
+function canCustomerDeleteOrderSnapshot(snapshot: {
+  status: OrderStatus;
+  paymentStatus: PaymentStatus;
+  executorId: string | null;
+}): boolean {
+  if (snapshot.paymentStatus === "PAYOUT_PENDING" || snapshot.paymentStatus === "PAYOUT_DONE") {
+    return false;
+  }
+  if (snapshot.executorId) return false;
+  if (!["DRAFT", "NEW", "ON_MODERATION", "PUBLISHED", "CANCELED"].includes(snapshot.status)) {
+    return false;
+  }
+  if (!["UNPAID", "RESERVED", "REFUNDED"].includes(snapshot.paymentStatus)) {
+    return false;
+  }
+  return true;
+}
+
+function canAdminDeleteOrderSnapshot(snapshot: {
+  status: OrderStatus;
+  paymentStatus: PaymentStatus;
+}): boolean {
+  if (snapshot.paymentStatus === "PAYOUT_PENDING" || snapshot.paymentStatus === "PAYOUT_DONE") {
+    return false;
+  }
+  if (snapshot.status === "ACCEPTED" || snapshot.status === "COMPLETED") {
+    return false;
+  }
+  if (
+    ![
+      "DRAFT",
+      "NEW",
+      "ON_MODERATION",
+      "PUBLISHED",
+      "ASSIGNED",
+      "IN_PROGRESS",
+      "SUBMITTED",
+      "REVISION",
+      "CANCELED",
+      "DISPUTED",
+    ].includes(snapshot.status)
+  ) {
+    return false;
+  }
+  if (!["UNPAID", "RESERVED", "REFUNDED"].includes(snapshot.paymentStatus)) {
+    return false;
+  }
+  return true;
+}
 
 const ALL_STATUSES: OrderStatus[] = [
   "DRAFT",
@@ -115,6 +172,41 @@ export function OrderPanels(props: {
       {viewerRole === "ADMIN" ? (
         <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
           <h2 className="text-sm font-semibold">Действия администратора</h2>
+          {canAdminDeleteOrderSnapshot(snapshot) ? (
+            <div className="mt-3 rounded-md border border-red-200/80 bg-red-50/60 p-3 dark:border-red-900/50 dark:bg-red-950/25">
+              <p className="text-xs text-red-900 dark:text-red-100/90">
+                Удаление безвозвратно сотрёт заказ, отклики, чат и споры. При активном резерве сумма вернётся на баланс
+                заказчика.
+              </p>
+              <Button
+                type="button"
+                size="sm"
+                variant="destructive"
+                className="mt-2"
+                disabled={pending}
+                onClick={() => {
+                  if (
+                    !window.confirm(
+                      "Удалить заказ из базы безвозвратно? Это действие нельзя отменить.",
+                    )
+                  ) {
+                    return;
+                  }
+                  setMsg(null);
+                  startTransition(async () => {
+                    const r = await adminDeleteOrderAction({ orderId });
+                    if (!r.ok) {
+                      setMsg(r.error ?? "Не удалось удалить");
+                      return;
+                    }
+                    router.push("/admin/orders");
+                  });
+                }}
+              >
+                Удалить заказ
+              </Button>
+            </div>
+          ) : null}
           <div className="mt-4 flex flex-wrap gap-2">
             {snapshot.status === "NEW" || snapshot.status === "ON_MODERATION" ? (
               <Button
@@ -164,6 +256,36 @@ export function OrderPanels(props: {
                   </Button>
                 </>
               )}
+              {snapshot.status === "ASSIGNED" &&
+              snapshot.executorId &&
+              snapshot.paymentStatus === "RESERVED" &&
+              !snapshot.hasActiveDispute ? (
+                <div className="mt-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
+                  <p className="text-xs text-neutral-600 dark:text-neutral-400">
+                    Пока исполнитель не начал работу, можно снять назначение: заказ вернётся в поиск, отклики
+                    восстановятся, резерв средств сохранится.
+                  </p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="mt-2"
+                    disabled={pending}
+                    onClick={() => {
+                      if (
+                        !window.confirm(
+                          "Снять исполнителя с заказа? Заказ снова станет открытым для откликов.",
+                        )
+                      ) {
+                        return;
+                      }
+                      run("admin-unassign", () => adminUnassignExecutorAction({ orderId }));
+                    }}
+                  >
+                    Снять исполнителя
+                  </Button>
+                </div>
+              ) : null}
             </div>
             <div className="space-y-2 sm:col-span-2">
               <Label>Статус (ручная смена)</Label>
@@ -373,6 +495,35 @@ export function OrderPanels(props: {
                 onClick={() => run("cancel", () => customerCancelOrderAction({ orderId }))}
               >
                 Отменить заказ
+              </Button>
+            ) : null}
+            {canCustomerDeleteOrderSnapshot(snapshot) ? (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-900 dark:text-red-300 dark:hover:bg-red-950/40"
+                disabled={pending}
+                onClick={() => {
+                  if (
+                    !window.confirm(
+                      "Удалить заказ безвозвратно? Отклики и переписка по заказу будут удалены. При блокировке средств в сделке они вернутся на ваш баланс.",
+                    )
+                  ) {
+                    return;
+                  }
+                  setMsg(null);
+                  startTransition(async () => {
+                    const r = await customerDeleteOrderAction({ orderId });
+                    if (!r.ok) {
+                      setMsg(r.error ?? "Не удалось удалить");
+                      return;
+                    }
+                    router.push("/customer/orders");
+                  });
+                }}
+              >
+                Удалить заказ
               </Button>
             ) : null}
             {snapshot.status === "SUBMITTED" ? (
