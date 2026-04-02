@@ -10,6 +10,12 @@ export async function listUsersForAdmin() {
       isActive: true,
       onboardingDone: true,
       createdAt: true,
+      referredBySignup: {
+        select: {
+          createdAt: true,
+          referrer: { select: { id: true, email: true } },
+        },
+      },
     },
   });
 }

@@ -17,7 +17,7 @@ export default async function AdminUsersPage() {
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800">
-        <table className="w-full min-w-[640px] text-left text-sm">
+        <table className="w-full min-w-[800px] text-left text-sm">
           <thead className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/40">
             <tr>
               <th className="px-3 py-2 font-medium">Почта</th>
@@ -25,6 +25,7 @@ export default async function AdminUsersPage() {
               <th className="px-3 py-2 font-medium">Статус</th>
               <th className="px-3 py-2 font-medium">Онбординг</th>
               <th className="px-3 py-2 font-medium">Регистрация</th>
+              <th className="px-3 py-2 font-medium min-w-[10rem]">Реферал</th>
               <th className="px-3 py-2 font-medium">Действие</th>
             </tr>
           </thead>
@@ -44,6 +45,23 @@ export default async function AdminUsersPage() {
                 </td>
                 <td className="px-3 py-2">{u.onboardingDone ? "Да" : "Нет"}</td>
                 <td className="px-3 py-2 text-neutral-600">{formatDateTime(u.createdAt)}</td>
+                <td className="px-3 py-2 align-top text-neutral-700 dark:text-neutral-300">
+                  {u.referredBySignup ? (
+                    <div className="space-y-1">
+                      <Badge variant="outline" className="border-primary/35 text-primary">
+                        По ссылке
+                      </Badge>
+                      <p className="max-w-[14rem] text-xs leading-snug">
+                        <span className="text-neutral-500 dark:text-neutral-500">от </span>
+                        <span className="break-all font-medium text-foreground" title={u.referredBySignup.referrer.id}>
+                          {u.referredBySignup.referrer.email}
+                        </span>
+                      </p>
+                    </div>
+                  ) : (
+                    <span className="text-neutral-400 dark:text-neutral-600">—</span>
+                  )}
+                </td>
                 <td className="px-3 py-2">
                   <AdminUserActionsCell userId={u.id} email={u.email} role={u.role} isActive={u.isActive} />
                 </td>
