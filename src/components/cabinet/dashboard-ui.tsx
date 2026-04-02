@@ -15,7 +15,19 @@ export function DashboardWelcome({
 }) {
   return (
     <div className="relative flex flex-col gap-4 overflow-hidden rounded-2xl border border-border/80 bg-card px-5 py-6 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-7">
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary/25 via-primary/10 to-transparent"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -right-16 bottom-0 h-40 w-40 rounded-full bg-primary/[0.06] blur-3xl dark:bg-primary/10"
+        aria-hidden
+      />
       <div className="relative min-w-0">
+        <div className="mb-2 flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-primary shadow-sm shadow-primary/25" aria-hidden />
+          <span className="h-px w-8 bg-gradient-to-r from-primary/50 to-transparent" aria-hidden />
+        </div>
         <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">{greeting}</h2>
         <p className="mt-2 max-w-2xl text-pretty text-sm text-muted-foreground sm:text-base">{subtitle}</p>
       </div>
@@ -36,7 +48,11 @@ export function DashboardStatTile({
   sublabel?: string;
 }) {
   return (
-    <div className="group rounded-2xl border border-border/80 bg-card p-4 shadow-sm transition-all hover:border-border hover:shadow-md">
+    <div className="group relative overflow-hidden rounded-2xl border border-border/80 bg-card p-4 pb-5 shadow-sm transition-all hover:border-border hover:shadow-md">
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-primary/0 via-primary/45 to-primary/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        aria-hidden
+      />
       <div className="flex items-start gap-3">
         <div
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground/80 ring-1 ring-border/60 transition-[transform,background-color] group-hover:bg-muted/80 group-hover:scale-[1.02]"
@@ -69,12 +85,16 @@ export function DashboardQuickLink({
     <Link
       href={href}
       className={cn(
-        "group relative flex items-start gap-3 overflow-hidden rounded-2xl border border-border/80 bg-card p-4 text-left shadow-sm transition-all",
-        "hover:border-border hover:bg-muted/40 hover:shadow-md",
+        "group relative flex items-start gap-3 overflow-hidden rounded-2xl border border-l-2 border-border/80 border-l-transparent bg-card p-4 pl-[0.9375rem] text-left shadow-sm transition-all",
+        "hover:border-border hover:border-l-primary/55 hover:bg-muted/40 hover:shadow-md",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
       )}
     >
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground ring-1 ring-border/60 transition-colors group-hover:bg-muted/80 group-hover:text-primary">
+      <div
+        className="pointer-events-none absolute right-3 top-3 h-8 w-8 rounded-lg border border-dashed border-primary/10 opacity-0 transition-opacity group-hover:opacity-100 dark:border-primary/15"
+        aria-hidden
+      />
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground ring-1 ring-border/60 transition-colors group-hover:bg-primary/8 group-hover:text-primary group-hover:ring-primary/15">
         <Icon className="h-5 w-5" aria-hidden />
       </div>
       <div className="min-w-0 flex-1">
@@ -91,10 +111,31 @@ export function DashboardQuickLink({
 
 export function DashboardSectionTitle({ children }: { children: ReactNode }) {
   return (
-    <h2 className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-foreground/25" aria-hidden />
-      {children}
-      <span className="h-px min-w-[2rem] flex-1 max-w-[4rem] bg-gradient-to-r from-border to-transparent" aria-hidden />
-    </h2>
+    <div className="space-y-3">
+      <h2 className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-primary/10 ring-1 ring-primary/15" aria-hidden>
+          <span className="h-1.5 w-1.5 rounded-full bg-primary/70" />
+        </span>
+        {children}
+        <span className="h-px min-w-[2rem] flex-1 max-w-[5rem] bg-gradient-to-r from-primary/25 to-transparent" aria-hidden />
+      </h2>
+      <div
+        className="h-px w-full bg-gradient-to-r from-border via-foreground/[0.06] to-border dark:via-white/[0.06]"
+        aria-hidden
+      />
+    </div>
+  );
+}
+
+/** Горизонтальный разделитель между крупными блоками кабинета */
+export function CabinetFancyDivider({ className }: { className?: string }) {
+  return (
+    <div className={cn("my-4 flex items-center gap-4", className)} role="separator">
+      <div className="h-px flex-1 bg-gradient-to-r from-transparent via-border to-border/40" aria-hidden />
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border/70 bg-card text-xs font-bold text-primary shadow-sm">
+        ·
+      </span>
+      <div className="h-px flex-1 bg-gradient-to-l from-transparent via-border to-border/40" aria-hidden />
+    </div>
   );
 }

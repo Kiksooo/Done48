@@ -3,6 +3,7 @@ import { Role, ExecutorAccountStatus } from "@prisma/client";
 import { Banknote, Briefcase, MessageSquare, Search, UserRound, Wrench } from "lucide-react";
 import { redirect } from "next/navigation";
 import {
+  CabinetFancyDivider,
   DashboardQuickLink,
   DashboardSectionTitle,
   DashboardStatTile,
@@ -102,6 +103,8 @@ export default async function ExecutorHomePage() {
         </div>
       ) : null}
 
+      <CabinetFancyDivider />
+
       <section className="space-y-4">
         <DashboardSectionTitle>Мои задачи</DashboardSectionTitle>
         <div className="grid gap-4 sm:grid-cols-3">
@@ -125,6 +128,8 @@ export default async function ExecutorHomePage() {
           />
         </div>
       </section>
+
+      <CabinetFancyDivider />
 
       <section className="space-y-4">
         <DashboardSectionTitle>Разделы</DashboardSectionTitle>

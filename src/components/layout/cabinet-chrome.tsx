@@ -86,10 +86,10 @@ export function CabinetChrome({
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "relative flex w-full items-center gap-3 rounded-lg py-2.5 pl-3 pr-2 text-sm font-medium transition-colors",
+                  "relative flex w-full items-center gap-3 rounded-lg py-2.5 pl-3 pr-2 text-sm font-medium transition-[colors,transform] duration-200",
                   active
                     ? "bg-primary/10 text-primary before:absolute before:left-0 before:top-2 before:bottom-2 before:w-[3px] before:rounded-full before:bg-primary"
-                    : "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
+                    : "text-muted-foreground hover:translate-x-0.5 hover:bg-muted/70 hover:text-foreground",
                 )}
               >
                 <NavIcon

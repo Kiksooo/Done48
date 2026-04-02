@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
+  CabinetFancyDivider,
   DashboardQuickLink,
   DashboardSectionTitle,
   DashboardStatTile,
@@ -35,6 +36,8 @@ export default async function AdminHomePage() {
           </Button>
         }
       />
+
+      <CabinetFancyDivider />
 
       <section className="space-y-4">
         <DashboardSectionTitle>Показатели</DashboardSectionTitle>
@@ -59,6 +62,8 @@ export default async function AdminHomePage() {
           />
         </div>
       </section>
+
+      <CabinetFancyDivider />
 
       <section className="space-y-4">
         <DashboardSectionTitle>Управление</DashboardSectionTitle>

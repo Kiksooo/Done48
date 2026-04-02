@@ -128,3 +128,28 @@
   position: relative;
   z-index: 1;
 }
+
+/* Точечный паттерн в зоне контента (сильнее сверху, гасится к низу) */
+.cabinet-content-dots {
+  position: relative;
+}
+.cabinet-content-dots::after {
+  content: "";
+  position: absolute;
+  inset: -1rem -0.5rem auto -0.5rem;
+  height: min(420px, 55vh);
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.4;
+  background-image: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--foreground) 10%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 75% 80% at 50% 0%, black 15%, transparent 72%);
+}
+.cabinet-content-dots > * {
+  position: relative;
+  z-index: 1;
+}

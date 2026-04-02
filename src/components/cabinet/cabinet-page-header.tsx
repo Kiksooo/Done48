@@ -25,6 +25,22 @@ export function CabinetPageHeader({ title, description, breadcrumbs, action, cla
         className,
       )}
     >
+      <div
+        className="pointer-events-none absolute right-5 top-4 flex gap-1.5 sm:right-6 sm:top-5"
+        aria-hidden
+      >
+        <span className="h-1.5 w-1.5 rounded-full bg-primary/35" />
+        <span className="h-1.5 w-1.5 rounded-full bg-primary/20" />
+        <span className="h-1.5 w-1.5 rounded-full bg-foreground/10" />
+      </div>
+      <div
+        className="pointer-events-none absolute -bottom-8 -left-8 h-24 w-24 rounded-full border border-dashed border-primary/[0.12] opacity-60 dark:border-primary/20"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -right-4 top-1/2 h-16 w-16 -translate-y-1/2 rounded-2xl border border-border/50 bg-gradient-to-br from-primary/[0.04] to-transparent dark:from-primary/[0.07]"
+        aria-hidden
+      />
       {breadcrumbs?.length ? (
         <nav className="mb-3 flex flex-wrap items-center gap-x-1 gap-y-1 text-xs text-muted-foreground" aria-label="Навигация">
           {breadcrumbs.map((b, i) => (
