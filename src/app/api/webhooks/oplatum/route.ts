@@ -10,6 +10,21 @@ import { fulfillCustomerTopUpFromCheckoutSession } from "@/server/payments/oplat
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+/**
+ * Проверка в браузере / из ЛК (часто делают GET перед сохранением вебхука).
+ * Реальные уведомления об оплате Oplatum шлёт методом POST.
+ */
+export async function GET() {
+  const html = `<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width"/><title>Oplatum webhook</title></head><body style="font:16px system-ui;padding:1.5rem;line-height:1.5;color:#111"><h1 style="font-size:1.1rem">Эндпоинт вебхука</h1><p>Страница открыта по <code>GET</code> — так и должно быть для проверки. Зачисление баланса делает только <strong>POST</strong> от Oplatum после оплаты.</p><p><code>GET /api/webhooks/oplatum — OK</code></p></body></html>`;
+  return new Response(html, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "no-store",
+    },
+  });
+}
+
 function webhookToleranceSec(): number {
   const n = Number(process.env.OPLATUM_WEBHOOK_TOLERANCE_SEC ?? "300");
   return Number.isFinite(n) && n > 0 ? n : 300;
