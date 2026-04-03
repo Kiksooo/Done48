@@ -22,11 +22,66 @@ function merchantCheckoutSessionsUrl(): URL {
   return new URL(`${prefix}/checkout/sessions`, `${base}/`);
 }
 
-type ApiEnvelope = {
-  success?: boolean;
-  data?: { sessionId?: string; url?: string };
-  error?: { message?: string };
-};
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return v !== null && typeof v === "object" && !Array.isArray(v);
+}
+
+function pickString(obj: Record<string, unknown>, keys: string[]): string | undefined {
+  for (const k of keys) {
+    const v = obj[k];
+    if (typeof v === "string" && v.length > 0) return v;
+  }
+  return undefined;
+}
+
+/**
+ * Достаёт sessionId + url из разных вариантов JSON (дока, вложенность, snake_case).
+ */
+function extractCheckoutSessionPayload(json: unknown): { id: string; url: string } | null {
+  if (!isRecord(json)) return null;
+
+  const candidates: Record<string, unknown>[] = [];
+  const push = (o: unknown) => {
+    if (isRecord(o)) candidates.push(o);
+  };
+
+  if (isRecord(json.data)) {
+    push(json.data.data);
+    push(json.data.payload);
+  }
+  push(json.data);
+  push(json.result);
+  push(json.payload);
+  push(json);
+
+  for (const block of candidates) {
+    const id = pickString(block, ["sessionId", "session_id", "id"]);
+    const checkoutUrl = pickString(block, [
+      "url",
+      "checkoutUrl",
+      "checkout_url",
+      "redirectUrl",
+      "redirect_url",
+    ]);
+    if (id && checkoutUrl) {
+      return { id, url: checkoutUrl };
+    }
+  }
+
+  return null;
+}
+
+function formatResponseHint(json: unknown, status: number): string {
+  if (json === null || json === undefined) {
+    return `Пустой ответ (HTTP ${status}).`;
+  }
+  try {
+    const s = JSON.stringify(json);
+    return s.length > 280 ? `${s.slice(0, 280)}…` : s;
+  } catch {
+    return `Нестандартный ответ (HTTP ${status}).`;
+  }
+}
 
 /**
  * POST /merchant-api/v1/checkout/sessions — см. https://oplatum.com/api-docs
@@ -97,19 +152,53 @@ export async function oplatumCreateCheckoutSession(params: {
     );
   }
 
-  const json = (await res.json().catch(() => null)) as ApiEnvelope | null;
-  if (!res.ok) {
-    const msg = json?.error?.message ?? `Oplatum API ${res.status}`;
-    throw new Error(msg);
-  }
-  if (!json?.success || !json.data) {
-    const msg = json?.error?.message ?? "Некорректный ответ кассы";
-    throw new Error(msg);
-  }
-  const { sessionId, url: checkoutUrl } = json.data;
-  if (!checkoutUrl || !sessionId) {
-    throw new Error("В ответе нет sessionId или url");
+  const text = await res.text();
+  let json: unknown;
+  try {
+    json = text ? JSON.parse(text) : null;
+  } catch {
+    throw new Error(
+      `Касса вернула не JSON (HTTP ${res.status}). Начало ответа: ${text.slice(0, 120)}`,
+    );
   }
 
-  return { id: sessionId, url: checkoutUrl };
+  if (isRecord(json)) {
+    const errObj = json.error;
+    const msgFromError =
+      typeof json.message === "string"
+        ? json.message
+        : isRecord(errObj) && typeof errObj.message === "string"
+          ? errObj.message
+          : undefined;
+    if (!res.ok) {
+      throw new Error(msgFromError ?? `Oplatum API ${res.status}: ${formatResponseHint(json, res.status)}`);
+    }
+    if (json.success === false && msgFromError) {
+      throw new Error(msgFromError);
+    }
+  } else if (!res.ok) {
+    throw new Error(`Oplatum API ${res.status}`);
+  }
+
+  const extracted = extractCheckoutSessionPayload(json);
+  if (extracted) {
+    return extracted;
+  }
+
+  if (isRecord(json)) {
+    const errObj = json.error;
+    const msgFromError =
+      typeof json.message === "string"
+        ? json.message
+        : isRecord(errObj) && typeof errObj.message === "string"
+          ? errObj.message
+          : undefined;
+    if (msgFromError) {
+      throw new Error(msgFromError);
+    }
+  }
+
+  throw new Error(
+    `Некорректный ответ кассы (HTTP ${res.status}). Уточните у поддержки Oplatum формат ответа. Фрагмент: ${formatResponseHint(json, res.status)}`,
+  );
 }
