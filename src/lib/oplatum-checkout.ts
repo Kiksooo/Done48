@@ -10,16 +10,16 @@ export type OplatumCheckoutSessionResult = {
   url: string;
 };
 
-/** URL создания сессии: {OPLATUM_API_BASE_URL}/{OPLATUM_MERCHANT_API_PREFIX}/checkout/sessions */
+/** URL создания сессии: {origin}/{OPLATUM_MERCHANT_API_PREFIX}/checkout/sessions */
 function merchantCheckoutSessionsUrl(): URL {
   const baseRaw = getOplatumApiBaseUrl();
   if (!baseRaw) {
     throw new Error("Задайте OPLATUM_API_BASE_URL (только origin, без пути к эндпоинту).");
   }
-  const base = baseRaw.replace(/\/$/, "");
+  const origin = new URL(baseRaw).origin;
   const prefix =
     process.env.OPLATUM_MERCHANT_API_PREFIX?.trim().replace(/^\/|\/$/g, "") || "merchant-api/v1";
-  return new URL(`${prefix}/checkout/sessions`, `${base}/`);
+  return new URL(`/${prefix}/checkout/sessions`, origin);
 }
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -104,7 +104,6 @@ export async function oplatumCreateCheckoutSession(params: {
   }
 
   const url = merchantCheckoutSessionsUrl();
-  console.log("[oplatum] checkout URL:", url.href);
   const pathWithQuery = `${url.pathname}${url.search}`;
 
   const bodyObj: Record<string, unknown> = {
@@ -155,7 +154,6 @@ export async function oplatumCreateCheckoutSession(params: {
   }
 
   const text = await res.text();
-  console.log("[oplatum] response status:", res.status, "body (first 300):", text.slice(0, 300));
   let json: unknown;
   try {
     json = text ? JSON.parse(text) : null;
