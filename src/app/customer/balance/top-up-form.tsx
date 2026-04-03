@@ -14,15 +14,12 @@ type Form = { rubles: number };
 type Props = {
   oplatumConfigured: boolean;
   showDemoTopUp: boolean;
-  /** Полный URL для подсказки в кабинете Oplatum */
-  webhookEndpointUrl: string;
   oplatumCheckoutButtonLabel: string;
 };
 
 export function CustomerTopUpForm({
   oplatumConfigured,
   showDemoTopUp,
-  webhookEndpointUrl,
   oplatumCheckoutButtonLabel,
 }: Props) {
   const router = useRouter();
@@ -85,23 +82,10 @@ export function CustomerTopUpForm({
               })();
             }}
           >
-            {pending ? "…" : "Пополнить (демо)"}
+            {pending ? "…" : "Пополнить"}
           </Button>
         ) : null}
       </div>
-      {oplatumConfigured ? (
-        <p className="text-xs text-neutral-500">
-          Оплата через кассу Oplatum (СБП или иные методы по настройке). После оплаты баланс обновится по вебхуку. URL
-          вебхука в кабинете:{" "}
-          <span className="break-all font-mono text-[11px] text-neutral-600 dark:text-neutral-400">
-            {webhookEndpointUrl}
-          </span>
-        </p>
-      ) : (
-        <p className="text-xs text-neutral-500">
-          Реальная оплата не настроена — задайте OPLATUM_SECRET_KEY и OPLATUM_WEBHOOK_SECRET в окружении.
-        </p>
-      )}
     </form>
   );
 }

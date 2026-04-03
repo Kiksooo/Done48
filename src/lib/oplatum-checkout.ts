@@ -1,4 +1,11 @@
-import { getOplatumApiBaseUrl, getOplatumPaymentMethodTypes, getOplatumSecretKey } from "@/lib/oplatum-config";
+import {
+  getOplatumApiBaseUrl,
+  getOplatumApiKey,
+  getOplatumHmacSecret,
+  getOplatumPaymentMethodTypes,
+  getOplatumSecretKey,
+} from "@/lib/oplatum-config";
+import { buildOplatumSignedHeaders } from "@/lib/oplatum-request-auth";
 
 export type OplatumCheckoutSessionResult = {
   id: string;
@@ -6,7 +13,7 @@ export type OplatumCheckoutSessionResult = {
 };
 
 /**
- * Создаёт Checkout Session (Stripe-совместимый POST /v1/checkout/sessions).
+ * Создаёт Checkout Session (POST /v1/checkout/sessions) с подписью X-Api-Key / X-Signature.
  */
 export async function oplatumCreateCheckoutSession(params: {
   amountCents: number;
@@ -14,12 +21,24 @@ export async function oplatumCreateCheckoutSession(params: {
   cancelUrl: string;
   metadata: Record<string, string>;
 }): Promise<OplatumCheckoutSessionResult> {
-  const secret = getOplatumSecretKey();
-  if (!secret) {
-    throw new Error("OPLATUM_SECRET_KEY не задан");
+  const apiKey = getOplatumApiKey();
+  const apiSecret = getOplatumHmacSecret();
+  if (!apiKey) {
+    throw new Error("Задайте OPLATUM_API_KEY (ak_live_…) для заголовка X-Api-Key.");
+  }
+  if (!apiSecret) {
+    throw new Error(
+      "Задайте OPLATUM_SECRET_KEY (sk_live_…) для подписи запросов. Либо OPLATUM_HMAC_SECRET, либо OPLATUM_SIGN_WITH_API_KEY=true (только если так сказано в доке Oplatum).",
+    );
   }
 
   const base = getOplatumApiBaseUrl();
+  if (!base) {
+    throw new Error(
+      "Задайте OPLATUM_API_BASE_URL — базовый URL API из личного кабинета Oplatum (https://… без /v1).",
+    );
+  }
+
   const body = new URLSearchParams();
   body.set("mode", "payment");
   body.set("success_url", params.successUrl);
@@ -37,15 +56,34 @@ export async function oplatumCreateCheckoutSession(params: {
     body.set(`metadata[${k}]`, v);
   }
 
+  const bodyStr = body.toString();
+  const fetchUrl = new URL("v1/checkout/sessions", `${base.replace(/\/$/, "")}/`);
+  const pathWithQuery = `${fetchUrl.pathname}${fetchUrl.search}`;
+
+  const signHeaders = buildOplatumSignedHeaders({
+    method: "POST",
+    pathWithQuery,
+    body: bodyStr,
+    apiKey,
+    apiSecret,
+  });
+
+  const headers: Record<string, string> = {
+    ...signHeaders,
+    "Content-Type": "application/x-www-form-urlencoded",
+  };
+
+  if (process.env.OPLATUM_ALSO_SEND_BEARER === "true") {
+    const sk = getOplatumSecretKey();
+    if (sk) headers.Authorization = `Bearer ${sk}`;
+  }
+
   let res: Response;
   try {
-    res = await fetch(`${base}/v1/checkout/sessions`, {
+    res = await fetch(fetchUrl, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${secret}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body,
+      headers,
+      body: bodyStr,
     });
   } catch (e) {
     const cause =
@@ -56,7 +94,7 @@ export async function oplatumCreateCheckoutSession(params: {
       cause instanceof Error ? cause.message : cause != null ? String(cause) : e instanceof Error ? e.message : "";
     throw new Error(
       detail
-        ? `Нет связи с кассой (${detail}). Проверьте OPLATUM_API_BASE_URL в доке Oplatum и исходящий интернет с сервера.`
+        ? `Нет связи с кассой (${detail}). Проверьте OPLATUM_API_BASE_URL и исходящий интернет с сервера.`
         : "Нет связи с кассой. Проверьте OPLATUM_API_BASE_URL и сеть сервера.",
     );
   }

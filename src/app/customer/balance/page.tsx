@@ -6,7 +6,6 @@ import {
   getOplatumCheckoutButtonLabel,
   isOplatumBalanceTopUpConfigured,
 } from "@/lib/oplatum-config";
-import { toAbsoluteSiteUrl } from "@/lib/site-url";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { prisma } from "@/lib/db";
 import { listTransactionsForUser } from "@/server/queries/finance";
@@ -37,8 +36,6 @@ export default async function CustomerBalancePage({
     !oplatumConfigured ||
     process.env.NODE_ENV !== "production" ||
     allowDemoBalanceTopUpWithOplatum();
-  const webhookEndpointUrl = toAbsoluteSiteUrl("/api/webhooks/oplatum");
-
   return (
     <div className="space-y-8">
       <CabinetPageHeader
@@ -47,16 +44,12 @@ export default async function CustomerBalancePage({
           { label: "Баланс" },
         ]}
         title="Баланс и оплаты"
-        description={
-          oplatumConfigured
-            ? "Пополнение через Oplatum (по умолчанию СБП в настройках приложения), вывод заявкой. Безопасная сделка: сумма удерживается до приёмки работы, затем уходит исполнителю (за вычетом комиссии). Ниже — история операций."
-            : "Пополнение и вывод (демо, пока не заданы ключи Oplatum). Безопасная сделка: сумма удерживается до приёмки работы, затем уходит исполнителю (за вычетом комиссии). Ниже — история операций."
-        }
+        description="Пополнение баланса и вывод средств. Безопасная сделка: сумма удерживается до приёмки работы, затем уходит исполнителю (за вычетом комиссии). Ниже — история операций."
       />
 
       {topupNotice === "success" ? (
         <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-100">
-          Оплата оформлена. Баланс обновится после уведомления от кассы; при необходимости обновите страницу.
+          Оплата оформлена. Баланс обновится в ближайшее время; при необходимости обновите страницу.
         </p>
       ) : null}
       {topupNotice === "cancel" ? (
@@ -77,7 +70,6 @@ export default async function CustomerBalancePage({
               <CustomerTopUpForm
                 oplatumConfigured={oplatumConfigured}
                 showDemoTopUp={showDemoTopUp}
-                webhookEndpointUrl={webhookEndpointUrl}
                 oplatumCheckoutButtonLabel={getOplatumCheckoutButtonLabel()}
               />
             </div>

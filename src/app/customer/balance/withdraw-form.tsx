@@ -45,11 +45,8 @@ export function CustomerWithdrawForm() {
         />
       </div>
       <Button type="submit" variant="secondary" disabled={pending}>
-        {pending ? "…" : "Вывести (демо)"}
+        {pending ? "…" : "Вывести"}
       </Button>
-      <p className="w-full text-xs text-neutral-500">
-        Учебный вывод: деньги списываются с баланса в системе, без реального перевода на карту.
-      </p>
     </form>
   );
 }

@@ -1,19 +1,46 @@
 /**
  * Oplatum: ключи в кабинете (ak_live / sk_live / whsec_).
- * HTTP по умолчанию совместим со Stripe API (Checkout Session + подпись вебхука).
- * Если у провайдера другой хост — задайте OPLATUM_API_BASE_URL.
+ * HTTP совместим со Stripe API (Checkout Session + подпись вебхука).
+ *
+ * Важно: хост api.oplatum.com в DNS не существует — базовый URL API нужно взять из ЛК Oplatum
+ * и задать в OPLATUM_API_BASE_URL.
  */
 
-const DEFAULT_API_BASE = "https://api.oplatum.com";
-
-export function getOplatumApiBaseUrl(): string {
+/** База API без завершающего слэша, без /v1 (пример: https://pay.example.com). */
+export function getOplatumApiBaseUrl(): string | undefined {
   const raw = process.env.OPLATUM_API_BASE_URL?.trim();
-  return (raw || DEFAULT_API_BASE).replace(/\/$/, "");
+  if (!raw) return undefined;
+  return raw.replace(/\/$/, "");
 }
 
-/** Серверный секрет для REST (обычно sk_live_…). */
+/** Серверный секрет (sk_live_…), если выдан отдельно от API Key. */
 export function getOplatumSecretKey(): string | undefined {
   return process.env.OPLATUM_SECRET_KEY?.trim() || undefined;
+}
+
+/** Публичный/серверный API Key (ak_live_…) — для Bearer, если нет sk. */
+export function getOplatumApiKey(): string | undefined {
+  return process.env.OPLATUM_API_KEY?.trim() || undefined;
+}
+
+/** Токен для Authorization: Bearer … (опционально, если касса просит и Bearer, и подпись). */
+export function getOplatumBearerToken(): string | undefined {
+  return getOplatumSecretKey() ?? getOplatumApiKey();
+}
+
+/**
+ * Секрет для HMAC (X-Signature). Обычно sk_live_… из ЛК.
+ * Переопределение: OPLATUM_HMAC_SECRET. Если задано OPLATUM_SIGN_WITH_API_KEY=true — fallback на API Key.
+ */
+export function getOplatumHmacSecret(): string | undefined {
+  const explicit = process.env.OPLATUM_HMAC_SECRET?.trim();
+  if (explicit) return explicit;
+  const sk = getOplatumSecretKey();
+  if (sk) return sk;
+  if (process.env.OPLATUM_SIGN_WITH_API_KEY === "true") {
+    return getOplatumApiKey();
+  }
+  return undefined;
 }
 
 export function getOplatumWebhookSecret(): string | undefined {
@@ -26,7 +53,12 @@ export function getOplatumWebhookSignatureHeaderName(): string {
 }
 
 export function isOplatumBalanceTopUpConfigured(): boolean {
-  return Boolean(getOplatumSecretKey() && getOplatumWebhookSecret());
+  return Boolean(
+    getOplatumWebhookSecret() &&
+      getOplatumApiBaseUrl() &&
+      getOplatumApiKey() &&
+      getOplatumHmacSecret(),
+  );
 }
 
 export function allowDemoBalanceTopUpWithOplatum(): boolean {
