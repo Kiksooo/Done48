@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { YandexMetrika } from "@/components/analytics/yandex-metrika";
 import { AppProviders } from "@/components/providers/app-providers";
 import {
@@ -64,6 +65,9 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+};
+
+export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#2563eb" },
     { media: "(prefers-color-scheme: dark)", color: "#0c0f14" },
@@ -78,6 +82,7 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans`}>
+        <GoogleAnalytics />
         <YandexMetrika />
         <AppProviders>{children}</AppProviders>
       </body>

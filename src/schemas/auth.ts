@@ -15,8 +15,15 @@ export const registerSchema = z
     role: z.enum(["CUSTOMER", "EXECUTOR"], {
       message: "Выберите роль",
     }),
+    /** HTML checkbox: при отмеченном поле приходит `"on"` */
+    acceptTerms: z.union([z.literal("on"), z.literal("true")]).optional(),
+    marketingOptIn: z.union([z.literal("on"), z.undefined()]).optional(),
   })
-  .strict();
+  .strict()
+  .refine((d) => d.acceptTerms === "on" || d.acceptTerms === "true", {
+    message: "Подтвердите согласие с пользовательским соглашением и политикой конфиденциальности",
+    path: ["acceptTerms"],
+  });
 
 /** Текст после запроса сброса (не раскрывает, есть ли аккаунт). */
 export const PASSWORD_RESET_REQUEST_SUCCESS =

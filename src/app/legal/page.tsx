@@ -28,6 +28,11 @@ export default function LegalIndexPage() {
           </Link>
         </li>
         <li>
+          <Link href="/legal/fees" className="font-medium text-primary underline-offset-4 hover:underline">
+            Комиссии, резерв средств и расчёты
+          </Link>
+        </li>
+        <li>
           <Link href="/legal/privacy" className="font-medium text-primary underline-offset-4 hover:underline">
             Политика конфиденциальности и обработка персональных данных
           </Link>

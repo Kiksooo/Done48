@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { AuthLegalLinks } from "@/components/auth/auth-legal-links";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
@@ -15,8 +16,9 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         className="pointer-events-none absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-muted blur-3xl"
         aria-hidden
       />
-      <div className="relative mx-auto flex min-h-[calc(100vh-6rem)] max-w-md items-center justify-center">
-        {children}
+      <div className="relative mx-auto flex min-h-[calc(100vh-6rem)] max-w-md flex-col items-center">
+        <div className="flex w-full flex-1 flex-col items-center justify-center">{children}</div>
+        <AuthLegalLinks />
       </div>
     </div>
   );

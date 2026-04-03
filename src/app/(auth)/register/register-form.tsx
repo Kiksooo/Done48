@@ -101,17 +101,79 @@ export function RegisterForm({ referralCode }: { referralCode?: string }) {
               <p className="text-sm text-red-600">{state.fieldErrors.role[0]}</p>
             )}
           </div>
-          <p className="text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-            Нажимая «Зарегистрироваться», вы принимаете{" "}
-            <Link href="/legal/terms" className="font-medium text-neutral-900 underline underline-offset-2 dark:text-neutral-100">
-              пользовательское соглашение
-            </Link>{" "}
-            и{" "}
-            <Link href="/legal/privacy" className="font-medium text-neutral-900 underline underline-offset-2 dark:text-neutral-100">
-              политику конфиденциальности
-            </Link>
-            .
-          </p>
+          <div className="space-y-3 rounded-lg border border-border/80 bg-muted/30 p-3">
+            <label className="flex cursor-pointer gap-2 text-sm leading-snug text-neutral-700 dark:text-neutral-300">
+              <input
+                type="checkbox"
+                name="acceptTerms"
+                value="on"
+                required
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-neutral-400"
+              />
+              <span>
+                Принимаю{" "}
+                <Link
+                  href="/legal/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-primary underline-offset-2 hover:underline"
+                >
+                  пользовательское соглашение
+                </Link>
+                ,{" "}
+                <Link
+                  href="/legal/fees"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-primary underline-offset-2 hover:underline"
+                >
+                  правила комиссий и расчётов
+                </Link>{" "}
+                и{" "}
+                <Link
+                  href="/legal/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-primary underline-offset-2 hover:underline"
+                >
+                  политику конфиденциальности
+                </Link>
+                .
+              </span>
+            </label>
+            {state && !state.ok && state.fieldErrors?.acceptTerms?.[0] && (
+              <p className="text-sm text-red-600">{state.fieldErrors.acceptTerms[0]}</p>
+            )}
+            <label className="flex cursor-pointer gap-2 text-sm leading-snug text-neutral-600 dark:text-neutral-400">
+              <input
+                type="checkbox"
+                name="marketingOptIn"
+                value="on"
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-neutral-400"
+              />
+              <span>
+                Согласен(на) получать новости и предложения по email — как описано в{" "}
+                <Link
+                  href="/legal/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-primary underline-offset-2 hover:underline"
+                >
+                  политике персональных данных
+                </Link>
+                . Отписка доступна в профиле и на странице{" "}
+                <Link
+                  href="/legal/unsubscribe"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-primary underline-offset-2 hover:underline"
+                >
+                  отписки от рассылки
+                </Link>
+                .
+              </span>
+            </label>
+          </div>
           <SubmitButton />
           <p className="text-center text-sm text-neutral-600 dark:text-neutral-400">
             Уже есть аккаунт?{" "}

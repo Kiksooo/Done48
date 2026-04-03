@@ -13,6 +13,7 @@ describe.skipIf(!hasTestDatabase())("registerUser referral ref", () => {
     fd.set("email", email);
     fd.set("password", "vitest-pass-12");
     fd.set("role", "CUSTOMER");
+    fd.set("acceptTerms", "on");
     fd.set("ref", inviter.id);
 
     const res = await registerUser(undefined, fd);
@@ -65,6 +66,7 @@ describe.skipIf(!hasTestDatabase())("registerUser referral ref", () => {
     fd.set("email", email);
     fd.set("password", "vitest-pass-12");
     fd.set("role", "CUSTOMER");
+    fd.set("acceptTerms", "on");
     fd.set("ref", "clxxxxxxxxxxxxxxxxxxxxxxxxx");
 
     const res = await registerUser(undefined, fd);

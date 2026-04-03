@@ -573,8 +573,14 @@ export function LandingPage() {
                   </a>
                 ),
               )}
+              <Link href="/legal" className="text-muted-foreground transition-colors hover:text-foreground">
+                Документы
+              </Link>
               <Link href="/legal/terms" className="text-muted-foreground transition-colors hover:text-foreground">
                 Условия
+              </Link>
+              <Link href="/legal/fees" className="text-muted-foreground transition-colors hover:text-foreground">
+                Комиссии
               </Link>
               <Link href="/legal/privacy" className="text-muted-foreground transition-colors hover:text-foreground">
                 Конфиденциальность

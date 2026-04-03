@@ -25,6 +25,8 @@ export async function registerUser(
     email: formData.get("email"),
     password: formData.get("password"),
     role: formData.get("role"),
+    acceptTerms: formData.get("acceptTerms") ?? undefined,
+    marketingOptIn: formData.get("marketingOptIn") ?? undefined,
   });
 
   if (!parsed.success) {
@@ -61,12 +63,16 @@ export async function registerUser(
     const passwordHash = await bcrypt.hash(parsed.data.password, 12);
     const role = parsed.data.role as Role;
 
+    const marketingOn = parsed.data.marketingOptIn === "on";
+
     const user = await prisma.user.create({
       data: {
         email,
         passwordHash,
         role,
         onboardingDone: false,
+        marketingOptIn: marketingOn,
+        marketingOptInAt: marketingOn ? new Date() : null,
       },
     });
 
