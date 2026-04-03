@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 
 export async function fulfillCustomerTopUpFromCheckoutSession(params: {
   sessionId: string;
-  /** Сумма в копейках из вебхука (поле amount в RUB × 100) */
+  /** Сумма из вебхука (если есть); зачисляем всегда intent.amountCents после проверки подписи */
   amountKopecks: number | null;
   /** Сессия успешно оплачена (Oplatum: status complete/completed/paid) */
   paid: boolean;
@@ -12,9 +12,6 @@ export async function fulfillCustomerTopUpFromCheckoutSession(params: {
 
   if (!paid) {
     return { ok: false, reason: "not_paid" };
-  }
-  if (amountKopecks == null || amountKopecks <= 0) {
-    return { ok: false, reason: "no_amount" };
   }
 
   try {
@@ -32,8 +29,11 @@ export async function fulfillCustomerTopUpFromCheckoutSession(params: {
         if (intent.status !== CustomerTopUpIntentStatus.PENDING) {
           throw new Error("BAD_STATE");
         }
-        if (intent.amountCents !== amountKopecks) {
-          throw new Error("AMOUNT_MISMATCH");
+        if (amountKopecks != null && amountKopecks > 0 && amountKopecks !== intent.amountCents) {
+          console.warn(
+            "[oplatum fulfill] webhook amount differs from intent; crediting intent",
+            { webhook: amountKopecks, intent: intent.amountCents, sessionId },
+          );
         }
 
         await tx.customerProfile.update({
@@ -64,7 +64,6 @@ export async function fulfillCustomerTopUpFromCheckoutSession(params: {
     const msg = e instanceof Error ? e.message : "";
     if (msg === "UNKNOWN_INTENT") return { ok: false, reason: "unknown_intent" };
     if (msg === "BAD_STATE") return { ok: false, reason: "bad_state" };
-    if (msg === "AMOUNT_MISMATCH") return { ok: false, reason: "amount_mismatch" };
     throw e;
   }
 
