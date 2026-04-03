@@ -134,6 +134,7 @@ export async function oplatumCreateCheckoutSession(params: {
       headers: {
         ...auth,
         "Content-Type": "application/json",
+        Accept: "application/json",
         "Idempotency-Key": params.idempotencyKey.slice(0, 255),
       },
       body: bodyStr,
@@ -157,6 +158,11 @@ export async function oplatumCreateCheckoutSession(params: {
   try {
     json = text ? JSON.parse(text) : null;
   } catch {
+    if (text.trimStart().startsWith("<")) {
+      throw new Error(
+        `Касса вернула HTML вместо JSON. Скорее всего OPLATUM_API_BASE_URL (${url.origin}) — это адрес дашборда, а не API. Уточните URL API в ЛК Oplatum (раздел «Интеграция» / «API»).`,
+      );
+    }
     throw new Error(
       `Касса вернула не JSON (HTTP ${res.status}). Начало ответа: ${text.slice(0, 120)}`,
     );
