@@ -25,6 +25,16 @@ export const customerProfileUpdateSchema = z.object({
   avatarUrl: avatarUrlField,
 });
 
+/** Города для фильтра «доступные заказы»: строки из textarea / через запятую. */
+function parseOrderCities(raw: string): string[] {
+  const parts = raw
+    .split(/[\n,;]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const uniq = Array.from(new Set(parts));
+  return uniq.slice(0, 25).map((s) => s.slice(0, 120));
+}
+
 export const executorProfileUpdateSchema = z.object({
   displayName: z.string().max(120).transform((s) => trimOrNull(s, 120)),
   username: z
@@ -40,6 +50,10 @@ export const executorProfileUpdateSchema = z.object({
   phone: z.string().max(64).transform((s) => trimOrNull(s, 64)),
   telegram: z.string().max(64).transform((s) => trimOrNull(s, 64)),
   city: z.string().max(120).transform((s) => trimOrNull(s, 120)),
+  orderCities: z
+    .string()
+    .max(4000)
+    .transform((s) => parseOrderCities(s)),
   bio: z.string().max(2000).transform((s) => trimOrNull(s, 2000)),
   avatarUrl: avatarUrlField,
 });

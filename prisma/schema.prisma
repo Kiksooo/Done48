@@ -136,6 +136,8 @@ model ExecutorProfile {
   telegram     String?
   emailPublic  String?
   city         String?
+  /// В каких городах готов брать заказы (совпадает с городом заказчика в карточке). Пусто = все города.
+  orderCities  String[] @default([])
   bio          String?  @db.Text
   skills       String[] @default([])
   categories   String[] @default([])

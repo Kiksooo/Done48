@@ -6,13 +6,21 @@ import { redirect } from "next/navigation";
 import { Role } from "@prisma/client";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { formatDateTime, formatMoneyFromCents } from "@/lib/format";
+import { prisma } from "@/lib/db";
 import { listAvailableOrdersForExecutor } from "@/server/queries/orders";
 
 export default async function ExecutorAvailableOrdersPage() {
   const user = await getSessionUserForAction();
   if (!user || user.role !== Role.EXECUTOR) redirect("/login");
 
-  const rows = await listAvailableOrdersForExecutor();
+  const [rows, prefs] = await Promise.all([
+    listAvailableOrdersForExecutor(user.id),
+    prisma.executorProfile.findUnique({
+      where: { userId: user.id },
+      select: { orderCities: true },
+    }),
+  ]);
+  const filterCities = (prefs?.orderCities ?? []).map((c) => c.trim()).filter(Boolean);
 
   return (
     <div className="space-y-6">
@@ -24,6 +32,27 @@ export default async function ExecutorAvailableOrdersPage() {
         title="Доступные заказы"
         description="Опубликованные задачи с открытыми откликами — откройте карточку, чтобы предложить условия."
       />
+
+      {filterCities.length > 0 ? (
+        <p className="rounded-lg border border-border bg-muted/50 px-4 py-3 text-sm text-muted-foreground">
+          Показаны заказы, где город заказчика совпадает с вашим списком:{" "}
+          <span className="font-medium text-foreground">{filterCities.join(", ")}</span>
+          , либо город у заказчика не указан. Настроить список можно в{" "}
+          <Link href="/executor/profile" className="font-medium text-primary underline-offset-2 hover:underline">
+            профиле
+          </Link>
+          .
+        </p>
+      ) : (
+        <p className="rounded-lg border border-dashed border-border bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
+          Сейчас отображаются заказы по всем городам. Чтобы сузить выбор, укажите{" "}
+          <span className="font-medium text-foreground">города исполнения</span> в{" "}
+          <Link href="/executor/profile" className="font-medium text-primary underline-offset-2 hover:underline">
+            профиле
+          </Link>
+          .
+        </p>
+      )}
 
       <div className="space-y-3">
         {rows.map((o) => (

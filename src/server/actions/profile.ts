@@ -87,6 +87,7 @@ export async function updateExecutorProfileAction(raw: unknown): Promise<ActionR
         phone: d.phone,
         telegram: d.telegram,
         city: d.city,
+        orderCities: d.orderCities,
         bio: d.bio,
         avatarUrl: d.avatarUrl,
       },
@@ -107,6 +108,7 @@ export async function updateExecutorProfileAction(raw: unknown): Promise<ActionR
   });
 
   revalidatePath("/executor/profile");
+  revalidatePath("/executor/orders/available");
   revalidatePath("/executors");
   revalidatePath("/admin/audit-logs");
   if (prevProfile?.username) {

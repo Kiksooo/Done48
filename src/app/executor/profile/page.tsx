@@ -72,6 +72,7 @@ export default async function ExecutorProfilePage() {
           phone: profile.phone,
           telegram: profile.telegram,
           city: profile.city,
+          orderCities: profile.orderCities ?? [],
           bio: profile.bio,
           accountStatus: profile.accountStatus,
           avatarUrl: profile.avatarUrl,

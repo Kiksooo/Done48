@@ -83,12 +83,55 @@ export async function listMyExecutorOrders(executorId: string) {
   });
 }
 
-export async function listAvailableOrdersForExecutor() {
+/**
+ * Заказы с открытыми откликами. Если у исполнителя заданы `orderCities`, показываем заказы,
+ * где город заказчика совпадает (без учёта регистра) или город не указан / нет профиля.
+ */
+export async function listAvailableOrdersForExecutor(executorUserId: string) {
+  const profile = await prisma.executorProfile.findUnique({
+    where: { userId: executorUserId },
+    select: { orderCities: true },
+  });
+
+  const cities = Array.from(
+    new Set((profile?.orderCities ?? []).map((c) => c.trim()).filter(Boolean)),
+  );
+
+  const base: Prisma.OrderWhereInput[] = [
+    { status: "PUBLISHED" },
+    { visibilityType: "OPEN_FOR_RESPONSES" },
+    { executorId: null },
+  ];
+
+  if (cities.length === 0) {
+    return prisma.order.findMany({
+      where: { AND: base },
+      include: orderListInclude,
+      orderBy: { createdAt: "desc" },
+    });
+  }
+
+  const cityMatch: Prisma.OrderWhereInput[] = [
+    { customer: { customerProfile: null } },
+    {
+      customer: {
+        customerProfile: { is: { OR: [{ city: null }, { city: "" }] } },
+      },
+    },
+  ];
+  for (const city of cities) {
+    cityMatch.push({
+      customer: {
+        customerProfile: {
+          is: { city: { equals: city, mode: "insensitive" } },
+        },
+      },
+    });
+  }
+
   return prisma.order.findMany({
     where: {
-      status: "PUBLISHED",
-      visibilityType: "OPEN_FOR_RESPONSES",
-      executorId: null,
+      AND: [...base, { OR: cityMatch }],
     },
     include: orderListInclude,
     orderBy: { createdAt: "desc" },
