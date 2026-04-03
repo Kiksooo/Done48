@@ -1,4 +1,4 @@
-import { getOplatumApiBaseUrl, getOplatumSecretKey } from "@/lib/oplatum-config";
+import { getOplatumApiBaseUrl, getOplatumPaymentMethodTypes, getOplatumSecretKey } from "@/lib/oplatum-config";
 
 export type OplatumCheckoutSessionResult = {
   id: string;
@@ -24,7 +24,10 @@ export async function oplatumCreateCheckoutSession(params: {
   body.set("mode", "payment");
   body.set("success_url", params.successUrl);
   body.set("cancel_url", params.cancelUrl);
-  body.set("payment_method_types[0]", "card");
+  const methods = getOplatumPaymentMethodTypes();
+  methods.forEach((type, i) => {
+    body.set(`payment_method_types[${i}]`, type);
+  });
   body.set("line_items[0][quantity]", "1");
   body.set("line_items[0][price_data][currency]", "rub");
   body.set("line_items[0][price_data][unit_amount]", String(params.amountCents));
@@ -34,14 +37,29 @@ export async function oplatumCreateCheckoutSession(params: {
     body.set(`metadata[${k}]`, v);
   }
 
-  const res = await fetch(`${base}/v1/checkout/sessions`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${secret}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${base}/v1/checkout/sessions`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${secret}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body,
+    });
+  } catch (e) {
+    const cause =
+      e instanceof Error && "cause" in e
+        ? (e as Error & { cause?: unknown }).cause
+        : undefined;
+    const detail =
+      cause instanceof Error ? cause.message : cause != null ? String(cause) : e instanceof Error ? e.message : "";
+    throw new Error(
+      detail
+        ? `Нет связи с кассой (${detail}). Проверьте OPLATUM_API_BASE_URL в доке Oplatum и исходящий интернет с сервера.`
+        : "Нет связи с кассой. Проверьте OPLATUM_API_BASE_URL и сеть сервера.",
+    );
+  }
 
   const json = (await res.json().catch(() => null)) as
     | { url?: string; id?: string; error?: { message?: string } }

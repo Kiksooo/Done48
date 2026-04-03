@@ -16,9 +16,15 @@ type Props = {
   showDemoTopUp: boolean;
   /** Полный URL для подсказки в кабинете Oplatum */
   webhookEndpointUrl: string;
+  oplatumCheckoutButtonLabel: string;
 };
 
-export function CustomerTopUpForm({ oplatumConfigured, showDemoTopUp, webhookEndpointUrl }: Props) {
+export function CustomerTopUpForm({
+  oplatumConfigured,
+  showDemoTopUp,
+  webhookEndpointUrl,
+  oplatumCheckoutButtonLabel,
+}: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const form = useForm<Form>({ defaultValues: { rubles: 1000 } });
@@ -57,7 +63,7 @@ export function CustomerTopUpForm({ oplatumConfigured, showDemoTopUp, webhookEnd
               })();
             }}
           >
-            {pending ? "…" : "Оплатить картой"}
+            {pending ? "…" : oplatumCheckoutButtonLabel}
           </Button>
         ) : null}
         {showDemoTopUp ? (
@@ -85,7 +91,8 @@ export function CustomerTopUpForm({ oplatumConfigured, showDemoTopUp, webhookEnd
       </div>
       {oplatumConfigured ? (
         <p className="text-xs text-neutral-500">
-          После оплаты баланс обновится по вебхуку (обычно сразу). URL вебхука в кабинете Oplatum:{" "}
+          Оплата через кассу Oplatum (СБП или иные методы по настройке). После оплаты баланс обновится по вебхуку. URL
+          вебхука в кабинете:{" "}
           <span className="break-all font-mono text-[11px] text-neutral-600 dark:text-neutral-400">
             {webhookEndpointUrl}
           </span>

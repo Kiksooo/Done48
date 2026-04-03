@@ -1,7 +1,11 @@
 import { Role } from "@prisma/client";
 import { redirect } from "next/navigation";
 import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
-import { allowDemoBalanceTopUpWithOplatum, isOplatumBalanceTopUpConfigured } from "@/lib/oplatum-config";
+import {
+  allowDemoBalanceTopUpWithOplatum,
+  getOplatumCheckoutButtonLabel,
+  isOplatumBalanceTopUpConfigured,
+} from "@/lib/oplatum-config";
 import { toAbsoluteSiteUrl } from "@/lib/site-url";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { prisma } from "@/lib/db";
@@ -45,7 +49,7 @@ export default async function CustomerBalancePage({
         title="Баланс и оплаты"
         description={
           oplatumConfigured
-            ? "Пополнение картой через Oplatum, вывод заявкой. Безопасная сделка: сумма удерживается до приёмки работы, затем уходит исполнителю (за вычетом комиссии). Ниже — история операций."
+            ? "Пополнение через Oplatum (по умолчанию СБП в настройках приложения), вывод заявкой. Безопасная сделка: сумма удерживается до приёмки работы, затем уходит исполнителю (за вычетом комиссии). Ниже — история операций."
             : "Пополнение и вывод (демо, пока не заданы ключи Oplatum). Безопасная сделка: сумма удерживается до приёмки работы, затем уходит исполнителю (за вычетом комиссии). Ниже — история операций."
         }
       />
@@ -74,6 +78,7 @@ export default async function CustomerBalancePage({
                 oplatumConfigured={oplatumConfigured}
                 showDemoTopUp={showDemoTopUp}
                 webhookEndpointUrl={webhookEndpointUrl}
+                oplatumCheckoutButtonLabel={getOplatumCheckoutButtonLabel()}
               />
             </div>
           </div>
