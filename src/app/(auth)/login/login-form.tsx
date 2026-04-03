@@ -50,8 +50,8 @@ export function LoginForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Вход</CardTitle>
-        <CardDescription>DONE48 — внутренняя платформа</CardDescription>
+        <CardTitle>С возвращением</CardTitle>
+        <CardDescription>Войдите в кабинет заказчика или исполнителя.</CardDescription>
       </CardHeader>
       <CardContent>
         <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)} noValidate>

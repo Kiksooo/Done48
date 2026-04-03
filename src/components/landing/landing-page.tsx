@@ -5,7 +5,9 @@ import {
   Banknote,
   Briefcase,
   CheckCircle2,
+  Clock,
   Code2,
+  Gift,
   Layers,
   Megaphone,
   MessageSquare,
@@ -13,6 +15,7 @@ import {
   PenLine,
   Shield,
   ShieldCheck,
+  Sparkles,
   Star,
   Wrench,
   Users,
@@ -101,6 +104,12 @@ const marketplaceBenefits = [
     text: "Оценка по завершённой работе помогает отличить надёжных исполнителей.",
   },
 ];
+
+const heroTrust = [
+  { icon: Gift, text: "Регистрация бесплатно" },
+  { icon: Clock, text: "Около минуты до старта" },
+  { icon: Users, text: "Заказчик или исполнитель" },
+] as const;
 
 function HeroPreview() {
   return (
@@ -191,28 +200,63 @@ export function LandingPage() {
           <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-12 sm:px-6 sm:pb-24 sm:pt-16 lg:px-10 lg:pb-28 lg:pt-20">
             <div className="lg:grid lg:grid-cols-[1.08fr_0.92fr] lg:items-start lg:gap-14 xl:gap-16">
               <div>
-                <h1 className="text-balance text-4xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl lg:text-[2.75rem] xl:text-[3.15rem] opacity-0 animate-fade-up [animation-delay:60ms]">
-                  Быстрый поиск исполнителей под вашу задачу
+                <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3.5 py-1.5 text-xs font-medium text-primary opacity-0 animate-fade-up [animation-delay:40ms] sm:text-sm">
+                  <Sparkles className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" aria-hidden />
+                  Площадка для микро-задач
+                </p>
+                <h1 className="text-balance text-4xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl lg:text-[2.75rem] xl:text-[3.15rem] opacity-0 animate-fade-up [animation-delay:80ms]">
+                  Найдите исполнителя под задачу — или зарабатывайте на мелких заказах
                 </h1>
-                <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl opacity-0 animate-fade-up [animation-delay:120ms]">
-                  Опишите, что нужно сделать, — и перейдите в кабинет: оформите заказ как заказчик или откликайтесь как исполнитель.
-                  Онлайн-задачи и выезд — в одной логике статусов и переписки.
+                <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl opacity-0 animate-fade-up [animation-delay:140ms]">
+                  Зарегистрируйтесь бесплатно за минуту. Опубликуйте задачу как заказчик или откликайтесь как исполнитель — онлайн и выезд в одном понятном кабинете со статусами и чатом.
                 </p>
 
-                <div className="mt-8 opacity-0 animate-fade-up [animation-delay:180ms]">
+                <ul className="mt-6 flex flex-wrap gap-2 opacity-0 animate-fade-up [animation-delay:180ms] sm:gap-3">
+                  {heroTrust.map(({ icon: Icon, text }) => (
+                    <li
+                      key={text}
+                      className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-card/90 px-3 py-1.5 text-xs font-medium text-foreground shadow-sm sm:text-sm"
+                    >
+                      <Icon className="h-3.5 w-3.5 shrink-0 text-primary sm:h-4 sm:w-4" aria-hidden />
+                      {text}
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center opacity-0 animate-fade-up [animation-delay:220ms]">
+                  <Button size="lg" className="h-12 gap-2 rounded-full px-8 text-base shadow-glow" asChild>
+                    <Link href="/register">
+                      Создать аккаунт бесплатно
+                      <ArrowRight className="h-4 w-4" aria-hidden />
+                    </Link>
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="h-12 rounded-full border-border/80 bg-card/80 px-8 text-base shadow-glow-sm"
+                    asChild
+                  >
+                    <Link href="/register">
+                      <Briefcase className="h-4 w-4" aria-hidden />
+                      Искать заказы как исполнитель
+                    </Link>
+                  </Button>
+                </div>
+
+                <div className="mt-8 opacity-0 animate-fade-up [animation-delay:260ms]">
                   <LandingHeroSearch />
                 </div>
 
-                <p className="mt-4 text-sm text-muted-foreground opacity-0 animate-fade-up [animation-delay:220ms]">
-                  Регистрация бесплатно. Уже с нами?{" "}
+                <p className="mt-4 text-sm text-muted-foreground opacity-0 animate-fade-up [animation-delay:300ms]">
+                  Уже с нами?{" "}
                   <Link href="/login" className="font-semibold text-primary underline-offset-4 hover:underline">
-                    Войти
+                    Войти в кабинет
                   </Link>
                 </p>
 
                 <div
                   id="benefits"
-                  className="scroll-mt-24 mt-10 opacity-0 animate-fade-up [animation-delay:260ms] sm:scroll-mt-28"
+                  className="scroll-mt-24 mt-10 opacity-0 animate-fade-up [animation-delay:340ms] sm:scroll-mt-28"
                 >
                   <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 lg:gap-5 xl:grid-cols-4">
                     {marketplaceBenefits.map(({ icon: Icon, title, text }) => (
@@ -230,7 +274,7 @@ export function LandingPage() {
                   </ul>
                 </div>
 
-                <div className="mt-6 opacity-0 animate-fade-up [animation-delay:300ms]">
+                <div className="mt-6 opacity-0 animate-fade-up [animation-delay:380ms]">
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Популярные типы задач</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     {categories.map((c) => (
@@ -244,29 +288,9 @@ export function LandingPage() {
                     ))}
                   </div>
                 </div>
-
-                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center opacity-0 animate-fade-up [animation-delay:340ms]">
-                  <Button size="lg" className="h-12 gap-2 rounded-full px-8 text-base shadow-glow" asChild>
-                    <Link href="/register">
-                      Разместить задачу
-                      <ArrowRight className="h-4 w-4" aria-hidden />
-                    </Link>
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="h-12 rounded-full border-border/80 bg-card/80 px-8 text-base"
-                    asChild
-                  >
-                    <Link href="/register">
-                      <Briefcase className="h-4 w-4" aria-hidden />
-                      Стать исполнителем
-                    </Link>
-                  </Button>
-                </div>
               </div>
 
-              <div className="relative mt-14 opacity-0 animate-fade-up [animation-delay:380ms] lg:mt-4">
+              <div className="relative mt-14 opacity-0 animate-fade-up [animation-delay:420ms] lg:mt-4">
                 <HeroPreview />
                 <p className="mx-auto mt-6 max-w-md text-center text-xs text-muted-foreground lg:mx-0 lg:text-left">
                   Так выглядит карточка заказа: отклики, статус и следующий шаг — на одном экране.
@@ -501,16 +525,19 @@ export function LandingPage() {
           <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-10">
             <div className="overflow-hidden rounded-[2rem] border border-border/60 bg-gradient-to-br from-card via-card to-primary/[0.06] p-10 shadow-elevated sm:p-14 dark:to-primary/[0.09]">
               <div className="text-center">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Готовы попробовать DONE48?</h2>
-                <p className="mx-auto mt-4 max-w-lg text-muted-foreground">
-                  Регистрация займёт пару минут — затем кабинет, заказы или витрина задач.
+                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Начните за пару минут</h2>
+                <p className="mx-auto mt-4 max-w-lg text-pretty text-muted-foreground sm:text-lg">
+                  Без платы за регистрацию. Выберите роль в онбординге — и сразу увидите кабинет, заказы и отклики.
                 </p>
                 <div className="mt-10 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:justify-center">
-                  <Button size="lg" className="h-12 rounded-xl px-10 text-base shadow-glow" asChild>
-                    <Link href="/register">Создать аккаунт</Link>
+                  <Button size="lg" className="h-12 gap-2 rounded-xl px-10 text-base shadow-glow" asChild>
+                    <Link href="/register">
+                      Зарегистрироваться
+                      <ArrowRight className="h-4 w-4" aria-hidden />
+                    </Link>
                   </Button>
                   <Button size="lg" variant="outline" className="h-12 rounded-xl border-border/80 bg-background/50 px-10 text-base" asChild>
-                    <Link href="/login">Уже есть логин</Link>
+                    <Link href="/login">Уже есть аккаунт — войти</Link>
                   </Button>
                 </div>
               </div>
@@ -550,7 +577,7 @@ export function LandingPage() {
                 Вход
               </Link>
               <Link href="/register" className="text-muted-foreground transition-colors hover:text-foreground">
-                Регистрация
+                Начать бесплатно
               </Link>
               {landingNavLinks.map((l) =>
                 l.href.startsWith("/") ? (

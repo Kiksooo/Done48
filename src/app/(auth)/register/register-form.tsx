@@ -14,7 +14,7 @@ function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" className="w-full" disabled={pending}>
-      {pending ? "Создание…" : "Зарегистрироваться"}
+      {pending ? "Создание…" : "Создать аккаунт бесплатно"}
     </Button>
   );
 }
@@ -48,8 +48,10 @@ export function RegisterForm({ referralCode }: { referralCode?: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Регистрация</CardTitle>
-        <CardDescription>Заказчик или исполнитель. Админов добавляет только платформа.</CardDescription>
+        <CardTitle>Создайте аккаунт</CardTitle>
+        <CardDescription>
+          Минутка — и можно публиковать заказы или откликаться на них. Роль выберете в онбординге. Регистрация бесплатна.
+        </CardDescription>
         {landingTaskHint ? (
           <p className="mt-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-foreground">
             С главной вы искали: «{landingTaskHint}». После регистрации перенесите это в описание заказа или в отклик.

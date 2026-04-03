@@ -43,8 +43,13 @@ function LandingMobileNavPanel({ onClose }: { onClose: () => void }) {
           </a>
         ),
       )}
-      <div className="pt-2">
-        <Button variant="outline" className="mt-2 w-full rounded-2xl border-dashed" asChild>
+      <div className="space-y-2 pt-2">
+        <Button className="w-full rounded-2xl shadow-md shadow-primary/20" asChild>
+          <Link href="/register" onClick={onClose}>
+            Начать бесплатно
+          </Link>
+        </Button>
+        <Button variant="outline" className="w-full rounded-2xl border-dashed" asChild>
           <Link href="/login" onClick={onClose}>
             Уже есть аккаунт — войти
           </Link>
@@ -142,7 +147,7 @@ export function LandingHeader() {
               <Link href="/login">Войти</Link>
             </Button>
             <Button size="sm" className="rounded-full px-4 shadow-md shadow-primary/20 sm:px-5" asChild>
-              <Link href="/register">Регистрация</Link>
+              <Link href="/register">Начать бесплатно</Link>
             </Button>
             <Button
               ref={menuButtonRef}

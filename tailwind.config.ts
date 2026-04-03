@@ -40,6 +40,7 @@ const config: Config = {
       boxShadow: {
         elevated: "var(--elevated)",
         glow: "0 0 80px -20px color-mix(in srgb, var(--primary) 45%, transparent)",
+        "glow-sm": "0 0 48px -16px color-mix(in srgb, var(--primary) 35%, transparent)",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
