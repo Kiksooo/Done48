@@ -59,16 +59,22 @@ function extractCheckoutSessionCompleted(event: OplatumEvent): {
 export async function POST(req: Request) {
   const secret = getOplatumWebhookSecret();
   if (!secret) {
+    console.error("[oplatum webhook] OPLATUM_WEBHOOK_SECRET not set");
     return new Response("Webhook not configured", { status: 503 });
   }
 
   const raw = await req.text();
+  console.log("[oplatum webhook] received, body length:", raw.length, "body:", raw.slice(0, 500));
+
   const sigName = getOplatumWebhookSignatureHeaderName();
   const tsName = getOplatumWebhookTimestampHeaderName();
   const signature =
     req.headers.get(sigName) ?? req.headers.get(sigName.toLowerCase());
   const timestamp =
     req.headers.get(tsName) ?? req.headers.get(tsName.toLowerCase());
+
+  console.log("[oplatum webhook] sig header:", sigName, "=", signature ? `${signature.slice(0, 16)}…` : "MISSING");
+  console.log("[oplatum webhook] ts header:", tsName, "=", timestamp ?? "MISSING");
 
   if (
     !verifyOplatumMerchantWebhookSignature({
@@ -79,43 +85,46 @@ export async function POST(req: Request) {
       toleranceSec: webhookToleranceSec(),
     })
   ) {
+    console.error("[oplatum webhook] signature verification FAILED");
     return new Response("Invalid signature", { status: 400 });
   }
+
+  console.log("[oplatum webhook] signature OK");
 
   let event: OplatumEvent;
   try {
     event = JSON.parse(raw) as OplatumEvent;
   } catch {
+    console.error("[oplatum webhook] invalid JSON");
     return new Response("Bad JSON", { status: 400 });
   }
 
+  console.log("[oplatum webhook] event type:", event.type);
+
   const checkout = extractCheckoutSessionCompleted(event);
-  if (checkout) {
-    const r = await fulfillCustomerTopUpFromCheckoutSession({
-      sessionId: checkout.sessionId,
-      amountKopecks: checkout.amountKopecks,
-      paid: checkout.paid,
-    });
-
-    if (r.ok) {
-      revalidatePath("/customer/balance");
-      revalidatePath("/admin/payments");
-    }
-
-    if (!r.ok) {
-      if (r.reason === "unknown_intent" || r.reason === "not_paid" || r.reason === "no_amount") {
-        return new Response("ok");
-      }
-      if (r.reason === "bad_state") {
-        return new Response("ok");
-      }
-      if (r.reason === "amount_mismatch") {
-        console.error("[oplatum webhook] amount mismatch", checkout);
-        return new Response("ok");
-      }
-      return new Response("error", { status: 500 });
-    }
+  if (!checkout) {
+    console.log("[oplatum webhook] not a checkout.session.completed event, ignoring");
+    return new Response("ok", { status: 200 });
   }
 
-  return new Response("ok", { status: 200 });
+  console.log("[oplatum webhook] checkout extracted:", JSON.stringify(checkout));
+
+  const r = await fulfillCustomerTopUpFromCheckoutSession({
+    sessionId: checkout.sessionId,
+    amountKopecks: checkout.amountKopecks,
+    paid: checkout.paid,
+  });
+
+  if (r.ok) {
+    console.log("[oplatum webhook] balance credited successfully for session:", checkout.sessionId);
+    revalidatePath("/customer/balance");
+    revalidatePath("/admin/payments");
+    return new Response("ok", { status: 200 });
+  }
+
+  console.error("[oplatum webhook] fulfill failed:", r.reason, "checkout:", JSON.stringify(checkout));
+  if (r.reason === "amount_mismatch") {
+    return new Response("ok");
+  }
+  return new Response("ok");
 }
