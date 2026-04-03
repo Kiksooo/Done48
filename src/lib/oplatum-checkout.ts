@@ -104,6 +104,7 @@ export async function oplatumCreateCheckoutSession(params: {
   }
 
   const url = merchantCheckoutSessionsUrl();
+  console.log("[oplatum] checkout URL:", url.href);
   const pathWithQuery = `${url.pathname}${url.search}`;
 
   const bodyObj: Record<string, unknown> = {
@@ -154,6 +155,7 @@ export async function oplatumCreateCheckoutSession(params: {
   }
 
   const text = await res.text();
+  console.log("[oplatum] response status:", res.status, "body (first 300):", text.slice(0, 300));
   let json: unknown;
   try {
     json = text ? JSON.parse(text) : null;
