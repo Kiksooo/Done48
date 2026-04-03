@@ -1,9 +1,8 @@
 /**
- * Oplatum: ключи в кабинете (ak_live / sk_live / whsec_).
- * HTTP совместим со Stripe API (Checkout Session + подпись вебхука).
+ * Oplatum Merchant API: ak_live + sk_live + секрет вебхука.
+ * Документация: https://oplatum.com/api-docs
  *
- * Важно: хост api.oplatum.com в DNS не существует — базовый URL API нужно взять из ЛК Oplatum
- * и задать в OPLATUM_API_BASE_URL.
+ * OPLATUM_API_BASE_URL — только origin (https://…), путь /merchant-api/v1 задаётся префиксом или по умолчанию.
  */
 
 /** База API без завершающего слэша, без /v1 (пример: https://pay.example.com). */
@@ -47,9 +46,13 @@ export function getOplatumWebhookSecret(): string | undefined {
   return process.env.OPLATUM_WEBHOOK_SECRET?.trim() || undefined;
 }
 
-/** Имя заголовка подписи (Stripe: Stripe-Signature). */
+/** Подпись вебхука: X-Webhook-Signature (hex). */
 export function getOplatumWebhookSignatureHeaderName(): string {
-  return process.env.OPLATUM_WEBHOOK_SIGNATURE_HEADER?.trim() || "stripe-signature";
+  return process.env.OPLATUM_WEBHOOK_SIGNATURE_HEADER?.trim() || "x-webhook-signature";
+}
+
+export function getOplatumWebhookTimestampHeaderName(): string {
+  return process.env.OPLATUM_WEBHOOK_TIMESTAMP_HEADER?.trim() || "x-webhook-timestamp";
 }
 
 export function isOplatumBalanceTopUpConfigured(): boolean {

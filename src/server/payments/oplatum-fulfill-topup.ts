@@ -3,15 +3,17 @@ import { prisma } from "@/lib/db";
 
 export async function fulfillCustomerTopUpFromCheckoutSession(params: {
   sessionId: string;
-  amountTotal: number | null;
-  paymentStatus: string | undefined;
+  /** Сумма в копейках из вебхука (поле amount в RUB × 100) */
+  amountKopecks: number | null;
+  /** Сессия успешно оплачена (Oplatum: status complete/completed/paid) */
+  paid: boolean;
 }): Promise<{ ok: true } | { ok: false; reason: string }> {
-  const { sessionId, amountTotal, paymentStatus } = params;
+  const { sessionId, amountKopecks, paid } = params;
 
-  if (paymentStatus !== "paid") {
+  if (!paid) {
     return { ok: false, reason: "not_paid" };
   }
-  if (amountTotal == null || amountTotal <= 0) {
+  if (amountKopecks == null || amountKopecks <= 0) {
     return { ok: false, reason: "no_amount" };
   }
 
@@ -30,7 +32,7 @@ export async function fulfillCustomerTopUpFromCheckoutSession(params: {
         if (intent.status !== CustomerTopUpIntentStatus.PENDING) {
           throw new Error("BAD_STATE");
         }
-        if (intent.amountCents !== amountTotal) {
+        if (intent.amountCents !== amountKopecks) {
           throw new Error("AMOUNT_MISMATCH");
         }
 

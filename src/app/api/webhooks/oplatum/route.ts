@@ -2,8 +2,9 @@ import { revalidatePath } from "next/cache";
 import {
   getOplatumWebhookSecret,
   getOplatumWebhookSignatureHeaderName,
+  getOplatumWebhookTimestampHeaderName,
 } from "@/lib/oplatum-config";
-import { verifyOplatumStripeStyleSignature, type StripeStyleWebhookEvent } from "@/lib/oplatum-webhook";
+import { verifyOplatumMerchantWebhookSignature } from "@/lib/oplatum-webhook-verify";
 import { fulfillCustomerTopUpFromCheckoutSession } from "@/server/payments/oplatum-fulfill-topup";
 
 export const runtime = "nodejs";
@@ -14,6 +15,47 @@ function webhookToleranceSec(): number {
   return Number.isFinite(n) && n > 0 ? n : 300;
 }
 
+type OplatumEvent = {
+  type?: string;
+  data?: { object?: Record<string, unknown> };
+};
+
+function parseAmountToKopecks(v: unknown): number | null {
+  if (typeof v === "number" && Number.isFinite(v)) {
+    return Math.round(v * 100);
+  }
+  if (typeof v === "string") {
+    const n = parseFloat(v);
+    if (!Number.isFinite(n)) return null;
+    return Math.round(n * 100);
+  }
+  return null;
+}
+
+function extractCheckoutSessionCompleted(event: OplatumEvent): {
+  sessionId: string;
+  paid: boolean;
+  amountKopecks: number | null;
+} | null {
+  if (event.type !== "checkout.session.completed") {
+    return null;
+  }
+  const d = event.data as Record<string, unknown> | undefined;
+  const o = (d?.object ?? d) as Record<string, unknown>;
+  const sessionId =
+    typeof o.sessionId === "string" ? o.sessionId : typeof o.id === "string" ? o.id : "";
+  if (!sessionId) {
+    return null;
+  }
+  const status = typeof o.status === "string" ? o.status.toLowerCase() : "";
+  const paid = status === "complete" || status === "completed" || status === "paid";
+  return {
+    sessionId,
+    paid,
+    amountKopecks: parseAmountToKopecks(o.amount),
+  };
+}
+
 export async function POST(req: Request) {
   const secret = getOplatumWebhookSecret();
   if (!secret) {
@@ -21,34 +63,38 @@ export async function POST(req: Request) {
   }
 
   const raw = await req.text();
-  const headerName = getOplatumWebhookSignatureHeaderName();
-  const sig = req.headers.get(headerName) ?? req.headers.get(headerName.toLowerCase());
+  const sigName = getOplatumWebhookSignatureHeaderName();
+  const tsName = getOplatumWebhookTimestampHeaderName();
+  const signature =
+    req.headers.get(sigName) ?? req.headers.get(sigName.toLowerCase());
+  const timestamp =
+    req.headers.get(tsName) ?? req.headers.get(tsName.toLowerCase());
 
-  if (!verifyOplatumStripeStyleSignature(raw, sig, secret, webhookToleranceSec())) {
+  if (
+    !verifyOplatumMerchantWebhookSignature({
+      rawBody: raw,
+      signatureHeader: signature,
+      timestampHeader: timestamp,
+      secret,
+      toleranceSec: webhookToleranceSec(),
+    })
+  ) {
     return new Response("Invalid signature", { status: 400 });
   }
 
-  let event: StripeStyleWebhookEvent;
+  let event: OplatumEvent;
   try {
-    event = JSON.parse(raw) as StripeStyleWebhookEvent;
+    event = JSON.parse(raw) as OplatumEvent;
   } catch {
     return new Response("Bad JSON", { status: 400 });
   }
 
-  if (event.type === "checkout.session.completed") {
-    const obj = event.data?.object ?? {};
-    const sessionId = typeof obj.id === "string" ? obj.id : "";
-    const paymentStatus = typeof obj.payment_status === "string" ? obj.payment_status : undefined;
-    const amountTotal = typeof obj.amount_total === "number" ? obj.amount_total : null;
-
-    if (!sessionId) {
-      return new Response("ok");
-    }
-
+  const checkout = extractCheckoutSessionCompleted(event);
+  if (checkout) {
     const r = await fulfillCustomerTopUpFromCheckoutSession({
-      sessionId,
-      amountTotal,
-      paymentStatus,
+      sessionId: checkout.sessionId,
+      amountKopecks: checkout.amountKopecks,
+      paid: checkout.paid,
     });
 
     if (r.ok) {
@@ -64,7 +110,7 @@ export async function POST(req: Request) {
         return new Response("ok");
       }
       if (r.reason === "amount_mismatch") {
-        console.error("[oplatum webhook] amount mismatch", { sessionId, amountTotal });
+        console.error("[oplatum webhook] amount mismatch", checkout);
         return new Response("ok");
       }
       return new Response("error", { status: 500 });

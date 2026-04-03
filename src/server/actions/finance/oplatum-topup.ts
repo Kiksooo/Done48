@@ -26,7 +26,8 @@ export async function customerOplatumStartTopUpAction(
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Некорректные данные" };
   }
 
-  const cents = Math.round(parsed.data.rubles * 100);
+  const rubles = Math.round(parsed.data.rubles * 100) / 100;
+  const cents = Math.round(rubles * 100);
   const base = getSiteUrl().replace(/\/$/, "");
 
   const intent = await prisma.customerTopUpIntent.create({
@@ -39,7 +40,9 @@ export async function customerOplatumStartTopUpAction(
 
   try {
     const session = await oplatumCreateCheckoutSession({
-      amountCents: cents,
+      idempotencyKey: intent.id,
+      amountRubles: rubles,
+      description: "Пополнение баланса DONE48",
       successUrl: `${base}/customer/balance?topup=success`,
       cancelUrl: `${base}/customer/balance?topup=cancel`,
       metadata: {
