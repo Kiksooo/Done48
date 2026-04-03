@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { isPrismaTransactionConflict } from "@/lib/prisma-errors";
 import { getSessionUserForAction } from "@/lib/rbac";
+import { allowDemoBalanceTopUpWithOplatum, isOplatumBalanceTopUpConfigured } from "@/lib/oplatum-config";
 import { demoTopUpSchema, demoWithdrawSchema, reserveOrderSchema } from "@/schemas/finance";
 import { assertOrderWritableByCustomer } from "@/server/orders/access";
 import type { ActionResult } from "@/server/actions/orders/create-order";
@@ -18,6 +19,14 @@ export async function customerDemoTopUpAction(raw: unknown): Promise<ActionResul
   const user = await getSessionUserForAction();
   if (!user || user.role !== Role.CUSTOMER) {
     return { ok: false, error: "Только для заказчика" };
+  }
+
+  if (
+    isOplatumBalanceTopUpConfigured() &&
+    process.env.NODE_ENV === "production" &&
+    !allowDemoBalanceTopUpWithOplatum()
+  ) {
+    return { ok: false, error: "Используйте оплату картой. Демо-пополнение отключено." };
   }
 
   const parsed = demoTopUpSchema.safeParse(raw);

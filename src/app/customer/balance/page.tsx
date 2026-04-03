@@ -1,6 +1,8 @@
 import { Role } from "@prisma/client";
 import { redirect } from "next/navigation";
 import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
+import { allowDemoBalanceTopUpWithOplatum, isOplatumBalanceTopUpConfigured } from "@/lib/oplatum-config";
+import { toAbsoluteSiteUrl } from "@/lib/site-url";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { prisma } from "@/lib/db";
 import { listTransactionsForUser } from "@/server/queries/finance";
@@ -9,7 +11,11 @@ import { TRANSACTION_TYPE_LABELS } from "@/lib/finance-labels";
 import { CustomerTopUpForm } from "./top-up-form";
 import { CustomerWithdrawForm } from "./withdraw-form";
 
-export default async function CustomerBalancePage() {
+export default async function CustomerBalancePage({
+  searchParams,
+}: {
+  searchParams?: { topup?: string | string[] };
+}) {
   const user = await getSessionUserForAction();
   if (!user || user.role !== Role.CUSTOMER) redirect("/login");
 
@@ -17,6 +23,17 @@ export default async function CustomerBalancePage() {
     prisma.customerProfile.findUnique({ where: { userId: user.id } }),
     listTransactionsForUser(user.id),
   ]);
+
+  const topupParam = searchParams?.topup;
+  const topupNotice =
+    typeof topupParam === "string" ? topupParam : Array.isArray(topupParam) ? topupParam[0] : undefined;
+
+  const oplatumConfigured = isOplatumBalanceTopUpConfigured();
+  const showDemoTopUp =
+    !oplatumConfigured ||
+    process.env.NODE_ENV !== "production" ||
+    allowDemoBalanceTopUpWithOplatum();
+  const webhookEndpointUrl = toAbsoluteSiteUrl("/api/webhooks/oplatum");
 
   return (
     <div className="space-y-8">
@@ -26,8 +43,23 @@ export default async function CustomerBalancePage() {
           { label: "Баланс" },
         ]}
         title="Баланс и оплаты"
-        description="Пополнение и вывод (демо). Безопасная сделка: сумма удерживается до приёмки работы, затем уходит исполнителю (за вычетом комиссии). Ниже — история операций."
+        description={
+          oplatumConfigured
+            ? "Пополнение картой через Oplatum, вывод заявкой. Безопасная сделка: сумма удерживается до приёмки работы, затем уходит исполнителю (за вычетом комиссии). Ниже — история операций."
+            : "Пополнение и вывод (демо, пока не заданы ключи Oplatum). Безопасная сделка: сумма удерживается до приёмки работы, затем уходит исполнителю (за вычетом комиссии). Ниже — история операций."
+        }
       />
+
+      {topupNotice === "success" ? (
+        <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-100">
+          Оплата оформлена. Баланс обновится после уведомления от кассы; при необходимости обновите страницу.
+        </p>
+      ) : null}
+      {topupNotice === "cancel" ? (
+        <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-100">
+          Оплата отменена. Средства не списывались.
+        </p>
+      ) : null}
 
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
         <p className="text-sm text-muted-foreground">Текущий баланс</p>
@@ -38,7 +70,11 @@ export default async function CustomerBalancePage() {
           <div>
             <h2 className="text-sm font-semibold text-foreground">Пополнение</h2>
             <div className="mt-3">
-              <CustomerTopUpForm />
+              <CustomerTopUpForm
+                oplatumConfigured={oplatumConfigured}
+                showDemoTopUp={showDemoTopUp}
+                webhookEndpointUrl={webhookEndpointUrl}
+              />
             </div>
           </div>
           <div>

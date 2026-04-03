@@ -78,6 +78,30 @@ model User {
 
   referrerSignups   ReferralSignup[] @relation("ReferrerSignups")
   referredBySignup  ReferralSignup?  @relation("ReferredBySignup")
+
+  customerTopUpIntents CustomerTopUpIntent[]
+}
+
+enum CustomerTopUpIntentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+/// Намерение пополнить баланс через внешнюю кассу (Oplatum / Stripe-совместимый Checkout).
+model CustomerTopUpIntent {
+  id                  String                    @id @default(cuid())
+  userId              String
+  user                User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amountCents         Int
+  currency            String                    @default("RUB")
+  /// ID сессии Checkout у провайдера (cs_…)
+  providerSessionId   String?                   @unique
+  status              CustomerTopUpIntentStatus @default(PENDING)
+  createdAt           DateTime                  @default(now())
+  completedAt         DateTime?
+
+  @@index([userId, status])
 }
 
 model PasswordResetToken {

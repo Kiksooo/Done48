@@ -33,6 +33,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  if (pathname.startsWith("/api/webhooks/")) {
+    return NextResponse.next();
+  }
+
   if (pathname.startsWith("/api/upload/")) {
     return NextResponse.next();
   }
