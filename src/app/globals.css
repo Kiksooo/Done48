@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  /* Тёплая «бумажная» палитра: бежевый фон, кремовые карточки, янтарный акцент */
+  /* Тёплая «бумажная» палитра: бежевый фон, кремовые карточки, мягкий шалфей (не «хаки») */
   --background: #f3ece2;
   --foreground: #1c1917;
   --card: #fdfaf5;
@@ -11,9 +11,9 @@
   --muted: #e8dfd2;
   --muted-foreground: #57534e;
   --border: #d4c9b8;
-  --primary: #92400e;
-  --primary-foreground: #fffef9;
-  --ring: #b45309;
+  --primary: #6a7658;
+  --primary-foreground: #fefffa;
+  --ring: #95a382;
   --radius: 0.75rem;
   --elevated: 0 1px 2px rgb(28 25 23 / 0.06), 0 12px 32px -8px rgb(28 25 23 / 0.09);
 }
@@ -27,9 +27,9 @@
     --muted: #3f3a34;
     --muted-foreground: #a8a29e;
     --border: #4a433c;
-    --primary: #fbbf24;
-    --primary-foreground: #1c1917;
-    --ring: #f59e0b;
+    --primary: #c5cfa4;
+    --primary-foreground: #252820;
+    --ring: #d2dab8;
     --elevated: 0 1px 2px rgb(0 0 0 / 0.35), 0 16px 40px -12px rgb(0 0 0 / 0.38);
   }
 }
@@ -80,9 +80,9 @@
     --muted: #e5dac9;
     --muted-foreground: #57534e;
     --border: #cfc3ae;
-    --primary: #92400e;
-    --primary-foreground: #fffef9;
-    --ring: #b45309;
+    --primary: #6a7658;
+    --primary-foreground: #fefffa;
+    --ring: #95a382;
     --elevated: 0 2px 8px rgb(28 25 23 / 0.07), 0 16px 40px -12px rgb(28 25 23 / 0.11);
   }
   @media (prefers-color-scheme: dark) {
@@ -94,9 +94,9 @@
       --muted: #3a3530;
       --muted-foreground: #a8a29e;
       --border: #44403b;
-      --primary: #fbbf24;
-      --primary-foreground: #1c1917;
-      --ring: #f59e0b;
+      --primary: #c5cfa4;
+      --primary-foreground: #252820;
+      --ring: #d2dab8;
       --elevated: 0 2px 8px rgb(0 0 0 / 0.35), 0 20px 48px -12px rgb(0 0 0 / 0.42);
     }
   }
