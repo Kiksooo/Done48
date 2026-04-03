@@ -11,6 +11,7 @@ import { prisma } from "@/lib/db";
 import { listTransactionsForUser } from "@/server/queries/finance";
 import { formatDateTime, formatMoneyFromCents } from "@/lib/format";
 import { TRANSACTION_TYPE_LABELS } from "@/lib/finance-labels";
+import { tryFulfillPendingOplatumTopUp } from "@/server/payments/oplatum-sync-after-return";
 import { CustomerTopUpForm } from "./top-up-form";
 import { CustomerWithdrawForm } from "./withdraw-form";
 
@@ -22,14 +23,19 @@ export default async function CustomerBalancePage({
   const user = await getSessionUserForAction();
   if (!user || user.role !== Role.CUSTOMER) redirect("/login");
 
+  const topupParam = searchParams?.topup;
+  const topupNotice =
+    typeof topupParam === "string" ? topupParam : Array.isArray(topupParam) ? topupParam[0] : undefined;
+
+  let justCreditedOplatum = false;
+  if (topupNotice === "success") {
+    justCreditedOplatum = await tryFulfillPendingOplatumTopUp(user.id);
+  }
+
   const [profile, txs] = await Promise.all([
     prisma.customerProfile.findUnique({ where: { userId: user.id } }),
     listTransactionsForUser(user.id),
   ]);
-
-  const topupParam = searchParams?.topup;
-  const topupNotice =
-    typeof topupParam === "string" ? topupParam : Array.isArray(topupParam) ? topupParam[0] : undefined;
 
   const oplatumConfigured = isOplatumBalanceTopUpConfigured();
   const showDemoTopUp =
@@ -49,7 +55,9 @@ export default async function CustomerBalancePage({
 
       {topupNotice === "success" ? (
         <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-100">
-          Оплата оформлена. Баланс обновится в ближайшее время; при необходимости обновите страницу.
+          {justCreditedOplatum
+            ? "Платёж зачислён на баланс."
+            : "Оплата оформлена. Если сумма не появилась, обновите страницу через минуту — зачисление может прийти отдельным уведомлением от кассы."}
         </p>
       ) : null}
       {topupNotice === "cancel" ? (

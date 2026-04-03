@@ -1,4 +1,9 @@
 import {
+  checkoutSessionObjectFromJson,
+  type CheckoutSessionFulfillmentState,
+  parseCheckoutSessionFulfillmentState,
+} from "@/lib/oplatum-checkout-session-state";
+import {
   getOplatumApiBaseUrl,
   getOplatumApiKey,
   getOplatumHmacSecret,
@@ -20,6 +25,19 @@ function merchantCheckoutSessionsUrl(): URL {
   const prefix =
     process.env.OPLATUM_MERCHANT_API_PREFIX?.trim().replace(/^\/|\/$/g, "") || "merchant-api/v1";
   return new URL(`/${prefix}/checkout/sessions`, origin);
+}
+
+/** GET …/checkout/sessions/:id — Stripe-совместимый просмотр сессии после оплаты. */
+function merchantCheckoutSessionByIdUrl(sessionId: string): URL {
+  const baseRaw = getOplatumApiBaseUrl();
+  if (!baseRaw) {
+    throw new Error("Задайте OPLATUM_API_BASE_URL (только origin, без пути к эндпоинту).");
+  }
+  const origin = new URL(baseRaw).origin;
+  const prefix =
+    process.env.OPLATUM_MERCHANT_API_PREFIX?.trim().replace(/^\/|\/$/g, "") || "merchant-api/v1";
+  const id = encodeURIComponent(sessionId);
+  return new URL(`/${prefix}/checkout/sessions/${id}`, origin);
 }
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -207,4 +225,62 @@ export async function oplatumCreateCheckoutSession(params: {
   throw new Error(
     `Некорректный ответ кассы (HTTP ${res.status}). Уточните у поддержки Oplatum формат ответа. Фрагмент: ${formatResponseHint(json, res.status)}`,
   );
+}
+
+/**
+ * Текущее состояние checkout session (оплачена или нет).
+ * Если эндпоинт недоступен или формат другой — null (остаётся вебхук).
+ */
+export async function oplatumRetrieveCheckoutSession(
+  sessionId: string,
+): Promise<CheckoutSessionFulfillmentState | null> {
+  const apiKey = getOplatumApiKey();
+  const apiSecret = getOplatumHmacSecret();
+  if (!apiKey || !apiSecret) {
+    return null;
+  }
+
+  const url = merchantCheckoutSessionByIdUrl(sessionId);
+  const pathWithQuery = `${url.pathname}${url.search}`;
+
+  const auth = buildOplatumMerchantSignedHeaders({
+    method: "GET",
+    pathWithQuery,
+    body: "",
+    apiKey,
+    apiSecret,
+  });
+
+  let res: Response;
+  try {
+    res = await fetch(url.href, {
+      method: "GET",
+      headers: {
+        ...auth,
+        Accept: "application/json",
+      },
+    });
+  } catch (e) {
+    console.error("[oplatum] retrieve checkout session network error", e);
+    return null;
+  }
+
+  const text = await res.text();
+  if (!res.ok) {
+    console.warn("[oplatum] retrieve checkout session", res.status, text.slice(0, 240));
+    return null;
+  }
+
+  let json: unknown;
+  try {
+    json = text ? JSON.parse(text) : null;
+  } catch {
+    return null;
+  }
+
+  const o = checkoutSessionObjectFromJson(json);
+  if (!o) {
+    return null;
+  }
+  return parseCheckoutSessionFulfillmentState(o, sessionId);
 }
