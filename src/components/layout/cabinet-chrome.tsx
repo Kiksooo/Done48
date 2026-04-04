@@ -10,6 +10,7 @@ import type { CabinetNavItem } from "@/config/navigation";
 import { isNavActive } from "@/config/navigation";
 import { NavIcon } from "@/components/layout/nav-icons";
 import { Menu, X } from "lucide-react";
+import { SITE_EMAIL_INFO } from "@/lib/site-contact";
 
 type CabinetChromeProps = {
   brand: string;
@@ -131,6 +132,12 @@ export function CabinetChrome({
               Помощь и документы
             </Link>
           ) : null}
+          <a
+            href={`mailto:${SITE_EMAIL_INFO}?subject=DONE48%20%E2%80%94%20%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81`}
+            className="block rounded-md px-1 py-0.5 text-xs font-medium text-primary transition-colors hover:underline"
+          >
+            Написать в поддержку
+          </a>
           <p
             className="truncate rounded-lg border border-border/70 bg-card/90 px-2.5 py-2 text-xs text-muted-foreground shadow-sm"
             title={userEmail}

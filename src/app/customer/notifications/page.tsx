@@ -29,7 +29,11 @@ export default async function CustomerNotificationsPage() {
         title="Уведомления"
         description="События по заказам и платформе. Отметьте прочитанными или перейдите по ссылке."
       />
-      <NotificationInbox items={items} hideHeading />
+      <NotificationInbox
+        items={items}
+        hideHeading
+        emptyCta={{ href: "/customer/orders", label: "Мои заказы" }}
+      />
     </div>
   );
 }

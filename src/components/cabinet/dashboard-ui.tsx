@@ -127,6 +127,35 @@ export function DashboardSectionTitle({ children }: { children: ReactNode }) {
   );
 }
 
+/** Пустое состояние списков в кабинете (уведомления, чаты и т.д.) */
+export function CabinetEmptyState({
+  icon: Icon,
+  title,
+  description,
+  children,
+}: {
+  icon?: LucideIcon;
+  title: string;
+  description: string;
+  children?: ReactNode;
+}) {
+  return (
+    <div className="rounded-xl border border-dashed border-border/90 bg-muted/25 px-5 py-10 text-center sm:px-8">
+      {Icon ? (
+        <div
+          className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground ring-1 ring-border/60"
+          aria-hidden
+        >
+          <Icon className="h-6 w-6 opacity-80" />
+        </div>
+      ) : null}
+      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+      <p className="mx-auto mt-2 max-w-md text-pretty text-sm leading-relaxed text-muted-foreground">{description}</p>
+      {children ? <div className="mt-5 flex flex-wrap items-center justify-center gap-2">{children}</div> : null}
+    </div>
+  );
+}
+
 /** Горизонтальный разделитель между крупными блоками кабинета */
 export function CabinetFancyDivider({ className }: { className?: string }) {
   return (

@@ -10,7 +10,7 @@ export default async function AdminPaymentsPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Платежи и проводки</h1>
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Все транзакции платформы (демо-учёт)
+          Журнал операций по балансам и заказам на платформе
         </p>
       </div>
 

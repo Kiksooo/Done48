@@ -1,6 +1,10 @@
+import Link from "next/link";
 import { Role } from "@prisma/client";
+import { Receipt } from "lucide-react";
 import { redirect } from "next/navigation";
+import { CabinetEmptyState } from "@/components/cabinet/dashboard-ui";
 import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
+import { Button } from "@/components/ui/button";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { prisma } from "@/lib/db";
 import { listTransactionsForUser } from "@/server/queries/finance";
@@ -86,7 +90,20 @@ export default async function ExecutorBalancePage() {
             </tbody>
           </table>
           {txs.length === 0 ? (
-            <p className="p-4 text-sm text-muted-foreground">Операций пока нет.</p>
+            <div className="p-4">
+              <CabinetEmptyState
+                icon={Receipt}
+                title="История операций пуста"
+                description="После завершённых сделок здесь будут начисления, холды и выплаты. Пока можно откликаться на заказы или открыть уже назначенные."
+              >
+                <Button type="button" size="sm" asChild>
+                  <Link href="/executor/orders/available">Доступные заказы</Link>
+                </Button>
+                <Button type="button" size="sm" variant="outline" asChild>
+                  <Link href="/executor/orders">Мои заказы</Link>
+                </Button>
+              </CabinetEmptyState>
+            </div>
           ) : null}
         </div>
       </div>

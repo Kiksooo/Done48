@@ -25,16 +25,18 @@ export default async function CustomerHomePage() {
   const user = await getSessionUserForAction();
   if (!user || user.role !== Role.CUSTOMER) redirect("/login");
 
-  const [buckets, spendCents, profile] = await Promise.all([
+  const [buckets, spendCents, profile, orderCount] = await Promise.all([
     countCustomerOrdersByBucket(user.id),
     sumCustomerSpend(user.id),
     prisma.customerProfile.findUnique({
       where: { userId: user.id },
       select: { displayName: true },
     }),
+    prisma.order.count({ where: { customerId: user.id } }),
   ]);
 
   const name = greetingName(profile?.displayName, user.email);
+  const isNewCustomer = orderCount === 0;
 
   return (
     <div className="space-y-10">
@@ -51,6 +53,19 @@ export default async function CustomerHomePage() {
           </Button>
         }
       />
+
+      {isNewCustomer ? (
+        <div className="rounded-xl border border-primary/25 bg-primary/[0.06] px-4 py-4 dark:bg-primary/10">
+          <p className="text-sm font-semibold text-foreground">Первый заказ</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Опишите задачу и бюджет — после публикации исполнители смогут откликнуться. Статусы и оплата — в одной
+            карточке заказа.
+          </p>
+          <Button asChild className="mt-3" size="sm">
+            <Link href="/customer/orders/new">Создать заказ</Link>
+          </Button>
+        </div>
+      ) : null}
 
       <CabinetFancyDivider />
 

@@ -4,12 +4,16 @@ import type { ReactNode } from "react";
 import { CabinetShell } from "@/components/layout/cabinet-shell";
 import { ADMIN_NAV } from "@/config/navigation";
 import { getSessionUserForAction } from "@/lib/rbac";
+import { dashboardPath } from "@/lib/routes";
 import { countUnreadNotifications } from "@/server/queries/notifications";
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const user = await getSessionUserForAction();
-  if (!user || user.role !== Role.ADMIN) {
+  if (!user) {
     redirect("/login");
+  }
+  if (user.role !== Role.ADMIN) {
+    redirect(dashboardPath(user.role, user.onboardingDone));
   }
 
   const unreadNotifications = await countUnreadNotifications(user.id);

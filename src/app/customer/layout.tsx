@@ -4,13 +4,17 @@ import type { ReactNode } from "react";
 import { CabinetShell } from "@/components/layout/cabinet-shell";
 import { CUSTOMER_NAV } from "@/config/navigation";
 import { getSessionUserForAction } from "@/lib/rbac";
+import { dashboardPath } from "@/lib/routes";
 import { countTotalUnreadChatMessagesForUser } from "@/server/queries/chat-inbox";
 import { countUnreadNotifications } from "@/server/queries/notifications";
 
 export default async function CustomerLayout({ children }: { children: ReactNode }) {
   const user = await getSessionUserForAction();
-  if (!user || user.role !== Role.CUSTOMER) {
+  if (!user) {
     redirect("/login");
+  }
+  if (user.role !== Role.CUSTOMER) {
+    redirect(dashboardPath(user.role, user.onboardingDone));
   }
 
   const [unreadNotifications, unreadChatMessages] = await Promise.all([

@@ -1,6 +1,10 @@
+import Link from "next/link";
 import { Role } from "@prisma/client";
+import { Receipt } from "lucide-react";
 import { redirect } from "next/navigation";
+import { CabinetEmptyState } from "@/components/cabinet/dashboard-ui";
 import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
+import { Button } from "@/components/ui/button";
 import {
   allowDemoBalanceTopUpWithOplatum,
   getOplatumCheckoutButtonLabel,
@@ -117,7 +121,20 @@ export default async function CustomerBalancePage({
             </tbody>
           </table>
           {txs.length === 0 ? (
-            <p className="p-4 text-sm text-muted-foreground">Операций пока нет.</p>
+            <div className="p-4">
+              <CabinetEmptyState
+                icon={Receipt}
+                title="История операций пуста"
+                description="Здесь появятся пополнения, резервы по безопасной сделке и списания по заказам. Пополнить баланс можно в блоке выше; после работы с заказами строки заполнятся автоматически."
+              >
+                <Button type="button" size="sm" asChild>
+                  <Link href="/customer/orders/new">Создать заказ</Link>
+                </Button>
+                <Button type="button" size="sm" variant="secondary" asChild>
+                  <Link href="/customer/orders">Мои заказы</Link>
+                </Button>
+              </CabinetEmptyState>
+            </div>
           ) : null}
         </div>
       </div>

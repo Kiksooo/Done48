@@ -15,39 +15,62 @@ export type SessionUser = {
   onboardingDone: boolean;
 };
 
-export async function getSessionUser(): Promise<SessionUser | null> {
+type ResolvedRow = {
+  id: string;
+  email: string;
+  role: Role;
+  onboardingDone: boolean;
+  isActive: boolean;
+};
+
+/**
+ * Роль и онбординг из БД (в т.ч. после смены роли админом). JWT в middleware может отставать —
+ * layout’ы и server actions опираются на эти данные.
+ */
+async function resolveSessionUserRow(): Promise<ResolvedRow | null> {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id || !isAppRole(session.user.role)) return null;
-    return {
-      id: session.user.id,
-      email: session.user.email ?? "",
-      role: session.user.role,
-      onboardingDone: session.user.onboardingDone,
-    };
+    const id = session?.user?.id;
+    if (!id) return null;
+    const row = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        onboardingDone: true,
+        isActive: true,
+      },
+    });
+    if (!row || !isAppRole(row.role)) return null;
+    return row;
   } catch {
-    // Ошибки auth-конфига/secret не должны ронять публичные страницы.
     return null;
   }
 }
 
+function rowToSessionUser(row: ResolvedRow): SessionUser {
+  return {
+    id: row.id,
+    email: row.email,
+    role: prismaRoleToApp(row.role),
+    onboardingDone: row.onboardingDone,
+  };
+}
+
+export async function getSessionUser(): Promise<SessionUser | null> {
+  const row = await resolveSessionUserRow();
+  if (!row) return null;
+  return rowToSessionUser(row);
+}
+
 /**
- * Для server actions: JWT + фактически активная учётная запись в БД (isActive).
+ * Для server actions и RSC: роль из БД + только активные учётки.
  */
 export async function getSessionUserForAction(): Promise<SessionUser | null> {
-  const base = await getSessionUser();
-  if (!base) return null;
-  try {
-    const row = await prisma.user.findUnique({
-      where: { id: base.id },
-      select: { isActive: true },
-    });
-    if (!row?.isActive) return null;
-    return base;
-  } catch {
-    // Временные ошибки БД не должны ломать рендер публичной части.
-    return null;
-  }
+  const row = await resolveSessionUserRow();
+  if (!row?.isActive) return null;
+  return rowToSessionUser(row);
 }
 
 /** Для кода, где нужен throw при отсутствии сессии или неактивном пользователе. */

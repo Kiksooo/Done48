@@ -20,7 +20,10 @@ export default async function ExecutorMessagesPage() {
         title="Сообщения"
         description="Переписки по заказам, где вы участвуете. Полный чат — в карточке заказа."
       />
-      <MessagesInboxList rows={rows} />
+      <MessagesInboxList
+        rows={rows}
+        emptyCta={{ href: "/executor/orders/available", label: "Доступные заказы" }}
+      />
     </div>
   );
 }

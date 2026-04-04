@@ -1,15 +1,32 @@
 import Link from "next/link";
+import { MessageSquare } from "lucide-react";
+import { CabinetEmptyState } from "@/components/cabinet/dashboard-ui";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatDateTime } from "@/lib/format";
 import { ORDER_STATUS_LABELS } from "@/lib/order-labels";
 import type { ChatInboxRow } from "@/server/queries/chat-inbox";
 
-export function MessagesInboxList({ rows }: { rows: ChatInboxRow[] }) {
+export function MessagesInboxList({
+  rows,
+  emptyCta,
+}: {
+  rows: ChatInboxRow[];
+  emptyCta?: { href: string; label: string };
+}) {
   if (rows.length === 0) {
     return (
-      <p className="text-sm text-neutral-600 dark:text-neutral-400">
-        Пока нет чатов. Сообщения ведутся в карточке заказа — после первого сообщения диалог появится здесь.
-      </p>
+      <CabinetEmptyState
+        icon={MessageSquare}
+        title="Пока нет переписок"
+        description="Чаты открываются в карточке заказа. Как только по сделке пойдёт переписка, она появится в этом списке."
+      >
+        {emptyCta ? (
+          <Button type="button" size="sm" variant="secondary" asChild>
+            <Link href={emptyCta.href}>{emptyCta.label}</Link>
+          </Button>
+        ) : null}
+      </CabinetEmptyState>
     );
   }
 

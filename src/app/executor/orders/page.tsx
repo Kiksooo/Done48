@@ -1,9 +1,12 @@
 import Link from "next/link";
+import { Briefcase } from "lucide-react";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { Role } from "@prisma/client";
+import { CabinetEmptyState } from "@/components/cabinet/dashboard-ui";
 import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
+import { Button } from "@/components/ui/button";
 import { formatDateTime, formatMoneyFromCents } from "@/lib/format";
 import { listMyExecutorOrders } from "@/server/queries/orders";
 
@@ -59,7 +62,17 @@ export default async function ExecutorOrdersPage() {
           </tbody>
         </table>
         {rows.length === 0 ? (
-          <p className="p-4 text-sm text-muted-foreground">Пока нет назначенных заказов.</p>
+          <div className="p-4">
+            <CabinetEmptyState
+              icon={Briefcase}
+              title="Пока нет назначенных заказов"
+              description="Когда заказчик выберет вас по отклику, заказ появится здесь. Пока можно откликаться на открытые задачи."
+            >
+              <Button size="sm" variant="secondary" asChild>
+                <Link href="/executor/orders/available">Доступные заказы</Link>
+              </Button>
+            </CabinetEmptyState>
+          </div>
         ) : null}
       </div>
     </div>

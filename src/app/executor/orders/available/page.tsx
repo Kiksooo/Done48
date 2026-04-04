@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Search } from "lucide-react";
+import { CabinetEmptyState } from "@/components/cabinet/dashboard-ui";
 import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
 import { Button } from "@/components/ui/button";
 import { getSessionUserForAction } from "@/lib/rbac";
@@ -90,7 +92,15 @@ export default async function ExecutorAvailableOrdersPage() {
           </div>
         ))}
         {rows.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Сейчас нет доступных заказов для отклика.</p>
+          <CabinetEmptyState
+            icon={Search}
+            title="Сейчас нет открытых задач"
+            description="Когда заказчики опубликуют новые заказы с открытыми откликами, они появятся здесь. Проверьте города в профиле — при фильтре показываются только подходящие города."
+          >
+            <Button type="button" size="sm" variant="outline" asChild>
+              <Link href="/executor/profile">Настроить профиль</Link>
+            </Button>
+          </CabinetEmptyState>
         ) : null}
       </div>
     </div>

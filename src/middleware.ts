@@ -91,6 +91,15 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(dashboardPath(role, true), request.url));
   }
 
+  /**
+   * Кабинеты заказчика и исполнителя: пускаем любого вошедшего с завершённым онбордингом.
+   * Точная роль берётся из БД в layout — так после смены роли админом не ловим «ложный» /login.
+   * Админ-префикс по-прежнему только при role === ADMIN в JWT.
+   */
+  if (pathname.startsWith("/customer") || pathname.startsWith("/executor")) {
+    return NextResponse.next();
+  }
+
   if (!roleMatchesCabinet(role, pathname)) {
     return NextResponse.redirect(new URL(dashboardPath(role, onboardingDone), request.url));
   }

@@ -1,8 +1,10 @@
 import type { CustomerOrderFilter } from "@/server/queries/orders";
 import Link from "next/link";
+import { ClipboardList } from "lucide-react";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { Role } from "@prisma/client";
+import { CabinetEmptyState } from "@/components/cabinet/dashboard-ui";
 import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { Button } from "@/components/ui/button";
@@ -103,7 +105,21 @@ export default async function CustomerOrdersPage({ searchParams }: { searchParam
           </tbody>
         </table>
         {rows.length === 0 ? (
-          <p className="p-6 text-sm text-muted-foreground">Нет заказов в этой выборке.</p>
+          <div className="p-4">
+            {filter === "all" ? (
+              <CabinetEmptyState
+                icon={ClipboardList}
+                title="У вас ещё нет заказов"
+                description="Создайте задачу с описанием и бюджетом — после модерации её увидят исполнители."
+              >
+                <Button size="sm" asChild>
+                  <Link href="/customer/orders/new">Создать заказ</Link>
+                </Button>
+              </CabinetEmptyState>
+            ) : (
+              <p className="text-sm text-muted-foreground">В этой выборке пока нет заказов. Смените фильтр выше.</p>
+            )}
+          </div>
         ) : null}
       </div>
 
@@ -123,7 +139,21 @@ export default async function CustomerOrdersPage({ searchParams }: { searchParam
             </p>
           </Link>
         ))}
-        {rows.length === 0 ? <p className="text-sm text-muted-foreground">Нет заказов.</p> : null}
+        {rows.length === 0 ? (
+          filter === "all" ? (
+            <CabinetEmptyState
+              icon={ClipboardList}
+              title="У вас ещё нет заказов"
+              description="Создайте задачу — после модерации её увидят исполнители."
+            >
+              <Button size="sm" asChild>
+                <Link href="/customer/orders/new">Создать заказ</Link>
+              </Button>
+            </CabinetEmptyState>
+          ) : (
+            <p className="text-sm text-muted-foreground">В этой выборке нет заказов.</p>
+          )
+        ) : null}
       </div>
     </div>
   );

@@ -20,7 +20,7 @@ export default async function CustomerMessagesPage() {
         title="Сообщения"
         description="Переписки по заказам. Полный чат открывается в карточке заказа."
       />
-      <MessagesInboxList rows={rows} />
+      <MessagesInboxList rows={rows} emptyCta={{ href: "/customer/orders/new", label: "Создать заказ" }} />
     </div>
   );
 }

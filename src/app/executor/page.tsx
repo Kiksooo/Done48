@@ -43,6 +43,7 @@ export default async function ExecutorHomePage() {
   ]);
 
   const name = greetingName(profile?.displayName, profile?.username, user.email);
+  const noAssignedWork = active + revision + completed === 0;
 
   let statusNote: string | null = null;
   let statusTone: "neutral" | "amber" | "rose" = "neutral";
@@ -100,6 +101,18 @@ export default async function ExecutorHomePage() {
               Открыть профиль
             </Link>
           ) : null}
+        </div>
+      ) : null}
+
+      {!statusNote && profile?.accountStatus === ExecutorAccountStatus.ACTIVE && noAssignedWork ? (
+        <div className="rounded-xl border border-emerald-200/80 bg-emerald-50/80 px-4 py-4 dark:border-emerald-900/40 dark:bg-emerald-950/25">
+          <p className="text-sm font-semibold text-emerald-950 dark:text-emerald-100">Пока нет назначенных задач</p>
+          <p className="mt-1 text-sm text-emerald-900/90 dark:text-emerald-200/90">
+            Загляните в каталог открытых заказов и откликнитесь на подходящие — заказчик выберет исполнителя по откликам.
+          </p>
+          <Button asChild className="mt-3" size="sm" variant="secondary">
+            <Link href="/executor/orders/available">Смотреть доступные заказы</Link>
+          </Button>
         </div>
       ) : null}
 

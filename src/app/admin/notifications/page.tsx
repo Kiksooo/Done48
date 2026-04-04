@@ -18,5 +18,11 @@ export default async function AdminNotificationsPage() {
     createdAt: n.createdAt.toISOString(),
   }));
 
-  return <NotificationInbox items={items} enableDetailsTools />;
+  return (
+    <NotificationInbox
+      items={items}
+      enableDetailsTools
+      emptyCta={{ href: "/admin/orders", label: "К заказам" }}
+    />
+  );
 }

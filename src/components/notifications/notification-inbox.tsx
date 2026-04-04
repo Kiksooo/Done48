@@ -1,7 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { Bell } from "lucide-react";
+import { CabinetEmptyState } from "@/components/cabinet/dashboard-ui";
 import { markAllNotificationsReadAction, markNotificationReadAction } from "@/server/actions/notifications";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -22,12 +25,15 @@ type NotificationInboxProps = {
   hideHeading?: boolean;
   /** Показывать инструменты админа: раскрыть и скопировать. */
   enableDetailsTools?: boolean;
+  /** Кнопка в пустом состоянии (например, к заказам). */
+  emptyCta?: { href: string; label: string };
 };
 
 export function NotificationInbox({
   items,
   hideHeading = false,
   enableDetailsTools = false,
+  emptyCta,
 }: NotificationInboxProps) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -87,7 +93,17 @@ export function NotificationInbox({
       </div>
 
       {items.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Пока нет уведомлений.</p>
+        <CabinetEmptyState
+          icon={Bell}
+          title="Пока без уведомлений"
+          description="Когда появятся отклики, смены статуса заказа или сообщения от платформы, они отобразятся здесь. Важные события дублируем в разделе заказа."
+        >
+          {emptyCta ? (
+            <Button type="button" size="sm" asChild>
+              <Link href={emptyCta.href}>{emptyCta.label}</Link>
+            </Button>
+          ) : null}
+        </CabinetEmptyState>
       ) : (
         <ul className="divide-y divide-border rounded-xl border border-border bg-card shadow-sm">
           {items.map((item) => (
