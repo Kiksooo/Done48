@@ -69,7 +69,7 @@ export default async function CustomerOrdersPage({ searchParams }: { searchParam
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead className="border-b border-border bg-muted/40">
             <tr>
-              <th className="px-4 py-3 font-medium">ID</th>
+              <th className="px-4 py-3 font-medium">Номер</th>
               <th className="px-4 py-3 font-medium">Название</th>
               <th className="px-4 py-3 font-medium">Исполнитель</th>
               <th className="px-4 py-3 font-medium">Бюджет</th>
@@ -83,7 +83,7 @@ export default async function CustomerOrdersPage({ searchParams }: { searchParam
               <tr key={o.id} className="border-b border-border/80 last:border-0">
                 <td className="px-4 py-3 font-mono text-xs">
                   <Link href={`/orders/${o.id}`} className="text-primary underline-offset-2 hover:underline">
-                    {o.publicId.slice(0, 8)}…
+                    {o.publicId}
                   </Link>
                 </td>
                 <td className="px-4 py-3">

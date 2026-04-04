@@ -55,7 +55,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
         <table className="w-full min-w-[900px] text-left text-sm">
           <thead className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/40">
             <tr>
-              <th className="px-3 py-2 font-medium">Публичный ID</th>
+              <th className="px-3 py-2 font-medium">Номер</th>
               <th className="px-3 py-2 font-medium">Название</th>
               <th className="px-3 py-2 font-medium">Заказчик</th>
               <th className="px-3 py-2 font-medium">Исполнитель</th>
@@ -67,9 +67,9 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
           <tbody>
             {rows.map((o) => (
               <tr key={o.id} className="border-b border-neutral-100 dark:border-neutral-900">
-                <td className="px-3 py-2 font-mono text-xs">
+                <td className="max-w-[14rem] px-3 py-2 font-mono text-xs break-all">
                   <Link href={`/orders/${o.id}`} className="underline">
-                    {o.publicId.slice(0, 10)}…
+                    {o.publicId}
                   </Link>
                 </td>
                 <td className="px-3 py-2">

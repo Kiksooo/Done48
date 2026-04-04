@@ -20,6 +20,7 @@ const AUDIT_ACTION_LABELS: Record<string, string> = {
   BLOCKLIST_ADD: "Добавление в блоклист контактов",
   BLOCKLIST_REMOVE: "Удаление из блоклиста",
   USER_ACTIVE_SET: "Блокировка / разблокировка пользователя",
+  USER_ROLE_SET: "Смена роли пользователя",
   PROFILE_UPDATE: "Обновление профиля",
   DISPUTE_OPEN: "Открыт спор",
   DISPUTE_UPDATE: "Обновление спора",

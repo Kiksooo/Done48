@@ -232,8 +232,17 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
             <OrderStatusBadge status={order.status} />
             <Badge variant="outline">{PAYMENT_STATUS_LABELS[order.paymentStatus]}</Badge>
           </div>
-          <p className="mt-1 font-mono text-xs text-neutral-500">
-            {order.publicId} · внутр. {order.id.slice(0, 8)}…
+          <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+            <span className="font-medium text-neutral-700 dark:text-neutral-300">Номер заказа:</span>{" "}
+            <span className="font-mono text-neutral-800 dark:text-neutral-200">{order.publicId}</span>
+            {user.role === "ADMIN" ? (
+              <span
+                className="ml-2 font-mono text-neutral-400 dark:text-neutral-500"
+                title="Технический id в базе (для логов и поддержки)"
+              >
+                · служебный: {order.id}
+              </span>
+            ) : null}
           </p>
         </div>
 

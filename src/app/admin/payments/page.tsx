@@ -36,8 +36,8 @@ export default async function AdminPaymentsPage() {
                 <td className="px-3 py-2 font-medium">{formatMoneyFromCents(t.amountCents, t.currency)}</td>
                 <td className="px-3 py-2 text-neutral-600">{t.fromUser?.email ?? "—"}</td>
                 <td className="px-3 py-2 text-neutral-600">{t.toUser?.email ?? "—"}</td>
-                <td className="px-3 py-2 text-neutral-600">
-                  {t.order ? `${t.order.publicId.slice(0, 8)}…` : "—"}
+                <td className="max-w-[12rem] px-3 py-2 font-mono text-xs break-all text-neutral-600">
+                  {t.order ? t.order.publicId : "—"}
                 </td>
               </tr>
             ))}

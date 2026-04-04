@@ -12,7 +12,8 @@ export default async function AdminUsersPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Пользователи</h1>
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Блокировка отключает вход. Удаление необратимо: снимаются заказы, где пользователь заказчик, и отклики исполнителя. Учётки администраторов не трогаем.
+          Роль «Заказчик» / «Исполнитель» можно сменить, если нет незавершённых заказов и активных откликов в ожидании. После смены роли пользователю обычно нужно{" "}
+          <span className="font-medium text-foreground">выйти и войти снова</span>, чтобы открылся нужный кабинет. Блокировка отключает вход. Удаление необратимо: снимаются заказы, где пользователь заказчик, и отклики исполнителя. Учётки администраторов не меняем и не удаляем.
         </p>
       </div>
 
@@ -53,7 +54,7 @@ export default async function AdminUsersPage() {
                       </Badge>
                       <p className="max-w-[14rem] text-xs leading-snug">
                         <span className="text-neutral-500 dark:text-neutral-500">от </span>
-                        <span className="break-all font-medium text-foreground" title={u.referredBySignup.referrer.id}>
+                        <span className="break-all font-medium text-foreground" title={u.referredBySignup.referrer.email}>
                           {u.referredBySignup.referrer.email}
                         </span>
                       </p>

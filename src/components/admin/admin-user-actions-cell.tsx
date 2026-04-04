@@ -4,7 +4,7 @@ import type { Role } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { adminDeleteUserAction } from "@/server/actions/admin-users";
+import { adminDeleteUserAction, adminSetUserRoleAction } from "@/server/actions/admin-users";
 import { adminSetUserActiveAction } from "@/server/actions/admin-trust";
 
 export function AdminUserActionsCell(props: {
@@ -21,7 +21,58 @@ export function AdminUserActionsCell(props: {
   }
 
   return (
-    <div className="flex flex-col gap-1 sm:flex-row sm:flex-wrap">
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap gap-1">
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          className="h-8"
+          disabled={pending || props.role === "CUSTOMER"}
+          title="Кабинет заказчика"
+          onClick={() =>
+            startTransition(async () => {
+              const ok = window.confirm(
+                `Назначить пользователю «${props.email}» роль «Заказчик»?\n\nКабинет станет заказческим; данные профиля исполнителя в базе сохранятся.`,
+              );
+              if (!ok) return;
+              const r = await adminSetUserRoleAction({ userId: props.userId, role: "CUSTOMER" });
+              if (!r.ok) {
+                window.alert(r.error ?? "Не удалось сменить роль");
+                return;
+              }
+              router.refresh();
+            })
+          }
+        >
+          Заказчик
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          className="h-8"
+          disabled={pending || props.role === "EXECUTOR"}
+          title="Кабинет исполнителя"
+          onClick={() =>
+            startTransition(async () => {
+              const ok = window.confirm(
+                `Назначить пользователю «${props.email}» роль «Исполнитель»?\n\nКабинет станет исполнительским; анкета будет в статусе «Активен»; данные профиля заказчика сохранятся.`,
+              );
+              if (!ok) return;
+              const r = await adminSetUserRoleAction({ userId: props.userId, role: "EXECUTOR" });
+              if (!r.ok) {
+                window.alert(r.error ?? "Не удалось сменить роль");
+                return;
+              }
+              router.refresh();
+            })
+          }
+        >
+          Исполнитель
+        </Button>
+      </div>
+      <div className="flex flex-col gap-1 sm:flex-row sm:flex-wrap">
       <Button
         type="button"
         size="sm"
@@ -60,6 +111,7 @@ export function AdminUserActionsCell(props: {
       >
         Удалить
       </Button>
+      </div>
     </div>
   );
 }
