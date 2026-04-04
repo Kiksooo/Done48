@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { Role } from "@prisma/client";
-import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { formatDateTime, formatMoneyFromCents } from "@/lib/format";
 import { prisma } from "@/lib/db";
 import { listAvailableOrdersForExecutor } from "@/server/queries/orders";
@@ -80,10 +79,12 @@ export default async function ExecutorAvailableOrdersPage() {
                 ) : null}
               </p>
             </div>
-            <div className="flex shrink-0 items-center gap-2">
-              <OrderStatusBadge status={o.status} />
+            <div className="flex shrink-0 flex-wrap items-center gap-2">
+              <Button size="sm" asChild>
+                <Link href={`/orders/${o.id}#executor-respond`}>Откликнуться</Link>
+              </Button>
               <Button variant="outline" size="sm" asChild>
-                <Link href={`/orders/${o.id}`}>Открыть</Link>
+                <Link href={`/orders/${o.id}`}>Подробнее</Link>
               </Button>
             </div>
           </div>

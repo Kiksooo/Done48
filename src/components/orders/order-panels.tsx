@@ -613,7 +613,10 @@ export function OrderPanels(props: {
       ) : null}
 
       {viewerRole === "EXECUTOR" ? (
-        <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
+        <section
+          id="executor-respond"
+          className="scroll-mt-24 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
+        >
           <h2 className="text-sm font-semibold">Действия исполнителя</h2>
           {canPropose ? (
             <form
