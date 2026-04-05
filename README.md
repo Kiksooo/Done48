@@ -88,6 +88,6 @@
 - **Миграции** — `npx prisma migrate deploy` в пайплайне; не полагаться только на `db push`.
 - **Секреты** — `NEXTAUTH_SECRET`, ключи Oplatum, `RESEND_API_KEY`, `DATABASE_URL` только в секретах хостинга.
 - **Аналитика** — при необходимости `NEXT_PUBLIC_GA_MEASUREMENT_ID` и/или `NEXT_PUBLIC_YANDEX_METRIKA_ID` (или `0`, чтобы отключить Метрику).
-- **Ошибки** — подключить Sentry (или аналог) и алерты по 5xx на `/api/webhooks/*`.
+- **Ошибки** — при срабатывании `error.tsx` / `global-error.tsx` в **production** уходит POST на `/api/telemetry/client-error`; в логах хостинга ищите строку **`[telemetry/client-error]`** (рядом с `digest` с экрана пользователя). Дополнительно имеет смысл Sentry и алерты по 5xx на `/api/webhooks/*`.
 - **E2E** — `npm run test:e2e:smoke` после деплоя; в CI см. workflow в `.github/workflows`.
 - **Письма (сброс пароля)** — `RESEND_API_KEY`, домен с DNS в Resend, `EMAIL_FROM` с этого домена; `NEXT_PUBLIC_SITE_URL` (или `NEXTAUTH_URL`) = публичный URL сайта, иначе ссылка в письме будет неверной. Ошибки Resend смотрите в логах сервера (`[password-reset]`).
