@@ -27,7 +27,9 @@ export type RequestPasswordResetResult =
 
 export async function requestPasswordResetAction(raw: unknown): Promise<RequestPasswordResetResult> {
   const hasMailTransport =
-    Boolean(process.env.SMTP_HOST?.trim()) || Boolean(process.env.RESEND_API_KEY?.trim());
+    Boolean(process.env.MAILERSEND_API_KEY?.trim()) ||
+    Boolean(process.env.SMTP_HOST?.trim()) ||
+    Boolean(process.env.RESEND_API_KEY?.trim());
   const hasEmailFrom = Boolean(process.env.EMAIL_FROM?.trim());
   const emailDeliveryEnabled =
     hasMailTransport && (process.env.NODE_ENV !== "production" || hasEmailFrom);

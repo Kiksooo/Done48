@@ -9,7 +9,7 @@ export type SendPasswordResetEmailResult =
       detail?: string;
     };
 
-const subject = "DONE48 — сброс пароля";
+const emailSubject = "DONE48 — сброс пароля";
 
 const textBody = (resetUrl: string) =>
   [
@@ -24,6 +24,12 @@ const textBody = (resetUrl: string) =>
 const htmlBody = (resetUrl: string) =>
   `<p>Запрошен сброс пароля для аккаунта DONE48.</p><p><a href="${resetUrl}">Задать новый пароль</a></p><p>Если кнопка не нажимается, скопируйте ссылку в браузер:<br/><span style="word-break:break-all;font-size:12px">${resetUrl}</span></p><p>Ссылка действует 1 час. Если это не вы, проигнорируйте письмо.</p>`;
 
+/* ── transport detection ── */
+
+function hasMailerSendTransport(): boolean {
+  return Boolean(process.env.MAILERSEND_API_KEY?.trim());
+}
+
 function hasSmtpTransport(): boolean {
   return Boolean(process.env.SMTP_HOST?.trim());
 }
@@ -31,6 +37,62 @@ function hasSmtpTransport(): boolean {
 function hasResendTransport(): boolean {
   return Boolean(process.env.RESEND_API_KEY?.trim());
 }
+
+/* ── MailerSend (HTTP API — works on Vercel) ── */
+
+async function sendViaMailerSend(
+  to: string,
+  from: string,
+  resetUrl: string,
+): Promise<SendPasswordResetEmailResult> {
+  const key = process.env.MAILERSEND_API_KEY!.trim();
+
+  const fromMatch = from.match(/^(.+?)\s*<(.+?)>$/);
+  const fromEmail = fromMatch ? fromMatch[2] : from;
+  const fromName = fromMatch ? fromMatch[1].trim() : undefined;
+
+  try {
+    const res = await fetch("https://api.mailersend.com/v1/email", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      body: JSON.stringify({
+        from: { email: fromEmail, ...(fromName ? { name: fromName } : {}) },
+        to: [{ email: to }],
+        subject: emailSubject,
+        text: textBody(resetUrl),
+        html: htmlBody(resetUrl),
+      }),
+    });
+
+    if (!res.ok) {
+      let detail = "";
+      try {
+        const j = (await res.json()) as { message?: string };
+        detail = j?.message ?? "";
+      } catch {
+        detail = `HTTP ${res.status}`;
+      }
+      console.error("[password-reset] MailerSend отклонил отправку:", res.status, detail.slice(0, 800));
+      return { sent: false, reason: "PROVIDER_ERROR", detail: detail.slice(0, 200) };
+    }
+
+    const messageId = res.headers.get("x-message-id") ?? undefined;
+    if (messageId) {
+      // eslint-disable-next-line no-console
+      console.info("[password-reset] MailerSend принял письмо, x-message-id:", messageId);
+    }
+    return { sent: true, providerMessageId: messageId };
+  } catch (e) {
+    console.error("[password-reset] Ошибка сети при вызове MailerSend:", e);
+    return { sent: false, reason: "NETWORK" };
+  }
+}
+
+/* ── SMTP (nodemailer) ── */
 
 async function sendViaSmtp(
   to: string,
@@ -53,16 +115,13 @@ async function sendViaSmtp(
     auth: user ? { user, pass: pass ?? "" } : undefined,
   });
 
-  const text = textBody(resetUrl);
-  const html = htmlBody(resetUrl);
-
   try {
     const info = await transporter.sendMail({
       from,
       to,
-      subject,
-      text,
-      html,
+      subject: emailSubject,
+      text: textBody(resetUrl),
+      html: htmlBody(resetUrl),
     });
     if (info.messageId) {
       // eslint-disable-next-line no-console
@@ -76,14 +135,14 @@ async function sendViaSmtp(
   }
 }
 
+/* ── Resend (HTTP API) ── */
+
 async function sendViaResend(
   to: string,
   from: string,
   resetUrl: string,
 ): Promise<SendPasswordResetEmailResult> {
   const key = process.env.RESEND_API_KEY!.trim();
-  const html = htmlBody(resetUrl);
-  const text = textBody(resetUrl);
 
   try {
     const res = await fetch("https://api.resend.com/emails", {
@@ -95,9 +154,9 @@ async function sendViaResend(
       body: JSON.stringify({
         from,
         to: [to],
-        subject,
-        html,
-        text,
+        subject: emailSubject,
+        html: htmlBody(resetUrl),
+        text: textBody(resetUrl),
       }),
     });
 
@@ -131,9 +190,11 @@ async function sendViaResend(
   }
 }
 
+/* ── main entry ── */
+
 /**
- * Сброс пароля по почте: приоритетно SMTP (`SMTP_HOST`), иначе Resend (`RESEND_API_KEY`).
- * В production нужен `EMAIL_FROM` (совпадает с разрешённым отправителем у провайдера).
+ * Приоритет: MailerSend → SMTP → Resend.
+ * В production нужен EMAIL_FROM.
  */
 export async function sendPasswordResetEmail(to: string, resetUrl: string): Promise<SendPasswordResetEmailResult> {
   const fromEnv = process.env.EMAIL_FROM?.trim();
@@ -142,6 +203,10 @@ export async function sendPasswordResetEmail(to: string, resetUrl: string): Prom
     return { sent: false, reason: "MISSING_EMAIL_FROM" };
   }
   const from = fromEnv || `DONE48 <${SITE_EMAIL_INFO}>`;
+
+  if (hasMailerSendTransport()) {
+    return sendViaMailerSend(to, from, resetUrl);
+  }
 
   if (hasSmtpTransport()) {
     return sendViaSmtp(to, from, resetUrl);
@@ -154,12 +219,12 @@ export async function sendPasswordResetEmail(to: string, resetUrl: string): Prom
   if (process.env.NODE_ENV === "development") {
     // eslint-disable-next-line no-console
     console.warn(
-      "[password-reset] Нет SMTP_HOST и RESEND_API_KEY. Ссылка сброса (только для dev):",
+      "[password-reset] Нет MAILERSEND_API_KEY / SMTP_HOST / RESEND_API_KEY. Ссылка сброса (только для dev):",
       resetUrl,
     );
   } else {
     console.error(
-      "[password-reset] Не настроена почта: задайте SMTP_HOST или RESEND_API_KEY.",
+      "[password-reset] Не настроена почта: задайте MAILERSEND_API_KEY, SMTP_HOST или RESEND_API_KEY.",
     );
   }
   return { sent: false, reason: "NOT_CONFIGURED" };
