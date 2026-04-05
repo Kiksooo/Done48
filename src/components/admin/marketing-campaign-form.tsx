@@ -9,9 +9,12 @@ import { sendMarketingCampaignAction } from "@/server/actions/admin-marketing";
 
 export function MarketingCampaignForm({
   subscribersTotal,
+  mailerLiteBroadcastReady = false,
   disabled = false,
 }: {
   subscribersTotal: number;
+  /** Настроены ключ, MAILERLITE_CAMPAIGN_FROM и группы — можно дублировать рассылку в MailerLite. */
+  mailerLiteBroadcastReady?: boolean;
   /** Страница не смогла загрузить счётчик (например, нет колонок в БД). */
   disabled?: boolean;
 }) {
@@ -19,6 +22,7 @@ export function MarketingCampaignForm({
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [targetRole, setTargetRole] = useState<"ALL" | "CUSTOMER" | "EXECUTOR">("ALL");
+  const [alsoMailerLiteEmail, setAlsoMailerLiteEmail] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
   return (
@@ -28,16 +32,31 @@ export function MarketingCampaignForm({
         e.preventDefault();
         setMsg(null);
         startTransition(async () => {
-          const res = await sendMarketingCampaignAction({ title, body, targetRole });
+          const res = await sendMarketingCampaignAction({
+            title,
+            body,
+            targetRole,
+            alsoMailerLiteEmail: mailerLiteBroadcastReady && alsoMailerLiteEmail,
+          });
           if (!res.ok) {
             setMsg(res.error ?? "Ошибка отправки");
             return;
           }
           const count = res.data?.sent ?? 0;
-          setMsg(count > 0 ? `Отправлено: ${count} получателям` : "Нет подписчиков по выбранному фильтру");
+          const ml = res.data?.mailerLite;
+          let line =
+            count > 0 ? `Отправлено: ${count} получателям (уведомления в кабинете)` : "Нет подписчиков по выбранному фильтру";
+          if (ml) {
+            line +=
+              ml.ok === true
+                ? ` · MailerLite: кампания ${ml.campaignId} отправлена`
+                : ` · MailerLite: ошибка — ${ml.error}`;
+          }
+          setMsg(line);
           if (count > 0) {
             setTitle("");
             setBody("");
+            setAlsoMailerLiteEmail(false);
           }
         });
       }}
@@ -88,6 +107,22 @@ export function MarketingCampaignForm({
           disabled={pending || disabled}
         />
       </div>
+
+      {mailerLiteBroadcastReady ? (
+        <label className="flex cursor-pointer items-start gap-2 text-sm">
+          <input
+            type="checkbox"
+            className="mt-1"
+            checked={alsoMailerLiteEmail}
+            onChange={(e) => setAlsoMailerLiteEmail(e.target.checked)}
+            disabled={pending || disabled}
+          />
+          <span className="text-muted-foreground">
+            Дублировать email-кампанией MailerLite (группы из <code className="text-xs">MAILERLITE_GROUP_ID</code>).
+            Уведомления в кабинете отправляются в любом случае.
+          </span>
+        </label>
+      ) : null}
 
       <Button
         type="submit"

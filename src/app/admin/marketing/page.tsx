@@ -1,4 +1,5 @@
 import { MarketingCampaignForm } from "@/components/admin/marketing-campaign-form";
+import { isMailerLiteBroadcastConfigured } from "@/lib/mailerlite";
 import { prisma } from "@/lib/db";
 
 export default async function AdminMarketingPage() {
@@ -13,6 +14,8 @@ export default async function AdminMarketingPage() {
       "Не удалось прочитать подписчиков: в базе, скорее всего, не применена миграция marketing_opt_in. На сервере выполните: npx prisma migrate deploy";
   }
 
+  const mailerLiteBroadcastReady = isMailerLiteBroadcastConfigured();
+
   return (
     <div className="space-y-6">
       <div>
@@ -20,7 +23,7 @@ export default async function AdminMarketingPage() {
         <p className="text-sm text-muted-foreground">
           Рекламные и продуктовые уведомления только по opt-in подписке пользователей. Рассылка ниже создаёт уведомления в
           кабинете; при настроенных <code className="text-xs">MAILERLITE_*</code> переключатель подписки в профиле
-          синхронизируется с MailerLite для email-кампаний.
+          синхронизируется с MailerLite, а при полной настройке рассылки можно дублировать письмо кампанией MailerLite.
         </p>
       </div>
       {loadError ? (
@@ -28,7 +31,11 @@ export default async function AdminMarketingPage() {
           {loadError}
         </div>
       ) : null}
-      <MarketingCampaignForm subscribersTotal={subscribersTotal} disabled={Boolean(loadError)} />
+      <MarketingCampaignForm
+        subscribersTotal={subscribersTotal}
+        mailerLiteBroadcastReady={mailerLiteBroadcastReady}
+        disabled={Boolean(loadError)}
+      />
     </div>
   );
 }
