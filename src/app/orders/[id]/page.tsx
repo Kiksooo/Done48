@@ -54,6 +54,15 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
   const order = await getOrderDetailForPage(id);
   if (!order) notFound();
 
+  const customerPartnerUserIds = order.customerPartners.map((p) => p.userId);
+  const customerPartnersListed = order.customerPartners.map((p) => {
+    const dn = p.user.customerProfile?.displayName?.trim();
+    return {
+      userId: p.user.id,
+      label: dn || p.user.email.split("@")[0] || p.user.email,
+    };
+  });
+
   await ensureChatMembership({
     orderId: order.id,
     userId: user.id,
@@ -80,9 +89,13 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
     senderEmail: m.sender?.email ?? null,
   }));
 
+  const isPrimaryCustomer = user.id === order.customerId;
+  const isPartnerCustomer =
+    user.role === "CUSTOMER" && customerPartnerUserIds.includes(user.id);
   const canPostToChat =
     user.role === "ADMIN" ||
-    order.customerId === user.id ||
+    isPrimaryCustomer ||
+    isPartnerCustomer ||
     (order.executorId !== null && order.executorId === user.id);
 
   const executorOptions =
@@ -137,7 +150,10 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
 
   let reportTargetId: string | null = null;
   if (user.role !== "ADMIN") {
-    if (user.role === "CUSTOMER" && user.id === order.customerId && order.executorId) {
+    const onCustomerSide =
+      user.role === "CUSTOMER" &&
+      (user.id === order.customerId || customerPartnerUserIds.includes(user.id));
+    if (onCustomerSide && order.executorId) {
       reportTargetId = order.executorId;
     } else if (user.role === "EXECUTOR") {
       const assigned = order.executorId === user.id;
@@ -169,6 +185,7 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
     partyUserId: order.customer.id,
     customerId: order.customerId,
     executorId: order.executorId,
+    customerPartnerUserIds,
   });
 
   const customerPublicName =
@@ -183,6 +200,7 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
       partyUserId: order.executor.id,
       customerId: order.customerId,
       executorId: order.executorId,
+      customerPartnerUserIds,
     });
 
   let executorPublicName: string | null = null;
@@ -284,6 +302,27 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
             ) : (
               <p className="mt-1 text-xs text-neutral-500">Город не указан в профиле заказчика</p>
             )}
+            {order.customerPartners.length > 0 ? (
+              <div className="mt-3 border-t border-neutral-100 pt-3 dark:border-neutral-800">
+                <p className="text-xs font-medium text-neutral-600 dark:text-neutral-400">Соучастники</p>
+                <ul className="mt-1 space-y-1 text-sm text-neutral-700 dark:text-neutral-300">
+                  {order.customerPartners.map((p) => {
+                    const showP = canRevealOrderPartyEmail({
+                      viewerRole: user.role as Role,
+                      viewerId: user.id,
+                      partyUserId: p.user.id,
+                      customerId: order.customerId,
+                      executorId: order.executorId,
+                      customerPartnerUserIds,
+                    });
+                    const label =
+                      p.user.customerProfile?.displayName?.trim() ||
+                      (showP ? p.user.email : "Заказчик (соучастник)");
+                    return <li key={p.id}>{label}</li>;
+                  })}
+                </ul>
+              </div>
+            ) : null}
           </div>
           <div>
             <p className="text-neutral-500">Исполнитель</p>
@@ -361,6 +400,8 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
             visibilityType: order.visibilityType,
             executorId: order.executorId,
             customerId: order.customerId,
+            customerPartnerUserIds,
+            customerPartnersListed,
             proposals,
             paymentStatus: order.paymentStatus,
             budgetCents: order.budgetCents,
@@ -378,6 +419,7 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
           viewerRole={user.role as Role}
           customerId={order.customerId}
           executorId={order.executorId}
+          customerPartnerUserIds={customerPartnerUserIds}
           canPost={canPostToChat}
           initialMessages={chatMessages}
           unreadCount={unreadCount}

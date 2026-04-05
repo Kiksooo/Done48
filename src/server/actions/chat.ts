@@ -7,15 +7,9 @@ import { getSessionUserForAction } from "@/lib/rbac";
 import { isTrustedChatUploadUrl } from "@/lib/uploads/object-storage";
 import { sendChatMessageSchema } from "@/schemas/chat";
 import { assertOrderReadable } from "@/server/orders/access";
+import { canPostOrderChat, listCustomerSideUserIds } from "@/server/orders/customer-partners";
 import type { ActionResult } from "@/server/actions/orders/create-order";
 import { createNotificationsForUsers, notifySafe } from "@/server/notifications/service";
-
-function canPost(userId: string, role: Role, customerId: string, executorId: string | null) {
-  if (role === "ADMIN") return true;
-  if (userId === customerId) return true;
-  if (executorId && userId === executorId) return true;
-  return false;
-}
 
 export async function sendChatMessageAction(raw: unknown): Promise<ActionResult> {
   const user = await getSessionUserForAction();
@@ -57,7 +51,7 @@ export async function sendChatMessageAction(raw: unknown): Promise<ActionResult>
   });
   if (!access.ok) return { ok: false, error: "Нет доступа к чату" };
 
-  if (!canPost(user.id, user.role as Role, order.customerId, order.executorId)) {
+  if (!(await canPostOrderChat(user.id, user.role as Role, order))) {
     return { ok: false, error: "Отправка сообщений доступна заказчику, исполнителю и админу" };
   }
 
@@ -81,12 +75,15 @@ export async function sendChatMessageAction(raw: unknown): Promise<ActionResult>
   });
 
   const preview = parsed.data.body.trim().slice(0, 200);
-  const targets: string[] = [];
-  if (order.customerId !== user.id) targets.push(order.customerId);
-  if (order.executorId && order.executorId !== user.id) targets.push(order.executorId);
+  const customerSide = await listCustomerSideUserIds(order.id);
+  const targets = new Set<string>();
+  for (const uid of customerSide) {
+    if (uid !== user.id) targets.add(uid);
+  }
+  if (order.executorId && order.executorId !== user.id) targets.add(order.executorId);
   notifySafe(async () => {
-    if (targets.length === 0) return;
-    await createNotificationsForUsers(targets, {
+    if (targets.size === 0) return;
+    await createNotificationsForUsers(Array.from(targets), {
       kind: NotificationKind.NEW_MESSAGE,
       title: `Чат: ${order.title}`,
       body: preview || null,

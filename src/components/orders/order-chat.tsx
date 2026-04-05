@@ -29,6 +29,8 @@ export function OrderChat(props: {
   viewerRole: Role;
   customerId: string;
   executorId: string | null;
+  /** Id доп. заказчиков — подписи «Заказчик» и приватность email */
+  customerPartnerUserIds?: string[];
   canPost: boolean;
   initialMessages: OrderChatMessage[];
   unreadCount: number;
@@ -132,6 +134,7 @@ export function OrderChat(props: {
                     viewerId: props.viewerId,
                     customerId: props.customerId,
                     executorId: props.executorId,
+                    customerPartnerUserIds: props.customerPartnerUserIds,
                     senderId: m.senderId,
                     senderEmail: m.senderEmail,
                   })}

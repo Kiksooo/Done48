@@ -39,6 +39,7 @@ import {
   executorSubmitWorkAction,
 } from "@/server/actions/orders/executor-orders";
 import { openDisputeAction } from "@/server/actions/disputes";
+import { OrderCustomerPartnersManage } from "@/components/orders/order-customer-partners-manage";
 
 type ProposalRow = {
   id: string;
@@ -125,6 +126,8 @@ export function OrderPanels(props: {
     visibilityType: VisibilityType;
     executorId: string | null;
     customerId: string;
+    customerPartnerUserIds: string[];
+    customerPartnersListed: { userId: string; label: string }[];
     proposals: ProposalRow[];
     paymentStatus: PaymentStatus;
     budgetCents: number;
@@ -372,8 +375,21 @@ export function OrderPanels(props: {
         </section>
       ) : null}
 
+      {viewerRole === "CUSTOMER" &&
+      snapshot.customerPartnerUserIds.includes(viewerId) &&
+      snapshot.customerId !== viewerId ? (
+        <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
+          <h2 className="text-sm font-semibold">Вы — соучастник заказа</h2>
+          <p className="mt-2 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+            Основной заказчик управляет резервом средств, выбором исполнителя и статусами. У вас есть доступ к карточке
+            и чату, чтобы быть в контексте сделки.
+          </p>
+        </section>
+      ) : null}
+
       {viewerRole === "CUSTOMER" && snapshot.customerId === viewerId ? (
         <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
+          <OrderCustomerPartnersManage orderId={orderId} partners={snapshot.customerPartnersListed} />
           <h2 className="text-sm font-semibold">Действия заказчика</h2>
           <p className="mt-2 text-xs text-neutral-500">
             {PAYMENT_STATUS_LABELS[snapshot.paymentStatus]} · бюджет{" "}

@@ -29,3 +29,15 @@ export async function listCustomerSideUserIds(orderId: string): Promise<string[]
   if (!order) return [];
   return [order.customerId, ...order.customerPartners.map((p) => p.userId)];
 }
+
+export async function canPostOrderChat(
+  userId: string,
+  role: Role,
+  order: { id: string; customerId: string; executorId: string | null },
+): Promise<boolean> {
+  if (role === "ADMIN") return true;
+  if (userId === order.customerId) return true;
+  if (order.executorId && userId === order.executorId) return true;
+  if (role === "CUSTOMER" && (await isOrderCustomerPartner(order.id, userId))) return true;
+  return false;
+}

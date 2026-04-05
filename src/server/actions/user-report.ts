@@ -36,8 +36,15 @@ export async function submitUserReportAction(raw: unknown): Promise<ActionResult
   });
   if (!order) return { ok: false, error: "Заказ не найден" };
 
+  const isCustomerSide =
+    user.role === Role.CUSTOMER &&
+    (user.id === order.customerId ||
+      (await prisma.orderCustomerPartner.findUnique({
+        where: { orderId_userId: { orderId: order.id, userId: user.id } },
+      })));
+
   let targetUserId: string | null = null;
-  if (user.role === Role.CUSTOMER && user.id === order.customerId) {
+  if (isCustomerSide) {
     if (order.executorId) targetUserId = order.executorId;
   } else if (user.role === Role.EXECUTOR) {
     const assigned = order.executorId === user.id;

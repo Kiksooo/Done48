@@ -6,6 +6,7 @@ import { objectStorageConfigured, putPublicObject } from "@/lib/uploads/object-s
 import { prisma } from "@/lib/db";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { assertOrderReadable } from "@/server/orders/access";
+import { canPostOrderChat } from "@/server/orders/customer-partners";
 
 export const runtime = "nodejs";
 
@@ -21,13 +22,6 @@ const ALLOWED = new Map([
   ["text/plain", "txt"],
   ["application/vnd.openxmlformats-officedocument.wordprocessingml.document", "docx"],
 ]);
-
-function canPost(userId: string, role: Role, customerId: string, executorId: string | null) {
-  if (role === "ADMIN") return true;
-  if (userId === customerId) return true;
-  if (executorId && userId === executorId) return true;
-  return false;
-}
 
 export async function POST(req: Request) {
   const user = await getSessionUserForAction();
@@ -74,7 +68,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Нет доступа" }, { status: 403 });
   }
 
-  if (!canPost(user.id, user.role as Role, order.customerId, order.executorId)) {
+  if (!(await canPostOrderChat(user.id, user.role as Role, order))) {
     return NextResponse.json({ error: "Нет права прикреплять файлы в этом чате" }, { status: 403 });
   }
 

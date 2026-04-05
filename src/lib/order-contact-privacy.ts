@@ -7,13 +7,18 @@ export function canRevealOrderPartyEmail(params: {
   partyUserId: string | null | undefined;
   customerId: string;
   executorId: string | null;
+  /** Соучастники заказчика (доп. заказчики). */
+  customerPartnerUserIds?: string[];
 }): boolean {
   if (!params.partyUserId) return false;
   const { viewerRole, viewerId, partyUserId, customerId, executorId } = params;
+  const partners = params.customerPartnerUserIds ?? [];
+  const viewerOnCustomerSide = viewerId === customerId || partners.includes(viewerId);
+  const partyIsCustomerSide = partyUserId === customerId || partners.includes(partyUserId);
   if (viewerRole === "ADMIN") return true;
   if (viewerId === partyUserId) return true;
-  if (viewerId === customerId && executorId !== null && partyUserId === executorId) return true;
-  if (viewerId === executorId && partyUserId === customerId) return true;
+  if (viewerOnCustomerSide && executorId !== null && partyUserId === executorId) return true;
+  if (viewerId === executorId && partyIsCustomerSide) return true;
   return false;
 }
 
@@ -25,6 +30,7 @@ export function orderChatMessageSenderLine(params: {
   executorId: string | null;
   senderId: string | null;
   senderEmail: string | null;
+  customerPartnerUserIds?: string[];
 }): string {
   if (params.viewerRole === "ADMIN" && params.senderEmail) {
     return params.senderEmail;
@@ -35,7 +41,10 @@ export function orderChatMessageSenderLine(params: {
   if (params.senderId === params.viewerId) {
     return "Вы";
   }
-  if (params.senderId === params.customerId) {
+  const partners = params.customerPartnerUserIds ?? [];
+  const senderIsCustomerSide =
+    params.senderId === params.customerId || partners.includes(params.senderId);
+  if (senderIsCustomerSide) {
     return "Заказчик";
   }
   if (params.executorId && params.senderId === params.executorId) {
