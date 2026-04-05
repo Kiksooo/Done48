@@ -1,6 +1,6 @@
 "use server";
 
-import { Role } from "@prisma/client";
+import { PortfolioItemModerationStatus, Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getSessionUserForAction } from "@/lib/rbac";
@@ -44,6 +44,8 @@ export async function createPortfolioItemAction(raw: unknown): Promise<ActionRes
       description: d.description,
       imageUrl: d.imageUrl,
       linkUrl: d.linkUrl,
+      moderationStatus: PortfolioItemModerationStatus.PENDING,
+      moderationNote: null,
     },
   });
 
@@ -52,7 +54,7 @@ export async function createPortfolioItemAction(raw: unknown): Promise<ActionRes
     action: "PORTFOLIO_CREATE",
     entityType: "PortfolioItem",
     entityId: item.id,
-    newValue: { title: item.title },
+    newValue: { title: item.title, moderationStatus: item.moderationStatus },
   });
 
   await revalidatePortfolioPages(user.id);
@@ -79,7 +81,36 @@ export async function updatePortfolioItemAction(raw: unknown): Promise<ActionRes
     description: existing.description,
     imageUrl: existing.imageUrl,
     linkUrl: existing.linkUrl,
+    moderationStatus: existing.moderationStatus,
   };
+
+  const contentChanged =
+    d.title !== existing.title ||
+    (d.description ?? null) !== (existing.description ?? null) ||
+    (d.imageUrl ?? null) !== (existing.imageUrl ?? null) ||
+    (d.linkUrl ?? null) !== (existing.linkUrl ?? null);
+
+  let nextStatus: PortfolioItemModerationStatus;
+  let nextNote: string | null;
+  if (
+    existing.moderationStatus === PortfolioItemModerationStatus.APPROVED &&
+    !contentChanged
+  ) {
+    nextStatus = PortfolioItemModerationStatus.APPROVED;
+    nextNote = existing.moderationNote;
+  } else if (
+    existing.moderationStatus === PortfolioItemModerationStatus.APPROVED &&
+    contentChanged
+  ) {
+    nextStatus = PortfolioItemModerationStatus.PENDING;
+    nextNote = null;
+  } else {
+    nextStatus = PortfolioItemModerationStatus.PENDING;
+    nextNote =
+      existing.moderationStatus === PortfolioItemModerationStatus.REJECTED
+        ? existing.moderationNote
+        : null;
+  }
 
   await prisma.portfolioItem.update({
     where: { id: d.id },
@@ -88,6 +119,8 @@ export async function updatePortfolioItemAction(raw: unknown): Promise<ActionRes
       description: d.description,
       imageUrl: d.imageUrl,
       linkUrl: d.linkUrl,
+      moderationStatus: nextStatus,
+      moderationNote: nextNote,
     },
   });
 
@@ -102,6 +135,7 @@ export async function updatePortfolioItemAction(raw: unknown): Promise<ActionRes
       description: d.description,
       imageUrl: d.imageUrl,
       linkUrl: d.linkUrl,
+      moderationStatus: nextStatus,
     },
   });
 

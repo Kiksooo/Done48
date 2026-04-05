@@ -14,7 +14,18 @@ function optionalHttpUrl(field: string) {
     });
 }
 
-export const portfolioCreateSchema = z.object({
+/** Как аватар: загрузка даёт `/uploads/…` или внешний https. */
+const portfolioImageUrlField = z
+  .string()
+  .max(2048)
+  .transform((s) => s.trim())
+  .refine(
+    (s) => s.length === 0 || s.startsWith("/uploads/") || /^https?:\/\//i.test(s),
+    "Фото: укажите https:// ссылку или загрузите файл",
+  )
+  .transform((s) => (s.length === 0 ? null : s.slice(0, 2048)));
+
+const portfolioBodySchema = z.object({
   title: z.string().trim().min(1, "Название").max(200),
   description: z.preprocess(
     (v) => (typeof v === "string" ? v : ""),
@@ -23,13 +34,23 @@ export const portfolioCreateSchema = z.object({
     const t = s.trim();
     return t.length === 0 ? null : t;
   }),
-  imageUrl: optionalHttpUrl("Изображение"),
+  imageUrl: portfolioImageUrlField,
   linkUrl: optionalHttpUrl("Ссылка на работу"),
 });
 
-export const portfolioUpdateSchema = portfolioCreateSchema.extend({
-  id: cuid,
+export const portfolioCreateSchema = portfolioBodySchema.refine((d) => d.imageUrl != null, {
+  message: "Нужно фото работы",
+  path: ["imageUrl"],
 });
+
+export const portfolioUpdateSchema = portfolioBodySchema
+  .extend({
+    id: cuid,
+  })
+  .refine((d) => d.imageUrl != null, {
+    message: "Нужно фото работы",
+    path: ["imageUrl"],
+  });
 
 export const portfolioDeleteSchema = z.object({
   id: cuid,

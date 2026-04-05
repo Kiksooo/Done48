@@ -33,6 +33,8 @@ const AUDIT_ACTION_LABELS: Record<string, string> = {
   PORTFOLIO_CREATE: "Добавление работы в портфолио",
   PORTFOLIO_UPDATE: "Изменение портфолио",
   PORTFOLIO_DELETE: "Удаление из портфолио",
+  PORTFOLIO_MODERATE_APPROVE: "Публикация работы в галерее (модерация)",
+  PORTFOLIO_MODERATE_REJECT: "Отклонение работы в галерее (модерация)",
 };
 
 const AUDIT_ENTITY_LABELS: Record<string, string> = {

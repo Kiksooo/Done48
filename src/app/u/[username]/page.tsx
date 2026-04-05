@@ -24,8 +24,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   const name = row.executorProfile.displayName ?? row.executorProfile.username ?? "Исполнитель";
   const description =
-    row.executorProfile.bio?.slice(0, 160) ?? `Портфолио исполнителя ${name} на DONE48.`;
-  const titleAbs = `${name} · Портфолио · DONE48`;
+    row.executorProfile.bio?.slice(0, 160) ?? `Галерея работ исполнителя ${name} на DONE48.`;
+  const titleAbs = `${name} · Галерея работ · DONE48`;
   const ogImage = row.executorProfile.avatarUrl ? toAbsoluteSiteUrl(row.executorProfile.avatarUrl) : undefined;
   return {
     title: { absolute: titleAbs },
@@ -115,7 +115,7 @@ export default async function PublicExecutorPortfolioPage({ params }: Props) {
         />
 
         <section>
-          <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Портфолио</h2>
+          <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Галерея работ</h2>
           {user.portfolioItems.length === 0 ? (
             <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">Пока нет опубликованных работ.</p>
           ) : (

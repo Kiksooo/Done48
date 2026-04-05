@@ -1,5 +1,10 @@
 import type { Prisma } from "@prisma/client";
-import { ExecutorAccountStatus, Role, UserReportStatus } from "@prisma/client";
+import {
+  ExecutorAccountStatus,
+  PortfolioItemModerationStatus,
+  Role,
+  UserReportStatus,
+} from "@prisma/client";
 import { prisma } from "@/lib/db";
 
 export type PublicExecutorListFilters = {
@@ -76,6 +81,7 @@ export async function getPublicExecutorByUsername(usernameRaw: string) {
     include: {
       executorProfile: true,
       portfolioItems: {
+        where: { moderationStatus: PortfolioItemModerationStatus.APPROVED },
         orderBy: { updatedAt: "desc" },
       },
     },
@@ -143,10 +149,13 @@ export async function listPublicExecutors({
       },
       _count: {
         select: {
-          portfolioItems: true,
+          portfolioItems: {
+            where: { moderationStatus: PortfolioItemModerationStatus.APPROVED },
+          },
         },
       },
       portfolioItems: {
+        where: { moderationStatus: PortfolioItemModerationStatus.APPROVED },
         take: 2,
         orderBy: { updatedAt: "desc" },
         select: {

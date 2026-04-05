@@ -19,6 +19,10 @@ function isPublicPath(pathname: string): boolean {
   if (pathname.startsWith("/u/") && pathname.length > 3) {
     return true;
   }
+  // Каталог исполнителей и превью галереи — без входа
+  if (pathname === "/executors" || pathname.startsWith("/executors/")) {
+    return true;
+  }
   return false;
 }
 
@@ -61,8 +65,12 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isPublicPath(pathname)) {
-    // Публичное портфолио доступно всем, в том числе авторизованным
-    if (pathname.startsWith("/u/")) {
+    // Публичные страницы галереи / каталога — всем, в т. ч. авторизованным (без редиректа в кабинет)
+    if (
+      pathname.startsWith("/u/") ||
+      pathname === "/executors" ||
+      pathname.startsWith("/executors/")
+    ) {
       return NextResponse.next();
     }
     if (token && isAppRole(token.role)) {

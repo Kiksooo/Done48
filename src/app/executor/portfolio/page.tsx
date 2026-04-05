@@ -15,6 +15,8 @@ export default async function ExecutorPortfolioPage() {
     description: i.description,
     imageUrl: i.imageUrl,
     linkUrl: i.linkUrl,
+    moderationStatus: i.moderationStatus,
+    moderationNote: i.moderationNote,
   }));
 
   return (
@@ -22,14 +24,15 @@ export default async function ExecutorPortfolioPage() {
       <CabinetPageHeader
         breadcrumbs={[
           { label: "Дашборд", href: "/executor" },
-          { label: "Портфолио" },
+          { label: "Галерея работ" },
         ]}
-        title="Портфолио"
+        title="Галерея работ"
         description={
           <>
-            Примеры работ с http(s) ссылками. Изменения попадают в журнал аудита и обновляют публичную страницу{" "}
+            Загрузите фото примеров работ. На публичной странице{" "}
             <code className="rounded bg-muted px-1 py-0.5 text-xs">/u/your-username</code> (при активном аккаунте и
-            заданном username в профиле).
+            username в профиле) отображаются только одобренные модератором материалы. После правок одобренной работы она
+            снова уходит на проверку.
           </>
         }
       />

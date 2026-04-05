@@ -66,7 +66,7 @@ export const EXECUTOR_NAV: CabinetNavItem[] = [
   { href: "/executor/orders", label: "Мои заказы", icon: "briefcase" },
   { href: "/executor/orders/available", label: "Доступные заказы", icon: "search" },
   { href: "/executor/profile", label: "Профиль", icon: "user" },
-  { href: "/executor/portfolio", label: "Портфолио", icon: "folderTree" },
+  { href: "/executor/portfolio", label: "Галерея работ", icon: "folderTree" },
   { href: "/executor/balance", label: "Баланс и выплаты", icon: "banknote" },
   { href: "/executor/messages", label: "Сообщения", icon: "messageSquare" },
   { href: "/executor/feedback", label: "Чат с админом", icon: "mail" },

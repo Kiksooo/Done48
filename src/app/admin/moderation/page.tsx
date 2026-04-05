@@ -3,13 +3,16 @@ import {
   AdminModerationPanel,
   type BlocklistRow,
   type ModerationReportRow,
+  type PortfolioModerationQueueRow,
 } from "@/components/admin/admin-moderation-panel";
+import { listPendingPortfolioItemsForAdmin } from "@/server/queries/portfolio";
 import { listContactBlocklistForAdmin, listUserReportsForAdmin } from "@/server/queries/trust";
 
 export default async function AdminModerationPage() {
-  const [reportsRaw, blockRaw] = await Promise.all([
+  const [reportsRaw, blockRaw, portfolioRaw] = await Promise.all([
     listUserReportsForAdmin(),
     listContactBlocklistForAdmin(),
+    listPendingPortfolioItemsForAdmin(),
   ]);
 
   const sorted = [...reportsRaw].sort((a, b) => {
@@ -43,21 +46,33 @@ export default async function AdminModerationPage() {
     createdByEmail: b.createdBy?.email ?? null,
   }));
 
+  const portfolioQueue: PortfolioModerationQueueRow[] = portfolioRaw.map((it) => ({
+    id: it.id,
+    title: it.title,
+    description: it.description,
+    imageUrl: it.imageUrl,
+    linkUrl: it.linkUrl,
+    updatedAt: it.updatedAt.toISOString(),
+    executorEmail: it.executor.email,
+    executorUsername: it.executor.executorProfile?.username ?? null,
+    executorDisplayName: it.executor.executorProfile?.displayName ?? null,
+  }));
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Модерация и блоклист</h1>
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
           Жалобы пользователей по заказам, смена статуса обращения, блокировка контрагента и запрет контактов (email /
-          телефон / Telegram) при регистрации и в профиле. Управление статусом анкеты исполнителя (в т. ч. «Активен» для
-          откликов) — в разделе{" "}
+          телефон / Telegram) при регистрации и в профиле, проверка фото в галерее работ исполнителей. Управление
+          статусом анкеты исполнителя (в т. ч. «Активен» для откликов) — в разделе{" "}
           <Link href="/admin/executors" className="font-medium text-primary underline underline-offset-2">
             Исполнители
           </Link>
           .
         </p>
       </div>
-      <AdminModerationPanel reports={reports} blocklist={blocklist} />
+      <AdminModerationPanel reports={reports} blocklist={blocklist} portfolioQueue={portfolioQueue} />
     </div>
   );
 }

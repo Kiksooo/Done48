@@ -244,7 +244,7 @@ export default async function ExecutorsPage({ searchParams }: Props) {
                       href={`/u/${p.username}`}
                       className="text-sm font-medium text-primary underline-offset-4 hover:underline"
                     >
-                      Смотреть портфолио →
+                      Смотреть галерею →
                     </Link>
                   </div>
                 </li>

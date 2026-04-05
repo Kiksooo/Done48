@@ -15,6 +15,10 @@ import {
   adminSetUserActiveAction,
   adminUpdateUserReportAction,
 } from "@/server/actions/admin-trust";
+import {
+  adminApprovePortfolioItemAction,
+  adminRejectPortfolioItemAction,
+} from "@/server/actions/admin-portfolio-moderation";
 
 const CAT_RU: Record<UserReportCategory, string> = {
   SCAM: "Обман",
@@ -55,10 +59,26 @@ export type BlocklistRow = {
   createdByEmail: string | null;
 };
 
-export function AdminModerationPanel(props: { reports: ModerationReportRow[]; blocklist: BlocklistRow[] }) {
+export type PortfolioModerationQueueRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  imageUrl: string | null;
+  linkUrl: string | null;
+  updatedAt: string;
+  executorEmail: string;
+  executorUsername: string | null;
+  executorDisplayName: string | null;
+};
+
+export function AdminModerationPanel(props: {
+  reports: ModerationReportRow[];
+  blocklist: BlocklistRow[];
+  portfolioQueue: PortfolioModerationQueueRow[];
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [tab, setTab] = useState<"reports" | "blocklist">("reports");
+  const [tab, setTab] = useState<"reports" | "blocklist" | "portfolio">("reports");
   const [blKind, setBlKind] = useState<ContactBlocklistKind>("EMAIL");
   const [blValue, setBlValue] = useState("");
   const [blReason, setBlReason] = useState("");
@@ -80,6 +100,13 @@ export function AdminModerationPanel(props: { reports: ModerationReportRow[]; bl
           onClick={() => setTab("blocklist")}
         >
           Блоклист контактов
+        </button>
+        <button
+          type="button"
+          className={`rounded-md px-3 py-1.5 text-sm font-medium ${tab === "portfolio" ? "bg-primary text-primary-foreground" : "text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-900"}`}
+          onClick={() => setTab("portfolio")}
+        >
+          Галерея работ ({props.portfolioQueue.length})
         </button>
       </div>
 
@@ -314,6 +341,143 @@ export function AdminModerationPanel(props: { reports: ModerationReportRow[]; bl
           </div>
         </div>
       ) : null}
+
+      {tab === "portfolio" ? (
+        <div className="space-y-4">
+          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+            Фото из галереи исполнителей на публичных страницах и в каталоге показываются только после одобрения здесь.
+          </p>
+          {msg ? (
+            <p className="text-sm text-red-600" role="alert">
+              {msg}
+            </p>
+          ) : null}
+          <div className="space-y-6">
+            {props.portfolioQueue.map((row) => (
+              <PortfolioQueueCard key={row.id} row={row} pending={pending} setMsg={setMsg} router={router} />
+            ))}
+          </div>
+          {props.portfolioQueue.length === 0 ? (
+            <p className="text-sm text-neutral-500">Нет работ на проверке.</p>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function PortfolioQueueCard(props: {
+  row: PortfolioModerationQueueRow;
+  pending: boolean;
+  setMsg: (s: string | null) => void;
+  router: ReturnType<typeof useRouter>;
+}) {
+  const { row, pending, setMsg, router } = props;
+  const [rejectNote, setRejectNote] = useState("");
+  const [localPending, startTransition] = useTransition();
+  const busy = pending || localPending;
+  const name = row.executorDisplayName?.trim() || row.executorUsername || row.executorEmail;
+
+  return (
+    <div className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-800">
+      <div className="flex flex-wrap gap-4">
+        <div className="h-32 w-44 shrink-0 overflow-hidden rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900">
+          {row.imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={row.imageUrl} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex h-full items-center justify-center text-xs text-neutral-500">Нет фото</div>
+          )}
+        </div>
+        <div className="min-w-0 flex-1 space-y-2 text-sm">
+          <p className="font-medium text-neutral-900 dark:text-neutral-100">{row.title}</p>
+          {row.description ? (
+            <p className="whitespace-pre-wrap text-neutral-600 dark:text-neutral-400">{row.description}</p>
+          ) : null}
+          {row.linkUrl ? (
+            <p>
+              <Link
+                href={row.linkUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-primary underline-offset-2 hover:underline"
+              >
+                Ссылка на работу
+              </Link>
+            </p>
+          ) : null}
+          <p className="text-xs text-neutral-500">
+            Исполнитель: {name}
+            {row.executorUsername ? (
+              <>
+                {" "}
+                ·{" "}
+                <Link
+                  href={`/u/${row.executorUsername}`}
+                  className="text-primary underline-offset-2 hover:underline"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  @{row.executorUsername}
+                </Link>
+              </>
+            ) : null}
+            <span className="text-neutral-400"> · {row.executorEmail}</span>
+          </p>
+          <p className="text-xs text-neutral-400">Обновлено: {formatDateTime(row.updatedAt)}</p>
+        </div>
+      </div>
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div className="min-w-0 flex-1 space-y-1">
+          <Label htmlFor={`rej-${row.id}`} className="text-xs">
+            Комментарий при отклонении (необязательно)
+          </Label>
+          <Input
+            id={`rej-${row.id}`}
+            value={rejectNote}
+            onChange={(e) => setRejectNote(e.target.value)}
+            placeholder="Кратко, почему не подходит"
+            disabled={busy}
+          />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            size="sm"
+            disabled={busy}
+            onClick={() =>
+              startTransition(async () => {
+                setMsg(null);
+                const res = await adminApprovePortfolioItemAction({ itemId: row.id });
+                if (!res.ok) setMsg(res.error ?? "Ошибка");
+                router.refresh();
+              })
+            }
+          >
+            Одобрить
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={busy}
+            onClick={() =>
+              startTransition(async () => {
+                setMsg(null);
+                const res = await adminRejectPortfolioItemAction({
+                  itemId: row.id,
+                  note: rejectNote,
+                });
+                if (!res.ok) setMsg(res.error ?? "Ошибка");
+                else setRejectNote("");
+                router.refresh();
+              })
+            }
+          >
+            Отклонить
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

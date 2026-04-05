@@ -32,6 +32,12 @@ enum VerificationStatus {
   REJECTED
 }
 
+enum PortfolioItemModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
   id              String   @id @default(cuid())
   email           String   @unique
@@ -640,10 +646,15 @@ model PortfolioItem {
   imageUrl    String?
   linkUrl     String?
 
+  moderationStatus PortfolioItemModerationStatus @default(PENDING)
+  /// Комментарий модератора при отклонении (виден исполнителю)
+  moderationNote   String?                       @db.Text
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([executorId])
+  @@index([moderationStatus])
 }
 
 /// Одна строка настроек платформы (singleton id = "default" в seed)
