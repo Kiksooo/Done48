@@ -45,10 +45,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET,
-  });
+  let token: Awaited<ReturnType<typeof getToken>> | null;
+  try {
+    token = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET,
+    });
+  } catch (e) {
+    // Без этого при сбое JWT (секрет, обновление next-auth) ответ мог обрываться — «пустая» вкладка.
+    console.error("[middleware] getToken failed", e);
+    token = null;
+  }
 
   if (pathname === "/") {
     if (!token) {
