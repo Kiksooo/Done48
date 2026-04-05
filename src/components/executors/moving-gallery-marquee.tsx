@@ -11,7 +11,7 @@ export type MovingGalleryCard = {
   portfolioItems: GalleryMosaicItem[];
 };
 
-/** Сколько горизонтальных полос: на мобиле 3, с md — 4 на всю ширину экрана */
+/** Горизонтальных полос: на мобиле 3, с md — 4 */
 const ROW_COUNT_SM = 3;
 const ROW_COUNT_LG = 4;
 
@@ -42,9 +42,11 @@ function useRowCount(): number {
 function GalleryCardLink({
   card,
   layout,
+  fillViewport,
 }: {
   card: MovingGalleryCard;
   layout: "marquee" | "grid";
+  fillViewport?: boolean;
 }) {
   return (
     <Link
@@ -54,14 +56,21 @@ function GalleryCardLink({
         "transition-[box-shadow,transform,border-color] duration-200 ease-out",
         "hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
-        layout === "marquee" ? "w-[8.5rem] shrink-0 sm:w-[9.25rem]" : "block w-full",
+        layout === "marquee" && !fillViewport && "w-[8.5rem] shrink-0 sm:w-[9.25rem]",
+        layout === "marquee" && fillViewport && "w-[var(--mg-card)] shrink-0 max-w-[min(46vw,11rem)]",
+        layout === "grid" && "block w-full",
       )}
       aria-label={`Открыть профиль @${card.username}`}
     >
       <div className="aspect-square w-full overflow-hidden bg-muted">
         <GalleryMosaic items={card.portfolioItems} />
       </div>
-      <p className="border-t border-border/80 bg-card/95 px-2 py-2 text-center font-mono text-[11px] font-semibold text-foreground backdrop-blur-sm sm:py-2.5 sm:text-xs">
+      <p
+        className={cn(
+          "border-t border-border/80 bg-card/95 text-center font-mono font-semibold text-foreground backdrop-blur-sm",
+          fillViewport ? "px-1.5 py-1.5 text-[10px] sm:py-2 sm:text-[11px]" : "px-2 py-2 text-[11px] sm:py-2.5 sm:text-xs",
+        )}
+      >
         @{card.username}
       </p>
     </Link>
@@ -99,10 +108,14 @@ function MarqueeTrack({
   sequence,
   reverse,
   slow,
+  staggerIndex,
+  fillViewport,
 }: {
   sequence: MovingGalleryCard[];
   reverse: boolean;
   slow: boolean;
+  staggerIndex: number;
+  fillViewport?: boolean;
 }) {
   const loop = [...sequence, ...sequence];
 
@@ -114,27 +127,40 @@ function MarqueeTrack({
       ? "animate-gallery-marquee-slow"
       : "animate-gallery-marquee";
 
+  const staggerSec = staggerIndex * 6.5;
+
   return (
     <div
       className={cn(
         "moving-gallery-track flex w-max gap-3 sm:gap-4 md:gap-5",
+        fillViewport && "gap-2 sm:gap-3 md:gap-4",
         animClass,
         "hover:[animation-play-state:paused]",
       )}
+      style={{
+        animationDelay: staggerSec ? `${-staggerSec}s` : undefined,
+      }}
     >
       {loop.map((card, i) => (
-        <GalleryCardLink key={`${card.id}-${i}`} card={card} layout="marquee" />
+        <GalleryCardLink key={`${card.id}-${i}`} card={card} layout="marquee" fillViewport={fillViewport} />
       ))}
     </div>
   );
 }
 
-function StaticGalleryGrid({ cards }: { cards: MovingGalleryCard[] }) {
+function StaticGalleryGrid({ cards, fillViewport }: { cards: MovingGalleryCard[]; fillViewport?: boolean }) {
   return (
-    <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
+    <ul
+      className={cn(
+        "gap-3 sm:gap-4",
+        fillViewport
+          ? "grid min-h-0 flex-1 auto-rows-[minmax(0,1fr)] grid-cols-2 content-center gap-3 p-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4"
+          : "grid grid-cols-2 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4",
+      )}
+    >
       {cards.map((c) => (
         <li key={c.id}>
-          <GalleryCardLink card={c} layout="grid" />
+          <GalleryCardLink card={c} layout="grid" fillViewport={fillViewport} />
         </li>
       ))}
     </ul>
@@ -143,12 +169,14 @@ function StaticGalleryGrid({ cards }: { cards: MovingGalleryCard[] }) {
 
 type Props = {
   cards: MovingGalleryCard[];
+  /** Ленты на всю высоту экрана (100dvh), строки делят высоту поровну */
+  fillViewport?: boolean;
 };
 
 /**
- * 3–4 горизонтальные ленты на всю ширину viewport, разные направления и скорости.
+ * 3–4 горизонтальные ленты на всю ширину; при fillViewport — на всю высоту окна.
  */
-export function MovingGalleryMarquee({ cards }: Props) {
+export function MovingGalleryMarquee({ cards, fillViewport }: Props) {
   const reduceMotion = usePrefersReducedMotion();
   const rowCount = useRowCount();
   const valid = cards.filter((c) => c.username);
@@ -156,11 +184,22 @@ export function MovingGalleryMarquee({ cards }: Props) {
 
   if (reduceMotion) {
     return (
-      <div className="space-y-3">
-        <p className="text-center text-xs text-muted-foreground sm:text-sm">
-          У вас включено снижение анимации — показываем сетку вместо движущейся ленты.
-        </p>
-        <StaticGalleryGrid cards={valid} />
+      <div
+        className={cn(
+          "space-y-3",
+          fillViewport && "relative flex h-[100dvh] max-h-[100dvh] flex-col overflow-hidden",
+        )}
+      >
+        {!fillViewport ? (
+          <p className="text-center text-xs text-muted-foreground sm:text-sm">
+            У вас включено снижение анимации — показываем сетку вместо движущейся ленты.
+          </p>
+        ) : (
+          <p className="pointer-events-none absolute left-0 right-0 top-0 z-20 px-4 pt-3 text-center text-[11px] text-muted-foreground/90 sm:text-xs">
+            Сетка вместо анимации — снижение движения в системе
+          </p>
+        )}
+        <StaticGalleryGrid cards={valid} fillViewport={fillViewport} />
       </div>
     );
   }
@@ -168,34 +207,74 @@ export function MovingGalleryMarquee({ cards }: Props) {
   const buckets = splitIntoRows(valid, rowCount);
   const sequences = buckets.map((b) => buildLoopSequence(b.length ? b : valid));
 
+  const gridStyle = fillViewport
+    ? ({
+        gridTemplateRows: `repeat(${rowCount}, minmax(0, 1fr))`,
+        ["--mg-rows" as string]: String(rowCount),
+        ["--mg-card" as string]:
+          "min(calc((100dvh - 3.25rem) / var(--mg-rows) - 0.45rem), min(46vw, 11rem))",
+      } as React.CSSProperties)
+    : undefined;
+
   return (
-    <div className="space-y-3">
-      <p className="mx-auto max-w-2xl text-center text-xs text-muted-foreground sm:text-sm">
-        {rowCount} ленты на всю ширину экрана — наведите на полосу, чтобы остановить и открыть карточку
-      </p>
+    <div
+      className={cn(
+        "flex flex-col",
+        fillViewport && "relative h-[100dvh] max-h-[100dvh] flex flex-col overflow-hidden",
+      )}
+    >
+      {!fillViewport ? (
+        <p className="mx-auto mb-3 max-w-2xl text-center text-xs text-muted-foreground sm:text-sm">
+          {rowCount} ленты на всю ширину экрана — наведите на полосу, чтобы остановить и открыть карточку
+        </p>
+      ) : (
+        <p className="pointer-events-none absolute left-0 right-0 top-0 z-20 mx-auto max-w-xl px-4 pt-3 text-center text-[11px] text-muted-foreground/90 sm:text-xs">
+          Наведите на ленту, чтобы остановить и открыть профиль
+        </p>
+      )}
 
-      {/* full-bleed: на всю ширину окна, не только контейнер max-w-5xl */}
-      <div className="overflow-x-clip">
-        <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2">
+      <div className={cn("overflow-x-clip", fillViewport && "flex min-h-0 flex-1 flex-col")}>
+        <div
+          className={cn(
+            "relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2",
+            fillViewport && "flex min-h-0 flex-1 flex-col",
+          )}
+        >
           <div
-            className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-background via-background/95 to-transparent sm:w-16 md:w-24"
+            className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-background via-background/90 to-transparent sm:w-12 md:w-20"
             aria-hidden
           />
           <div
-            className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-background via-background/95 to-transparent sm:w-16 md:w-24"
+            className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-background via-background/90 to-transparent sm:w-12 md:w-20"
             aria-hidden
           />
 
-          <div className="flex flex-col gap-3 py-1 sm:gap-4 md:py-2">
+          <div
+            className={cn(
+              fillViewport
+                ? "grid min-h-0 flex-1 gap-2 py-2 sm:gap-2.5 sm:py-3 md:py-4"
+                : "flex flex-col gap-3 py-1 sm:gap-4 md:py-2",
+            )}
+            style={gridStyle}
+          >
             {sequences.map((seq, idx) => {
               const preset = ROW_PRESETS[idx % ROW_PRESETS.length]!;
               return (
-                <MarqueeTrack
+                <div
                   key={idx}
-                  sequence={seq}
-                  reverse={preset.reverse}
-                  slow={preset.slow}
-                />
+                  className={cn(
+                    "flex min-h-0 items-center overflow-hidden",
+                    fillViewport && "px-0.5",
+                  )}
+                >
+                  <MarqueeTrack
+                    sequence={seq}
+                    reverse={preset.reverse}
+                    slow={preset.slow}
+                    staggerIndex={idx}
+                    fillViewport={fillViewport}
+                  />
+                </div>
               );
             })}
           </div>

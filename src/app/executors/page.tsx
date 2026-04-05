@@ -101,26 +101,9 @@ export default async function ExecutorsPage({ searchParams }: Props) {
         <PublicPageNav />
 
         <header className="space-y-5">
-          <div>
-            <h1 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              Исполнители
-            </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-              Две движущиеся ленты с примерами работ — наведите курсор, чтобы остановить и открыть профиль по @нику.
-              Показываем только то, что уже прошло модерацию.
-            </p>
-          </div>
-
-          <div
-            className="rounded-2xl border border-primary/15 bg-primary/[0.06] px-4 py-3 dark:bg-primary/[0.09]"
-            role="note"
-          >
-            <p className="text-sm leading-relaxed text-foreground/90">
-              <span className="font-medium text-foreground">Как это устроено:</span> пока работа на проверке, её не
-              видно ни здесь, ни в профиле. Исполнители с открытой жалобой временно скрыты из каталога — так спокойнее
-              всем.
-            </p>
-          </div>
+          <h1 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            Исполнители
+          </h1>
 
           <div className="rounded-2xl border border-border bg-card p-5 shadow-elevated sm:p-6">
             <form
@@ -181,7 +164,7 @@ export default async function ExecutorsPage({ searchParams }: Props) {
           ) : null}
         </header>
 
-        <section id="gallery" aria-label="Галерея работ" className="scroll-mt-28 space-y-4">
+        <section id="gallery" aria-label="Галерея работ" className="scroll-mt-28">
           {executorsPaged.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border bg-muted/30 px-6 py-12 text-center">
               <p className="text-lg" aria-hidden>
@@ -202,7 +185,7 @@ export default async function ExecutorsPage({ searchParams }: Props) {
               ) : null}
             </div>
           ) : (
-            <MovingGalleryMarquee cards={movingGalleryCards} />
+            <MovingGalleryMarquee cards={movingGalleryCards} fillViewport />
           )}
         </section>
 
