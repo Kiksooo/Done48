@@ -11,7 +11,14 @@ const TOKEN_TTL_MS = 60 * 60 * 1000;
 
 export type PasswordResetResult = { ok: true } | { ok: false; error: string };
 
-export async function requestPasswordResetAction(raw: unknown): Promise<PasswordResetResult> {
+/** Результат запроса ссылки сброса (флаг почты из env — без утечки «есть ли аккаунт»). */
+export type RequestPasswordResetResult =
+  | { ok: false; error: string }
+  | { ok: true; emailDeliveryEnabled: boolean };
+
+export async function requestPasswordResetAction(raw: unknown): Promise<RequestPasswordResetResult> {
+  const emailDeliveryEnabled = Boolean(process.env.RESEND_API_KEY?.trim());
+
   const parsed = forgotPasswordSchema.safeParse(raw);
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Некорректный email" };
@@ -20,7 +27,7 @@ export async function requestPasswordResetAction(raw: unknown): Promise<Password
   const email = parsed.data.email.toLowerCase();
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user?.isActive) {
-    return { ok: true };
+    return { ok: true, emailDeliveryEnabled };
   }
 
   const token = crypto.randomBytes(32).toString("hex");
@@ -34,9 +41,18 @@ export async function requestPasswordResetAction(raw: unknown): Promise<Password
   });
 
   const resetUrl = `${appBaseUrl()}/reset-password?token=${encodeURIComponent(token)}`;
-  await sendPasswordResetEmail(user.email, resetUrl);
+  const sendResult = await sendPasswordResetEmail(user.email, resetUrl);
+  if (!sendResult.sent) {
+    const hint =
+      sendResult.reason === "NO_API_KEY"
+        ? "нет RESEND_API_KEY"
+        : sendResult.reason === "RESEND_HTTP"
+          ? `Resend: ${sendResult.detail ?? "ошибка API"}`
+          : "сеть/Resend";
+    console.error(`[password-reset] Письмо не ушло (${hint}). Проверьте RESEND_API_KEY, EMAIL_FROM и домен в Resend. NEXT_PUBLIC_SITE_URL / NEXTAUTH_URL влияют на ссылку в письме.`);
+  }
 
-  return { ok: true };
+  return { ok: true, emailDeliveryEnabled };
 }
 
 export async function resetPasswordWithTokenAction(raw: unknown): Promise<PasswordResetResult> {

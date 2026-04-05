@@ -90,4 +90,4 @@
 - **Аналитика** — при необходимости `NEXT_PUBLIC_GA_MEASUREMENT_ID` и/или `NEXT_PUBLIC_YANDEX_METRIKA_ID` (или `0`, чтобы отключить Метрику).
 - **Ошибки** — подключить Sentry (или аналог) и алерты по 5xx на `/api/webhooks/*`.
 - **E2E** — `npm run test:e2e:smoke` после деплоя; в CI см. workflow в `.github/workflows`.
-- **Письма** — `RESEND_API_KEY` и подтверждённый домен в Resend для сброса пароля и будущих уведомлений.
+- **Письма (сброс пароля)** — `RESEND_API_KEY`, домен с DNS в Resend, `EMAIL_FROM` с этого домена; `NEXT_PUBLIC_SITE_URL` (или `NEXTAUTH_URL`) = публичный URL сайта, иначе ссылка в письме будет неверной. Ошибки Resend смотрите в логах сервера (`[password-reset]`).

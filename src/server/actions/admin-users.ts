@@ -1,6 +1,7 @@
 "use server";
 
 import {
+  ContactBlocklistKind,
   ExecutorAccountStatus,
   OrderStatus,
   Prisma,
@@ -8,6 +9,7 @@ import {
   Role,
 } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { normalizeBlocklistValue } from "@/lib/contact-blocklist";
 import { prisma } from "@/lib/db";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { writeAuditLog } from "@/server/audit/log";
@@ -43,12 +45,18 @@ export async function adminDeleteUserAction(raw: unknown): Promise<ActionResult>
     return { ok: false, error: "Удаление учёток администраторов отключено" };
   }
 
+  const deletedEmailNorm = normalizeBlocklistValue("EMAIL", target.email);
+
   try {
     await prisma.$transaction(async (tx) => {
       await tx.order.deleteMany({ where: { customerId: userId } });
       await tx.dispute.deleteMany({ where: { openedById: userId } });
       await tx.assignment.deleteMany({ where: { executorId: userId } });
       await tx.user.delete({ where: { id: userId } });
+      // Чтобы тот же email можно было зарегистрировать снова (регистрация проверяет блок-лист).
+      await tx.contactBlocklist.deleteMany({
+        where: { kind: ContactBlocklistKind.EMAIL, valueNorm: deletedEmailNorm },
+      });
     });
   } catch (e) {
     console.error("[admin-users] adminDeleteUserAction failed", e);

@@ -6,12 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PASSWORD_RESET_REQUEST_SUCCESS } from "@/schemas/auth";
+import {
+  PASSWORD_RESET_DELIVERY_HINT,
+  PASSWORD_RESET_MAIL_DISABLED_WARNING,
+  PASSWORD_RESET_REQUEST_SUCCESS,
+} from "@/schemas/auth";
 import { requestPasswordResetAction } from "@/server/actions/password-reset";
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
+  const [mailDisabled, setMailDisabled] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -23,9 +28,16 @@ export function ForgotPasswordForm() {
       </CardHeader>
       <CardContent>
         {msg ? (
-          <p className="mb-4 text-sm text-green-700 dark:text-green-400" role="status">
-            {msg}
-          </p>
+          <div className="mb-4 space-y-3" role="status">
+            <p className="text-sm text-green-700 dark:text-green-400">{msg}</p>
+            {mailDisabled ? (
+              <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/35 dark:text-amber-100">
+                {PASSWORD_RESET_MAIL_DISABLED_WARNING}
+              </p>
+            ) : (
+              <p className="text-sm text-muted-foreground">{PASSWORD_RESET_DELIVERY_HINT}</p>
+            )}
+          </div>
         ) : null}
         <form
           className="space-y-4"
@@ -33,12 +45,14 @@ export function ForgotPasswordForm() {
             e.preventDefault();
             setErr(null);
             setMsg(null);
+            setMailDisabled(false);
             startTransition(async () => {
               const r = await requestPasswordResetAction({ email });
               if (!r.ok) {
                 setErr(r.error);
                 return;
               }
+              setMailDisabled(!r.emailDeliveryEnabled);
               setMsg(PASSWORD_RESET_REQUEST_SUCCESS);
             });
           }}

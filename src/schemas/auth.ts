@@ -29,6 +29,14 @@ export const registerSchema = z
 export const PASSWORD_RESET_REQUEST_SUCCESS =
   "Если такой email зарегистрирован, мы отправили на него ссылку для сброса пароля.";
 
+/** Подсказка под успехом: доставка и спам. */
+export const PASSWORD_RESET_DELIVERY_HINT =
+  "Обычно письмо приходит за 1–3 минуты. Проверьте папку «Спам» и промоакции. Адрес в письме должен совпадать с тем, что вы ввели.";
+
+/** Когда на сервере не задан RESEND_API_KEY — письмо физически не уйдёт. */
+export const PASSWORD_RESET_MAIL_DISABLED_WARNING =
+  "Отправка писем с сайта сейчас не настроена (нет ключа Resend на сервере). Ссылка для сброса не может быть доставлена по email — обратитесь в поддержку или к администратору площадки.";
+
 export const forgotPasswordSchema = z.object({
   email: z.string().trim().email("Некорректный email"),
 });
