@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { parseRegisterRoleFromSearchParam } from "@/lib/register-intent";
 import { RegisterForm } from "./register-form";
 
 function pickSearchParamRef(raw: string | string[] | undefined): string | undefined {
@@ -22,8 +23,9 @@ export const metadata: Metadata = {
 export default function RegisterPage({
   searchParams,
 }: {
-  searchParams: { ref?: string | string[] };
+  searchParams: { ref?: string | string[]; role?: string | string[] };
 }) {
   const ref = pickSearchParamRef(searchParams.ref);
-  return <RegisterForm referralCode={ref} />;
+  const defaultRole = parseRegisterRoleFromSearchParam(searchParams.role);
+  return <RegisterForm referralCode={ref} defaultRole={defaultRole} />;
 }

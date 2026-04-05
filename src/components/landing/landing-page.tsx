@@ -26,6 +26,7 @@ import { LandingHeader } from "@/components/landing/landing-header";
 import { LandingHeroSearch } from "@/components/landing/landing-hero-search";
 import { landingNavLinks } from "@/components/landing/nav-data";
 import { LandingJsonLd } from "@/components/seo/landing-json-ld";
+import { REGISTER_HREF_CUSTOMER, REGISTER_HREF_EXECUTOR } from "@/lib/register-intent";
 import { Button } from "@/components/ui/button";
 import { SITE_EMAIL_INFO } from "@/lib/site-contact";
 import { cn } from "@/lib/utils";
@@ -56,7 +57,7 @@ const steps = [
   {
     step: "1",
     title: "Знакомство",
-    text: "Регистрируйтесь как заказчик или исполнитель и чуть-чуть расскажите о себе в онбординге.",
+    text: "При регистрации выберите роль заказчика или исполнителя; в онбординге — короткая справка по кабинету.",
   },
   {
     step: "2",
@@ -225,7 +226,7 @@ export function LandingPage() {
 
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center opacity-0 animate-fade-up [animation-delay:220ms]">
                   <Button size="lg" className="h-12 gap-2 rounded-full px-8 text-base shadow-glow" asChild>
-                    <Link href="/register">
+                    <Link href={REGISTER_HREF_CUSTOMER}>
                       Создать аккаунт бесплатно
                       <ArrowRight className="h-4 w-4" aria-hidden />
                     </Link>
@@ -236,7 +237,7 @@ export function LandingPage() {
                     className="h-12 rounded-full border-border/80 bg-card/80 px-8 text-base shadow-glow-sm"
                     asChild
                   >
-                    <Link href="/register">
+                    <Link href={REGISTER_HREF_EXECUTOR}>
                       <Briefcase className="h-4 w-4" aria-hidden />
                       Искать заказы как исполнитель
                     </Link>
@@ -527,7 +528,7 @@ export function LandingPage() {
               <div className="text-center">
                 <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Начните за пару минут</h2>
                 <p className="mx-auto mt-4 max-w-lg text-pretty text-muted-foreground sm:text-lg">
-                  Без платы за регистрацию. Выберите роль в онбординге — и сразу увидите кабинет, заказы и отклики.
+                  Без платы за регистрацию. Роль — при создании аккаунта, затем короткий онбординг — и вы в кабинете.
                 </p>
                 <div className="mt-10 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:justify-center">
                   <Button size="lg" className="h-12 gap-2 rounded-xl px-10 text-base shadow-glow" asChild>

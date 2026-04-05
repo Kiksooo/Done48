@@ -49,8 +49,9 @@ export function OnboardingClient({ role }: { role: Role }) {
 
   const hints =
     role === "EXECUTOR" ? EXECUTOR_HINTS : role === "ADMIN" ? ADMIN_HINTS : CUSTOMER_HINTS;
+  /** После «как» — именительный падеж: «вошли как заказчик», не «как заказчика». */
   const roleLabel =
-    role === "EXECUTOR" ? "исполнителя" : role === "ADMIN" ? "администратора" : "заказчика";
+    role === "EXECUTOR" ? "исполнитель" : role === "ADMIN" ? "администратор" : "заказчик";
 
   return (
     <Card>

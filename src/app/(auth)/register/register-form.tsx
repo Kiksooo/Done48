@@ -1,5 +1,6 @@
 "use client";
 
+import type { Role } from "@prisma/client";
 import { useFormState, useFormStatus } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -19,8 +20,15 @@ function SubmitButton() {
   );
 }
 
-export function RegisterForm({ referralCode }: { referralCode?: string }) {
+type RegisterFormProps = {
+  referralCode?: string;
+  /** Из `?role=` на `/register` (например, с кнопки «Искать заказы как исполнитель»). */
+  defaultRole?: Extract<Role, "CUSTOMER" | "EXECUTOR">;
+};
+
+export function RegisterForm({ referralCode, defaultRole }: RegisterFormProps) {
   const router = useRouter();
+  const initialRole = defaultRole ?? "CUSTOMER";
   const [state, formAction] = useFormState<RegisterState | undefined, FormData>(
     registerUser,
     undefined,
@@ -50,8 +58,14 @@ export function RegisterForm({ referralCode }: { referralCode?: string }) {
       <CardHeader>
         <CardTitle>Создайте аккаунт</CardTitle>
         <CardDescription>
-          Минутка — и можно публиковать заказы или откликаться на них. Роль выберете в онбординге. Регистрация бесплатна.
+          Минутка — и можно публиковать заказы или откликаться на них. Роль выберите ниже; в онбординге — только краткая справка по кабинету. Регистрация бесплатна.
         </CardDescription>
+        {defaultRole === "EXECUTOR" ? (
+          <p className="mt-3 rounded-lg border border-primary/15 bg-primary/[0.06] px-3 py-2 text-sm text-foreground dark:bg-primary/[0.09]">
+            Роль «Исполнитель» подставлена по ссылке с главной. При необходимости смените в поле ниже до отправки
+            формы.
+          </p>
+        ) : null}
         {landingTaskHint ? (
           <p className="mt-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-foreground">
             С главной вы искали: «{landingTaskHint}». После регистрации перенесите это в описание заказа или в отклик.
@@ -94,7 +108,7 @@ export function RegisterForm({ referralCode }: { referralCode?: string }) {
               name="role"
               required
               className="flex h-10 w-full rounded-md border border-neutral-300 bg-transparent px-3 py-2 text-sm dark:border-neutral-700"
-              defaultValue="CUSTOMER"
+              defaultValue={initialRole}
             >
               <option value="CUSTOMER">Заказчик</option>
               <option value="EXECUTOR">Исполнитель</option>
