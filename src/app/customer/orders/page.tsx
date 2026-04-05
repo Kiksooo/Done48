@@ -8,9 +8,11 @@ import { CabinetEmptyState } from "@/components/cabinet/dashboard-ui";
 import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { Button } from "@/components/ui/button";
-import { formatDateTime, formatMoneyFromCents } from "@/lib/format";
+import { formatDateTime } from "@/lib/format";
 import { listOrdersForCustomer } from "@/server/queries/orders";
 import { cn } from "@/lib/utils";
+import { OrderBudgetOneLine, OrderBudgetTableCell } from "@/components/orders/order-budget-display";
+import { getPlatformFeePercent } from "@/server/finance/split";
 
 const FILTERS: { key: CustomerOrderFilter; label: string }[] = [
   { key: "all", label: "Все" },
@@ -32,7 +34,10 @@ export default async function CustomerOrdersPage({ searchParams }: { searchParam
   const f = Array.isArray(raw) ? raw[0] : raw;
   const filter = (FILTERS.some((x) => x.key === f) ? f : "all") as CustomerOrderFilter;
 
-  const rows = await listOrdersForCustomer(user.id, filter);
+  const [rows, platformFeePercent] = await Promise.all([
+    listOrdersForCustomer(user.id, filter),
+    getPlatformFeePercent(),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -74,7 +79,7 @@ export default async function CustomerOrdersPage({ searchParams }: { searchParam
               <th className="px-4 py-3 font-medium">Номер</th>
               <th className="px-4 py-3 font-medium">Название</th>
               <th className="px-4 py-3 font-medium">Исполнитель</th>
-              <th className="px-4 py-3 font-medium">Бюджет</th>
+              <th className="px-4 py-3 font-medium">Сумма заказа</th>
               <th className="px-4 py-3 font-medium">Статус</th>
               <th className="px-4 py-3 font-medium">Дедлайн</th>
               <th className="px-4 py-3 font-medium">Обновлён</th>
@@ -94,7 +99,13 @@ export default async function CustomerOrdersPage({ searchParams }: { searchParam
                   </Link>
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">{o.executor?.email ?? "—"}</td>
-                <td className="px-4 py-3">{formatMoneyFromCents(o.budgetCents, o.currency)}</td>
+                <td className="px-4 py-3">
+                  <OrderBudgetTableCell
+                    budgetCents={o.budgetCents}
+                    currency={o.currency}
+                    feePercent={platformFeePercent}
+                  />
+                </td>
                 <td className="px-4 py-3">
                   <OrderStatusBadge status={o.status} />
                 </td>
@@ -135,7 +146,12 @@ export default async function CustomerOrdersPage({ searchParams }: { searchParam
               <OrderStatusBadge status={o.status} />
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              {formatMoneyFromCents(o.budgetCents)} · {formatDateTime(o.deadlineAt)}
+              <OrderBudgetOneLine
+                budgetCents={o.budgetCents}
+                currency={o.currency}
+                feePercent={platformFeePercent}
+              />{" "}
+              · {formatDateTime(o.deadlineAt)}
             </p>
           </Link>
         ))}

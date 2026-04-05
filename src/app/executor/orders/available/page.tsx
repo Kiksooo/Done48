@@ -6,20 +6,23 @@ import { Button } from "@/components/ui/button";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { Role } from "@prisma/client";
-import { formatDateTime, formatMoneyFromCents } from "@/lib/format";
+import { formatDateTime } from "@/lib/format";
 import { prisma } from "@/lib/db";
 import { listAvailableOrdersForExecutor } from "@/server/queries/orders";
+import { OrderBudgetOneLine } from "@/components/orders/order-budget-display";
+import { getPlatformFeePercent } from "@/server/finance/split";
 
 export default async function ExecutorAvailableOrdersPage() {
   const user = await getSessionUserForAction();
   if (!user || user.role !== Role.EXECUTOR) redirect("/login");
 
-  const [rows, prefs] = await Promise.all([
+  const [rows, prefs, platformFeePercent] = await Promise.all([
     listAvailableOrdersForExecutor(user.id),
     prisma.executorProfile.findUnique({
       where: { userId: user.id },
       select: { orderCities: true },
     }),
+    getPlatformFeePercent(),
   ]);
   const filterCities = (prefs?.orderCities ?? []).map((c) => c.trim()).filter(Boolean);
 
@@ -69,7 +72,12 @@ export default async function ExecutorAvailableOrdersPage() {
                 <span>
                   {o.category.name}
                   {o.subcategory ? ` · ${o.subcategory.name}` : ""} ·{" "}
-                  {formatMoneyFromCents(o.budgetCents)} · дедлайн {formatDateTime(o.deadlineAt)}
+                  <OrderBudgetOneLine
+                    budgetCents={o.budgetCents}
+                    currency={o.currency}
+                    feePercent={platformFeePercent}
+                  />{" "}
+                  · дедлайн {formatDateTime(o.deadlineAt)}
                   {o.customer.customerProfile?.city
                     ? ` · город: ${o.customer.customerProfile.city}`
                     : ""}

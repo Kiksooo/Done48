@@ -16,6 +16,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { DEFAULT_MAP_LAT, DEFAULT_MAP_LNG } from "@/lib/geo-defaults";
 import { createOrderSchema, type CreateOrderInput } from "@/schemas/order";
 import { createOrderAction } from "@/server/actions/orders/create-order";
+import { splitOrderBudget } from "@/lib/order-budget-math";
+import { formatMoneyFromCents } from "@/lib/format";
 
 const WorkLocationPicker = dynamic(
   () =>
@@ -39,9 +41,11 @@ export type CategoryOption = {
 export function OrderCreateForm({
   categories,
   moderateAllNewOrders,
+  platformFeePercent,
 }: {
   categories: CategoryOption[];
   moderateAllNewOrders: boolean;
+  platformFeePercent: number;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -68,6 +72,7 @@ export function OrderCreateForm({
   });
 
   const categoryId = form.watch("categoryId");
+  const budgetRubles = form.watch("budgetRubles");
   const isOfflineWork = form.watch("isOfflineWork");
   const workLat = form.watch("workLat");
   const workLng = form.watch("workLng");
@@ -81,6 +86,11 @@ export function OrderCreateForm({
     const c = categories.find((x) => x.id === categoryId);
     return c?.subcategories ?? [];
   }, [categories, categoryId]);
+
+  const budgetSplitPreview = useMemo(() => {
+    if (!Number.isFinite(budgetRubles) || budgetRubles < 1) return null;
+    return splitOrderBudget(Math.round(budgetRubles * 100), platformFeePercent);
+  }, [budgetRubles, platformFeePercent]);
 
   useEffect(() => {
     form.setValue("subcategoryId", "");
@@ -236,8 +246,18 @@ export function OrderCreateForm({
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="budgetRubles">Бюджет (₽)</Label>
+              <Label htmlFor="budgetRubles">Сумма к резерву с баланса (₽)</Label>
               <Input id="budgetRubles" type="number" min={1} step={1} {...form.register("budgetRubles", { valueAsNumber: true })} />
+              {budgetSplitPreview ? (
+                <p className="text-xs text-muted-foreground">
+                  <span className="font-medium text-foreground">
+                    Сумма заказа (исполнителю):{" "}
+                    {formatMoneyFromCents(budgetSplitPreview.executorCents, "RUB")}
+                  </span>
+                  {" · "}
+                  комиссия {platformFeePercent}%: {formatMoneyFromCents(budgetSplitPreview.feeCents, "RUB")}
+                </p>
+              ) : null}
               {form.formState.errors.budgetRubles && (
                 <p className="text-sm text-red-600">{form.formState.errors.budgetRubles.message}</p>
               )}

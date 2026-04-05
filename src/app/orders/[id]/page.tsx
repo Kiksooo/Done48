@@ -9,7 +9,7 @@ import { OrderReviewsSection, type OrderReviewRow } from "@/components/reviews/o
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { Badge } from "@/components/ui/badge";
 import { countUnreadChatMessages } from "@/lib/chat-unread";
-import { formatDateTime, formatMoneyFromCents } from "@/lib/format";
+import { formatDateTime } from "@/lib/format";
 import {
   BUDGET_TYPE_LABELS,
   ORDER_STATUS_LABELS,
@@ -25,6 +25,8 @@ import { getDisputeOpenFlagsForOrder } from "@/server/queries/disputes";
 import { canRevealOrderPartyEmail } from "@/lib/order-contact-privacy";
 import { reviewerAvatarUrl, reviewerDisplayName } from "@/lib/review-display";
 import { findReviewByOrderAndAuthor, listReviewsForOrder } from "@/server/queries/reviews";
+import { OrderBudgetDetailBlock } from "@/components/orders/order-budget-display";
+import { getPlatformFeePercent } from "@/server/finance/split";
 
 const OrderLocationMap = dynamic(
   () =>
@@ -119,6 +121,7 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
   }
 
   const disputeFlags = await getDisputeOpenFlagsForOrder(order.id, order.status);
+  const platformFeePercent = await getPlatformFeePercent();
 
   const reviewable =
     order.status === OrderStatus.ACCEPTED || order.status === OrderStatus.COMPLETED;
@@ -265,13 +268,12 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
         </div>
 
         <section className="grid gap-4 rounded-lg border border-neutral-200 bg-white p-4 text-sm dark:border-neutral-800 dark:bg-neutral-950 sm:grid-cols-2">
-          <div>
-            <p className="text-neutral-500">Бюджет</p>
-            <p className="font-medium">
-              {formatMoneyFromCents(order.budgetCents, order.currency)} ·{" "}
-              {BUDGET_TYPE_LABELS[order.budgetType]}
-            </p>
-          </div>
+          <OrderBudgetDetailBlock
+            budgetCents={order.budgetCents}
+            currency={order.currency}
+            feePercent={platformFeePercent}
+            budgetTypeLine={BUDGET_TYPE_LABELS[order.budgetType]}
+          />
           <div>
             <p className="text-neutral-500">Дедлайн</p>
             <p className="font-medium">{formatDateTime(order.deadlineAt)}</p>
@@ -406,6 +408,7 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
             paymentStatus: order.paymentStatus,
             budgetCents: order.budgetCents,
             currency: order.currency,
+            platformFeePercent,
             canOpenDispute: disputeFlags.canOpenDispute,
             hasActiveDispute: disputeFlags.hasActiveDispute,
           }}

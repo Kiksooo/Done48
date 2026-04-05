@@ -6,9 +6,4 @@ export async function getPlatformFeePercent(): Promise<number> {
   return Number.isFinite(n) && n >= 0 && n <= 100 ? n : 10;
 }
 
-/** Комиссия платформы и сумма исполнителю из бюджета заказа (копейки). */
-export function splitOrderBudget(budgetCents: number, feePercent: number) {
-  const feeCents = Math.min(budgetCents, Math.round((budgetCents * feePercent) / 100));
-  const executorCents = budgetCents - feeCents;
-  return { feeCents, executorCents };
-}
+export { splitOrderBudget } from "@/lib/order-budget-math";
