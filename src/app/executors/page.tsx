@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { MovingGalleryMarquee } from "@/components/executors/moving-gallery-marquee";
 import { PublicPageNav } from "@/components/public/public-page-nav";
 import { Button } from "@/components/ui/button";
 import { SITE_SEO_BRAND, SITE_SEO_TITLE_TEMPLATE } from "@/lib/site-seo";
@@ -42,50 +43,8 @@ type Props = {
   searchParams: { page?: string; q?: string; city?: string };
 };
 
-type PortfolioThumb = { id: string; imageUrl: string | null };
-
 const fieldClass =
   "h-11 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground/70 focus:border-primary/40 focus:ring-2 focus:ring-ring/30";
-
-function GalleryMosaic({ items }: { items: PortfolioThumb[] }) {
-  const withUrl = items.filter((i): i is { id: string; imageUrl: string } => Boolean(i.imageUrl));
-  if (withUrl.length === 0) {
-    return (
-      <div className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-b from-muted/50 to-muted/20 px-3 text-center">
-        <span className="text-3xl opacity-70" aria-hidden>
-          🖼
-        </span>
-        <p className="text-xs font-medium leading-snug text-muted-foreground">Пока нет одобренных фото</p>
-        <p className="text-[10px] leading-tight text-muted-foreground/80">после модерации появятся здесь</p>
-      </div>
-    );
-  }
-  if (withUrl.length === 1) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img src={withUrl[0].imageUrl} alt="" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
-    );
-  }
-  if (withUrl.length === 2) {
-    return (
-      <div className="grid h-full grid-cols-2 gap-px bg-border">
-        {withUrl.map((x) => (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img key={x.id} src={x.imageUrl} alt="" className="h-full min-h-0 w-full object-cover" />
-        ))}
-      </div>
-    );
-  }
-  return (
-    <div className="grid h-full grid-cols-2 grid-rows-2 gap-px bg-border">
-      {withUrl.slice(0, 4).map((x) => (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img key={x.id} src={x.imageUrl} alt="" className="h-full min-h-0 w-full object-cover" />
-      ))}
-      {withUrl.length === 3 ? <span className="min-h-0 bg-muted/40" aria-hidden /> : null}
-    </div>
-  );
-}
 
 function buildExecutorsHref(page: number, filters: PublicExecutorListFilters) {
   const params = new URLSearchParams();
@@ -124,8 +83,20 @@ export default async function ExecutorsPage({ searchParams }: Props) {
   const qValue = listFilters.q?.trim() ?? "";
   const cityValue = listFilters.city?.trim() ?? "";
 
+  const movingGalleryCards = executorsPaged.flatMap((u) => {
+    const username = u.executorProfile?.username;
+    if (!username) return [];
+    return [
+      {
+        id: u.id,
+        username,
+        portfolioItems: u.portfolioItems,
+      },
+    ];
+  });
+
   return (
-    <div className="min-h-screen bg-background px-4 py-10 sm:px-6 sm:py-12">
+    <div className="min-h-screen overflow-x-hidden bg-background px-4 py-10 sm:px-6 sm:py-12">
       <div className="mx-auto max-w-5xl space-y-10 pb-16">
         <PublicPageNav />
 
@@ -135,8 +106,8 @@ export default async function ExecutorsPage({ searchParams }: Props) {
               Исполнители
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-              Листайте галерею и открывайте профиль по нику. Мы показываем только работы, которые уже проверила
-              модерация.
+              Две движущиеся ленты с примерами работ — наведите курсор, чтобы остановить и открыть профиль по @нику.
+              Показываем только то, что уже прошло модерацию.
             </p>
           </div>
 
@@ -231,35 +202,7 @@ export default async function ExecutorsPage({ searchParams }: Props) {
               ) : null}
             </div>
           ) : (
-            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
-              {executorsPaged.map((u) => {
-                const username = u.executorProfile?.username;
-                if (!username) return null;
-
-                return (
-                  <li key={u.id}>
-                    <Link
-                      href={`/u/${username}`}
-                      className={cn(
-                        "group block overflow-hidden rounded-2xl border border-border bg-card shadow-sm",
-                        "transition-[box-shadow,transform,border-color] duration-200 ease-out",
-                        "hover:border-primary/25 hover:shadow-lg",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
-                        "active:scale-[0.99]",
-                      )}
-                      aria-label={`Открыть профиль @${username}`}
-                    >
-                      <div className="aspect-square w-full overflow-hidden bg-muted">
-                        <GalleryMosaic items={u.portfolioItems} />
-                      </div>
-                      <p className="border-t border-border px-2 py-3 text-center font-mono text-sm font-semibold text-foreground">
-                        @{username}
-                      </p>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
+            <MovingGalleryMarquee cards={movingGalleryCards} />
           )}
         </section>
 

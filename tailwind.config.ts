@@ -58,11 +58,23 @@ const config: Config = {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-8px)" },
         },
+        "gallery-marquee": {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+        "gallery-marquee-rev": {
+          "0%": { transform: "translateX(-50%)" },
+          "100%": { transform: "translateX(0)" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards",
         "fade-in": "fade-in 0.5s ease-out forwards",
         float: "float 5s ease-in-out infinite",
+        "gallery-marquee": "gallery-marquee 52s linear infinite",
+        "gallery-marquee-slow": "gallery-marquee 68s linear infinite",
+        "gallery-marquee-rev": "gallery-marquee-rev 58s linear infinite",
+        "gallery-marquee-rev-slow": "gallery-marquee-rev 76s linear infinite",
       },
     },
   },

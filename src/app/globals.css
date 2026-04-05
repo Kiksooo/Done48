@@ -109,6 +109,10 @@
     opacity: 1;
     transform: none;
   }
+  .moving-gallery-track {
+    animation: none !important;
+    transform: none !important;
+  }
 }
 
 /* Кабинет: лёгкая «атмосфера» без отдельной темы от лендинга */
