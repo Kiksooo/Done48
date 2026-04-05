@@ -160,6 +160,7 @@ export default async function ExecutorsPage({ searchParams }: Props) {
           ) : null}
         </header>
 
+        <section id="gallery" aria-label="Галерея работ" className="scroll-mt-24 space-y-4">
         {executorsPaged.length === 0 ? (
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
             {qValue || cityValue
@@ -252,6 +253,7 @@ export default async function ExecutorsPage({ searchParams }: Props) {
             })}
           </ul>
         )}
+        </section>
 
         {totalPages > 1 ? (
           <nav

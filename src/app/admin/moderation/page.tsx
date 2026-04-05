@@ -9,11 +9,13 @@ import { listPendingPortfolioItemsForAdmin } from "@/server/queries/portfolio";
 import { listContactBlocklistForAdmin, listUserReportsForAdmin } from "@/server/queries/trust";
 
 export default async function AdminModerationPage() {
-  const [reportsRaw, blockRaw, portfolioRaw] = await Promise.all([
+  const [reportsRaw, blockRaw, portfolioBundle] = await Promise.all([
     listUserReportsForAdmin(),
     listContactBlocklistForAdmin(),
     listPendingPortfolioItemsForAdmin(),
   ]);
+  const portfolioRaw = portfolioBundle.items;
+  const portfolioQueueError = portfolioBundle.loadError;
 
   const sorted = [...reportsRaw].sort((a, b) => {
     const w = (s: (typeof a)["status"]) => (s === "OPEN" ? 0 : s === "IN_REVIEW" ? 1 : 2);
@@ -72,7 +74,12 @@ export default async function AdminModerationPage() {
           .
         </p>
       </div>
-      <AdminModerationPanel reports={reports} blocklist={blocklist} portfolioQueue={portfolioQueue} />
+      <AdminModerationPanel
+        reports={reports}
+        blocklist={blocklist}
+        portfolioQueue={portfolioQueue}
+        portfolioQueueError={portfolioQueueError}
+      />
     </div>
   );
 }

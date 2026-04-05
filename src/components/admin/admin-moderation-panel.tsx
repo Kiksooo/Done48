@@ -75,6 +75,7 @@ export function AdminModerationPanel(props: {
   reports: ModerationReportRow[];
   blocklist: BlocklistRow[];
   portfolioQueue: PortfolioModerationQueueRow[];
+  portfolioQueueError?: string | null;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -347,6 +348,14 @@ export function AdminModerationPanel(props: {
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
             Фото из галереи исполнителей на публичных страницах и в каталоге показываются только после одобрения здесь.
           </p>
+          {props.portfolioQueueError ? (
+            <p
+              className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100"
+              role="alert"
+            >
+              {props.portfolioQueueError}
+            </p>
+          ) : null}
           {msg ? (
             <p className="text-sm text-red-600" role="alert">
               {msg}
