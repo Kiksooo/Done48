@@ -1,5 +1,6 @@
 import type { Order, Role } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { isOrderCustomerPartner } from "@/server/orders/customer-partners";
 
 export type OrderForAccess = Pick<
   Order,
@@ -34,6 +35,9 @@ export async function assertOrderReadable(params: {
     return { ok: true as const, order };
   }
   if (order.customerId === params.userId) {
+    return { ok: true as const, order };
+  }
+  if (params.role === "CUSTOMER" && (await isOrderCustomerPartner(order.id, params.userId))) {
     return { ok: true as const, order };
   }
   if (order.executorId === params.userId) {

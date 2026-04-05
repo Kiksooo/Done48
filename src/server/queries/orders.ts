@@ -1,6 +1,16 @@
 import type { OrderStatus, Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 
+/** Заказы, где пользователь основной заказчик или соучастник. */
+export function ordersVisibleToCustomerWhere(customerId: string): Prisma.OrderWhereInput {
+  return {
+    OR: [
+      { customerId },
+      { customerPartners: { some: { userId: customerId } } },
+    ],
+  };
+}
+
 const orderListInclude = {
   category: { select: { name: true } },
   subcategory: { select: { name: true } },
@@ -30,11 +40,11 @@ export async function listOrdersForCustomer(
   customerId: string,
   filter: CustomerOrderFilter,
 ) {
-  const where: Prisma.OrderWhereInput = { customerId };
   const statusIn = customerFilterToStatuses(filter);
-  if (statusIn) {
-    where.status = { in: statusIn };
-  }
+  const where: Prisma.OrderWhereInput = {
+    ...ordersVisibleToCustomerWhere(customerId),
+    ...(statusIn ? { status: { in: statusIn } } : {}),
+  };
   return prisma.order.findMany({
     where,
     include: orderListInclude,
@@ -158,6 +168,18 @@ export async function getOrderDetailForPage(orderId: string) {
           executorProfile: { select: { displayName: true, username: true } },
         },
       },
+      customerPartners: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              customerProfile: { select: { displayName: true } },
+            },
+          },
+        },
+        orderBy: { createdAt: "asc" },
+      },
       statusHistory: { orderBy: { createdAt: "asc" } },
       proposals: {
         include: {
@@ -188,24 +210,16 @@ export async function listExecutorsForSelect() {
 }
 
 export async function countCustomerOrdersByBucket(customerId: string) {
+  const base = ordersVisibleToCustomerWhere(customerId);
   const [active, waiting, review] = await Promise.all([
     prisma.order.count({
-      where: {
-        customerId,
-        status: { in: ["ASSIGNED", "IN_PROGRESS", "REVISION"] },
-      },
+      where: { ...base, status: { in: ["ASSIGNED", "IN_PROGRESS", "REVISION"] } },
     }),
     prisma.order.count({
-      where: {
-        customerId,
-        status: { in: ["NEW", "ON_MODERATION", "PUBLISHED"] },
-      },
+      where: { ...base, status: { in: ["NEW", "ON_MODERATION", "PUBLISHED"] } },
     }),
     prisma.order.count({
-      where: {
-        customerId,
-        status: "SUBMITTED",
-      },
+      where: { ...base, status: "SUBMITTED" },
     }),
   ]);
   return { active, waiting, review };

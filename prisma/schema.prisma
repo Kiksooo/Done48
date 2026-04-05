@@ -55,6 +55,8 @@ model User {
   adminProfile     AdminProfile?
 
   customerOrders Order[]  @relation("OrderCustomer")
+  /// Соучастники заказа (доп. заказчики с доступом к карточке и чату)
+  orderCustomerPartnerships OrderCustomerPartner[] @relation("OrderCustomerPartnerUser")
   executorOrders Order[]  @relation("OrderExecutor")
 
   proposals        Proposal[]
@@ -391,6 +393,20 @@ model Order {
   disputes        Dispute[]
   reviews         Review[]
   userReports     UserReport[]
+  customerPartners OrderCustomerPartner[]
+}
+
+/// Дополнительные заказчики по заказу (не владелец счёта): просмотр и чат; резерв и статусы — у основного заказчика.
+model OrderCustomerPartner {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation("OrderCustomerPartnerUser", fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([orderId, userId])
+  @@index([userId])
 }
 
 model OrderAttachment {

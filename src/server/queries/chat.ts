@@ -1,6 +1,7 @@
 import type { Role } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { assertOrderReadable } from "@/server/orders/access";
+import { isOrderCustomerPartner } from "@/server/orders/customer-partners";
 
 export async function ensureChatMembership(params: {
   orderId: string;
@@ -19,10 +20,16 @@ export async function ensureChatMembership(params: {
   const chat = await prisma.chat.findUnique({ where: { orderId: params.orderId } });
   if (!chat) return { ok: false as const };
 
+  const asPartner =
+    params.userId !== params.customerId
+      ? await isOrderCustomerPartner(params.orderId, params.userId)
+      : false;
+
   const canJoin =
     params.role === "ADMIN" ||
     params.userId === params.customerId ||
-    params.userId === params.executorId;
+    params.userId === params.executorId ||
+    asPartner;
 
   if (!canJoin) {
     return { ok: true as const, chatId: chat.id, member: false as const };
