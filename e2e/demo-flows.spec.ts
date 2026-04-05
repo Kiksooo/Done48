@@ -20,7 +20,7 @@ test.describe.serial("Демо-аккаунты (нужен npm run db:seed)", (
     if (await reserveBtn.isVisible()) {
       await reserveBtn.click();
     }
-    await expect(page.getByText("Зарезервировано")).toBeVisible();
+    await expect(page.getByText(/зарезервирован/i)).toBeVisible();
   });
 
   test("админ входит в кабинет", async ({ page }) => {

@@ -158,7 +158,7 @@ export async function customerReserveOrderAction(raw: unknown): Promise<ActionRe
             currency: ord.currency,
             orderId: ord.id,
             fromUserId: user.id,
-            meta: { note: "Безопасная сделка: сумма заблокирована на площадке до приёмки" },
+            meta: { note: "Безопасная сделка: сумма зарезервирована под заказ до приёмки" },
           },
         });
 

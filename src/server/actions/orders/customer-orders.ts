@@ -26,7 +26,7 @@ import { writeAuditLog } from "@/server/audit/log";
 import type { ActionResult } from "./create-order";
 
 const ESCROW_REQUIRED_MSG =
-  "Сначала заблокируйте сумму заказа в безопасной сделке (кнопка выше), затем вы сможете выбрать исполнителя по отклику.";
+  "Сначала зарезервируйте сумму заказа под безопасную сделку (кнопка выше), затем вы сможете выбрать исполнителя по отклику.";
 
 const ACTIVE_DISPUTE: DisputeStatus[] = [DisputeStatus.OPEN, DisputeStatus.IN_REVIEW];
 
@@ -291,7 +291,7 @@ export async function customerUnassignExecutorAction(raw: unknown): Promise<Acti
       userId: formerExecutorId,
       kind: NotificationKind.GENERIC,
       title: "Назначение по заказу отменено",
-      body: `Заказчик снял вас с задачи «${orderTitle}». Заказ снова открыт для откликов.`,
+      body: `Заказчик снял вас с задачи «${orderTitle}». Заказ снова открыт для откликов; резерв суммы у заказчика под этот заказ сохраняется до выбора другого исполнителя или возврата по правилам.`,
       link: `/orders/${orderId}`,
     });
   });
@@ -523,7 +523,8 @@ export async function customerAcceptWorkAction(raw: unknown): Promise<ActionResu
   if (check.order.paymentStatus !== PaymentStatus.RESERVED) {
     return {
       ok: false,
-      error: "Сначала заблокируйте сумму в безопасной сделке (карточка заказа → блокировка с баланса).",
+      error:
+        "Сначала зарезервируйте сумму под этот заказ (безопасная сделка): карточка заказа → резерв с баланса.",
     };
   }
 

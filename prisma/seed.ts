@@ -293,7 +293,7 @@ async function main() {
           currency: "RUB",
           orderId: oProg.id,
           fromUserId: customer.id,
-          meta: { note: "Демо: безопасная сделка" },
+          meta: { note: "Демо: резерв под заказ (безопасная сделка)" },
         },
       });
 

@@ -30,7 +30,7 @@ import { writeAuditLog } from "@/server/audit/log";
 import type { ActionResult } from "./create-order";
 
 const ESCROW_REQUIRED_MSG =
-  "Сначала заказчик должен заблокировать сумму заказа в безопасной сделке (карточка заказа → кнопка блокировки с баланса).";
+  "Сначала заказчик должен зарезервировать сумму заказа под безопасную сделку (карточка заказа → резерв с баланса).";
 
 const ACTIVE_DISPUTE: DisputeStatus[] = [DisputeStatus.OPEN, DisputeStatus.IN_REVIEW];
 
@@ -425,14 +425,14 @@ export async function adminUnassignExecutorAction(raw: unknown): Promise<ActionR
       userId: formerExecutorId,
       kind: NotificationKind.GENERIC,
       title: "Назначение по заказу отменено",
-      body: `Администратор снял вас с задачи «${orderTitle}». Заказ снова открыт для откликов.`,
+      body: `Администратор снял вас с задачи «${orderTitle}». Заказ снова открыт для откликов; резерв суммы у заказчика под заказ сохраняется по правилам площадки.`,
       link: `/orders/${orderId}`,
     });
     await createNotification({
       userId: customerId,
       kind: NotificationKind.GENERIC,
       title: "Исполнитель снят администратором",
-      body: `По заказу «${orderTitle}» назначение снято. Заказ снова в поиске исполнителя, средства остаются в безопасной сделке.`,
+      body: `По заказу «${orderTitle}» назначение снято. Заказ снова в поиске исполнителя; резерв суммы под заказ сохраняется до приёмки или возврата по правилам.`,
       link: `/orders/${orderId}`,
     });
   });

@@ -101,7 +101,7 @@ export default async function AdminHomePage() {
           <DashboardQuickLink
             href="/admin/payments"
             title="Платежи"
-            description="Операции и безопасная сделка."
+            description="Операции, резерв суммы под заказы и безопасная сделка."
             icon={CreditCard}
           />
           <DashboardQuickLink

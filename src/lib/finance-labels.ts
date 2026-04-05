@@ -9,7 +9,7 @@ export const PAYOUT_STATUS_LABELS: Record<PayoutStatus, string> = {
 
 export const TRANSACTION_TYPE_LABELS: Record<TransactionType, string> = {
   TOPUP: "Пополнение",
-  RESERVE: "Блокировка в безопасной сделке",
+  RESERVE: "Резерв суммы под заказ",
   CAPTURE: "Списание (заказ)",
   REFUND: "Возврат",
   PAYOUT: "Выплата",

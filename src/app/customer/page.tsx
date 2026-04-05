@@ -125,7 +125,7 @@ export default async function CustomerHomePage() {
           <DashboardQuickLink
             href="/customer/balance"
             title="Баланс"
-            description="Пополнение и безопасная сделка по заказам."
+            description="Пополнение и резерв суммы под заказы до приёмки работы."
             icon={Wallet}
           />
         </div>

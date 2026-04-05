@@ -10,6 +10,7 @@ import {
 } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { isContactBlocklisted } from "@/lib/contact-blocklist";
+import { syncMailerLiteSubscriber } from "@/lib/mailerlite";
 import { REFERRAL_REWARD_CENTS } from "@/lib/referral";
 import { registerSchema } from "@/schemas/auth";
 
@@ -64,6 +65,14 @@ export async function registerUser(
     const role = parsed.data.role as Role;
 
     const marketingOn = parsed.data.marketingOptIn === "on";
+    const pushMailerLiteSignup = () => {
+      if (!marketingOn) return;
+      void syncMailerLiteSubscriber({
+        email,
+        subscribed: true,
+        name: email.split("@")[0],
+      });
+    };
 
     const user = await prisma.user.create({
       data: {
@@ -100,6 +109,7 @@ export async function registerUser(
         profileError instanceof Prisma.PrismaClientKnownRequestError &&
         (profileError.code === "P2021" || profileError.code === "P2022")
       ) {
+        pushMailerLiteSignup();
         return { ok: true };
       }
       throw profileError;
@@ -176,6 +186,7 @@ export async function registerUser(
       }
     }
 
+    pushMailerLiteSignup();
     return { ok: true };
   } catch (error) {
     console.error("[register] failed:", error);

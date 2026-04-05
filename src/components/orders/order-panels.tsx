@@ -226,8 +226,8 @@ export function OrderPanels(props: {
             <div className="space-y-2">
               <Label>Назначить исполнителя</Label>
               <p className="text-xs text-neutral-500">
-                Безопасная сделка: назначение возможно только после того, как заказчик заблокировал сумму заказа с
-                баланса.
+                Назначить исполнителя можно только после того, как заказчик зарезервировал сумму заказа с баланса
+                (резерв под заказ до приёмки; безопасная сделка).
               </p>
               {executorOptions.length === 0 ? (
                 <p className="text-sm text-neutral-500">Нет активных исполнителей в системе.</p>
@@ -337,7 +337,8 @@ export function OrderPanels(props: {
             <div className="mt-6 border-t border-neutral-200 pt-4 dark:border-neutral-800">
               <h3 className="text-sm font-medium">Отклики</h3>
               <p className="mt-1 text-xs text-neutral-500">
-                Принять отклик можно только если у заказа статус платежа «средства в безопасной сделке».
+                Принять отклик можно только если у заказа в статусе оплаты указано, что сумма зарезервирована под заказ
+                (безопасная сделка).
               </p>
               <ul className="mt-2 space-y-2 text-sm">
                 {snapshot.proposals
@@ -381,8 +382,8 @@ export function OrderPanels(props: {
         <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
           <h2 className="text-sm font-semibold">Вы — соучастник заказа</h2>
           <p className="mt-2 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-            Основной заказчик управляет резервом средств, выбором исполнителя и статусами. У вас есть доступ к карточке
-            и чату, чтобы быть в контексте сделки.
+            Основной заказчик управляет резервом суммы под заказ, выбором исполнителя и статусами. У вас есть доступ к
+            карточке и чату, чтобы быть в контексте сделки.
           </p>
         </section>
       ) : null}
@@ -399,9 +400,8 @@ export function OrderPanels(props: {
           !["CANCELED", "COMPLETED", "DRAFT"].includes(snapshot.status) ? (
             <div className="mt-3 rounded-md border border-dashed border-amber-300/80 bg-amber-50/50 p-3 dark:border-amber-800 dark:bg-amber-950/20">
               <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
-                Сумма заказа списывается с вашего баланса и удерживается на площадке. Исполнитель получит деньги только
-                после того, как вы примете работу. До этого средства можно вернуть при отмене заказа без назначенного
-                исполнителя.
+                Сумма заказа резервируется с вашего баланса под этот заказ: исполнитель не получит её до вашей приёмки
+                результата. Пока исполнитель не назначен, при отмене заказа резерв снова доступен на балансе.
               </p>
               <Button
                 type="button"
@@ -412,13 +412,13 @@ export function OrderPanels(props: {
                   run("reserve", () => customerReserveOrderAction({ orderId }))
                 }
               >
-                Заблокировать {formatMoneyFromCents(snapshot.budgetCents, snapshot.currency)} в сделке
+                Зарезервировать {formatMoneyFromCents(snapshot.budgetCents, snapshot.currency)} под заказ
               </Button>
             </div>
           ) : null}
           {snapshot.paymentStatus === "RESERVED" ? (
             <p className="mt-2 text-xs text-emerald-800 dark:text-emerald-200/90">
-              Сумма заблокирована на площадке до приёмки работы или возврата по правилам заказа.
+              Сумма зарезервирована под этот заказ до приёмки работы или возврата по правилам заказа.
             </p>
           ) : null}
           {snapshot.status === "ASSIGNED" &&
@@ -428,7 +428,7 @@ export function OrderPanels(props: {
             <div className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
               <p className="text-xs text-neutral-700 dark:text-neutral-300">
                 Пока исполнитель не нажал «Начать работу», вы можете снять назначение: заказ снова появится в поиске,
-                отклики вернутся в ожидание, средства останутся в безопасной сделке.
+                отклики вернутся в ожидание, резерв под заказ сохранится.
               </p>
               <Button
                 type="button"
@@ -495,7 +495,8 @@ export function OrderPanels(props: {
                 </>
               ) : (
                 <p className="mt-1 text-xs text-amber-800 dark:text-amber-200/90">
-                  Чтобы выбрать исполнителя, сначала заблокируйте сумму заказа в безопасной сделке (кнопка выше).
+                  Чтобы выбрать исполнителя, сначала зарезервируйте сумму заказа (кнопка выше) — так исполнитель
+                  получит оплату только после приёмки работы.
                 </p>
               )}
             </div>
@@ -523,7 +524,7 @@ export function OrderPanels(props: {
                 onClick={() => {
                   if (
                     !window.confirm(
-                      "Удалить заказ безвозвратно? Отклики и переписка по заказу будут удалены. При блокировке средств в сделке они вернутся на ваш баланс.",
+                      "Удалить заказ безвозвратно? Отклики и переписка по заказу будут удалены. Если сумма была зарезервирована под заказ, она вернётся на ваш баланс.",
                     )
                   ) {
                     return;
@@ -545,8 +546,8 @@ export function OrderPanels(props: {
             {snapshot.status === "SUBMITTED" ? (
               <div className="w-full space-y-2">
                 <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                  Исполнитель сдал результат. Если всё устраивает, завершите заказ — средства пойдут исполнителю по правилам
-                  безопасной сделки. Иначе отправьте на доработку.
+                  Исполнитель сдал результат. Если всё устраивает, завершите заказ — зарезервированная сумма пойдёт
+                  исполнителю по правилам сделки. Иначе отправьте на доработку.
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <Button
@@ -569,7 +570,7 @@ export function OrderPanels(props: {
                 </div>
                 {snapshot.paymentStatus !== "RESERVED" ? (
                   <p className="text-xs font-medium text-amber-800 dark:text-amber-200">
-                    Чтобы завершить заказ, сначала заблокируйте сумму в безопасной сделке (блок «бюджет» выше).
+                    Чтобы завершить заказ, сначала зарезервируйте сумму под заказ (блок «бюджет» выше).
                   </p>
                 ) : null}
               </div>
@@ -688,8 +689,8 @@ export function OrderPanels(props: {
             <div className="mt-4 flex flex-wrap gap-2 border-t border-neutral-200 pt-4 dark:border-neutral-800">
               {snapshot.status === "ASSIGNED" && snapshot.paymentStatus === "UNPAID" ? (
                 <p className="w-full text-sm text-amber-800 dark:text-amber-200">
-                  Заказчик ещё не внёс сумму в безопасную сделку. Кнопка «Начать работу» станет доступна после
-                  блокировки средств на площадке.
+                  Заказчик ещё не зарезервировал сумму под безопасную сделку. Кнопка «Начать работу» станет доступна,
+                  когда сумма будет зарезервирована под этот заказ.
                 </p>
               ) : null}
               {snapshot.status === "ASSIGNED" ? (
