@@ -7,15 +7,14 @@ import {
   listPublicExecutors,
   type PublicExecutorListFilters,
 } from "@/server/queries/public-executor";
-import { getReviewStatsForUsers } from "@/server/queries/reviews";
 
 export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 12;
 
-const executorsOgTitle = SITE_SEO_TITLE_TEMPLATE.replace("%s", "Исполнители");
+const executorsOgTitle = SITE_SEO_TITLE_TEMPLATE.replace("%s", "Галерея работ");
 const executorsDescription =
-  "Каталог активных исполнителей DONE48. Просматривайте портфолио и отзывы.";
+  "Галерея одобренных работ исполнителей DONE48. Откройте профиль по @нику в системе.";
 
 export const metadata: Metadata = {
   title: "Исполнители",
@@ -40,13 +39,44 @@ type Props = {
   searchParams: { page?: string; q?: string; city?: string };
 };
 
-function ruReviewsPhrase(count: number): string {
-  const mod100 = count % 100;
-  if (mod100 >= 11 && mod100 <= 14) return `${count} отзывов`;
-  const mod10 = count % 10;
-  if (mod10 === 1) return `${count} отзыв`;
-  if (mod10 >= 2 && mod10 <= 4) return `${count} отзыва`;
-  return `${count} отзывов`;
+type PortfolioThumb = { id: string; imageUrl: string | null };
+
+function GalleryMosaic({ items }: { items: PortfolioThumb[] }) {
+  const withUrl = items.filter((i): i is { id: string; imageUrl: string } => Boolean(i.imageUrl));
+  if (withUrl.length === 0) {
+    return (
+      <div className="flex h-full items-center justify-center bg-neutral-100 px-2 text-center text-xs leading-snug text-neutral-500 dark:bg-neutral-900">
+        Нет фото в галерее
+      </div>
+    );
+  }
+  if (withUrl.length === 1) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={withUrl[0].imageUrl} alt="" className="h-full w-full object-cover" />
+    );
+  }
+  if (withUrl.length === 2) {
+    return (
+      <div className="grid h-full grid-cols-2 gap-px bg-neutral-200 dark:bg-neutral-800">
+        {withUrl.map((x) => (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img key={x.id} src={x.imageUrl} alt="" className="h-full min-h-0 w-full object-cover" />
+        ))}
+      </div>
+    );
+  }
+  return (
+    <div className="grid h-full grid-cols-2 grid-rows-2 gap-px bg-neutral-200 dark:bg-neutral-800">
+      {withUrl.slice(0, 4).map((x) => (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img key={x.id} src={x.imageUrl} alt="" className="h-full min-h-0 w-full object-cover" />
+      ))}
+      {withUrl.length === 3 ? (
+        <span className="min-h-0 bg-neutral-100 dark:bg-neutral-950" aria-hidden />
+      ) : null}
+    </div>
+  );
 }
 
 function buildExecutorsHref(page: number, filters: PublicExecutorListFilters) {
@@ -83,8 +113,6 @@ export default async function ExecutorsPage({ searchParams }: Props) {
     skip: (page - 1) * PAGE_SIZE,
   });
 
-  const statsByUser = await getReviewStatsForUsers(executorsPaged.map((u) => u.id));
-
   const qValue = listFilters.q?.trim() ?? "";
   const cityValue = listFilters.city?.trim() ?? "";
 
@@ -96,10 +124,10 @@ export default async function ExecutorsPage({ searchParams }: Props) {
             Исполнители
           </h1>
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
-            Выбирайте исполнителя по портфолио и отзывам. Публичные профили доступны только для аккаунтов со
-            статусом <span className="font-medium text-neutral-900 dark:text-neutral-100">ACTIVE</span>.
-            Исполнители с жалобами в статусе <span className="font-medium text-neutral-900 dark:text-neutral-100">OPEN</span> или{" "}
-            <span className="font-medium text-neutral-900 dark:text-neutral-100">IN_REVIEW</span> временно скрыты из каталога.
+            В сетке — только фото, которые прошли модерацию, и <span className="font-medium">@ник</span> в системе. Пока
+            работа не одобрена в разделе «Модерация», она не появляется здесь и на публичной странице исполнителя.
+            Профили с жалобами <span className="font-medium">OPEN</span> / <span className="font-medium">IN_REVIEW</span>{" "}
+            скрыты.
           </p>
 
           <form
@@ -115,7 +143,7 @@ export default async function ExecutorsPage({ searchParams }: Props) {
                 type="search"
                 name="q"
                 defaultValue={qValue}
-                placeholder="Имя, @ник, город, описание…"
+                placeholder="@ник, имя, город…"
                 className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none ring-primary/30 focus:ring-2 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
               />
             </label>
@@ -161,98 +189,37 @@ export default async function ExecutorsPage({ searchParams }: Props) {
         </header>
 
         <section id="gallery" aria-label="Галерея работ" className="scroll-mt-24 space-y-4">
-        {executorsPaged.length === 0 ? (
-          <p className="text-sm text-neutral-600 dark:text-neutral-400">
-            {qValue || cityValue
-              ? "Никого не нашли — попробуйте другой запрос или сбросьте фильтры."
-              : "Пока нет активных исполнителей."}
-          </p>
-        ) : (
-          <ul className="grid gap-4 sm:grid-cols-2">
-            {executorsPaged.map((u) => {
-              const p = u.executorProfile;
-              if (!p?.username) return null;
+          {executorsPaged.length === 0 ? (
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+              {qValue || cityValue
+                ? "Никого не нашли — попробуйте другой запрос или сбросьте фильтры."
+                : "Пока нет активных исполнителей."}
+            </p>
+          ) : (
+            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+              {executorsPaged.map((u) => {
+                const username = u.executorProfile?.username;
+                if (!username) return null;
 
-              const displayName = p.displayName?.trim() || p.username;
-              const portfolioPreview = u.portfolioItems[0];
-              const review = statsByUser.get(u.id);
-
-              return (
-                <li
-                  key={u.id}
-                  className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-neutral-100 text-sm font-semibold text-neutral-600 dark:bg-neutral-900 dark:text-neutral-300">
-                      {p.avatarUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={p.avatarUrl}
-                          alt={`${displayName} — фото профиля`}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        displayName.charAt(0).toUpperCase()
-                      )}
-                    </div>
-
-                    <div className="min-w-0 flex-1 space-y-1">
-                      <Link
-                        href={`/u/${p.username}`}
-                        className="block truncate text-base font-semibold text-neutral-900 hover:underline dark:text-neutral-100"
-                      >
-                        {displayName}
-                      </Link>
-                      {review && review.count > 0 ? (
-                        <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                          Оценка {review.avg != null ? review.avg.toFixed(1) : "—"} · {ruReviewsPhrase(review.count)}
-                        </p>
-                      ) : (
-                        <p className="text-xs text-neutral-500 dark:text-neutral-400">Отзывов пока нет</p>
-                      )}
-                      {p.city ? <p className="text-xs text-neutral-500">{p.city}</p> : null}
-                      {p.bio ? <p className="line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">{p.bio}</p> : null}
-                    </div>
-                  </div>
-
-                  {portfolioPreview ? (
-                    <div className="mt-4">
-                      {portfolioPreview.imageUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={portfolioPreview.imageUrl}
-                          alt={
-                            portfolioPreview.title
-                              ? `Работа «${portfolioPreview.title}», ${displayName}`
-                              : `Пример работы, ${displayName}`
-                          }
-                          className="h-24 w-full rounded-md border border-neutral-100 object-cover dark:border-neutral-900"
-                        />
-                      ) : null}
-                      <p className="mt-2 text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                        {portfolioPreview.title}
-                      </p>
-                      {portfolioPreview.description ? (
-                        <p className="mt-1 line-clamp-2 text-sm text-neutral-600 dark:text-neutral-400">
-                          {portfolioPreview.description}
-                        </p>
-                      ) : null}
-                    </div>
-                  ) : null}
-
-                  <div className="mt-4">
+                return (
+                  <li key={u.id}>
                     <Link
-                      href={`/u/${p.username}`}
-                      className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+                      href={`/u/${username}`}
+                      className="group block overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm transition-[box-shadow,transform] hover:shadow-md active:scale-[0.99] dark:border-neutral-800 dark:bg-neutral-950"
+                      aria-label={`Галерея @${username}`}
                     >
-                      Смотреть галерею →
+                      <div className="aspect-square w-full overflow-hidden bg-neutral-100 dark:bg-neutral-900">
+                        <GalleryMosaic items={u.portfolioItems} />
+                      </div>
+                      <p className="border-t border-neutral-100 px-2 py-2.5 text-center font-mono text-sm font-medium text-neutral-900 dark:border-neutral-800 dark:text-neutral-100">
+                        @{username}
+                      </p>
                     </Link>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </section>
 
         {totalPages > 1 ? (

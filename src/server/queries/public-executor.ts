@@ -30,6 +30,17 @@ const executorProfileCatalogBase: Prisma.ExecutorProfileWhereInput = {
   username: { not: null },
 };
 
+/** Публичный сайт (каталог, /u/…) показывает только работы после одобрения модератором. */
+export function wherePublicPortfolioItems(options?: {
+  /** Для сетки каталога — только карточки с фото */
+  requireImage?: boolean;
+}): Prisma.PortfolioItemWhereInput {
+  return {
+    moderationStatus: PortfolioItemModerationStatus.APPROVED,
+    ...(options?.requireImage ? { imageUrl: { not: null } } : {}),
+  };
+}
+
 function buildPublicExecutorWhere(filters: PublicExecutorListFilters = {}): Prisma.UserWhereInput {
   const q = filters.q?.trim();
   const city = filters.city?.trim();
@@ -81,7 +92,7 @@ export async function getPublicExecutorByUsername(usernameRaw: string) {
     include: {
       executorProfile: true,
       portfolioItems: {
-        where: { moderationStatus: PortfolioItemModerationStatus.APPROVED },
+        where: wherePublicPortfolioItems(),
         orderBy: { updatedAt: "desc" },
       },
     },
@@ -141,28 +152,15 @@ export async function listPublicExecutors({
       executorProfile: {
         select: {
           username: true,
-          displayName: true,
-          avatarUrl: true,
-          city: true,
-          bio: true,
-        },
-      },
-      _count: {
-        select: {
-          portfolioItems: {
-            where: { moderationStatus: PortfolioItemModerationStatus.APPROVED },
-          },
         },
       },
       portfolioItems: {
-        where: { moderationStatus: PortfolioItemModerationStatus.APPROVED },
-        take: 2,
+        where: wherePublicPortfolioItems({ requireImage: true }),
+        take: 4,
         orderBy: { updatedAt: "desc" },
         select: {
-          title: true,
-          description: true,
+          id: true,
           imageUrl: true,
-          linkUrl: true,
         },
       },
     },
