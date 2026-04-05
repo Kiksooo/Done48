@@ -10,6 +10,7 @@ import {
   PASSWORD_RESET_DELIVERY_HINT,
   PASSWORD_RESET_MAIL_DISABLED_WARNING,
   PASSWORD_RESET_REQUEST_SUCCESS,
+  PASSWORD_RESET_SEND_FAILED_WARNING,
 } from "@/schemas/auth";
 import { requestPasswordResetAction } from "@/server/actions/password-reset";
 
@@ -17,6 +18,7 @@ export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
   const [mailDisabled, setMailDisabled] = useState(false);
+  const [sendFailed, setSendFailed] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -34,6 +36,10 @@ export function ForgotPasswordForm() {
               <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/35 dark:text-amber-100">
                 {PASSWORD_RESET_MAIL_DISABLED_WARNING}
               </p>
+            ) : sendFailed ? (
+              <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/35 dark:text-amber-100">
+                {PASSWORD_RESET_SEND_FAILED_WARNING}
+              </p>
             ) : (
               <p className="text-sm text-muted-foreground">{PASSWORD_RESET_DELIVERY_HINT}</p>
             )}
@@ -46,6 +52,7 @@ export function ForgotPasswordForm() {
             setErr(null);
             setMsg(null);
             setMailDisabled(false);
+            setSendFailed(false);
             startTransition(async () => {
               const r = await requestPasswordResetAction({ email });
               if (!r.ok) {
@@ -53,6 +60,7 @@ export function ForgotPasswordForm() {
                 return;
               }
               setMailDisabled(!r.emailDeliveryEnabled);
+              setSendFailed(r.sendFailedForKnownUser === true);
               setMsg(PASSWORD_RESET_REQUEST_SUCCESS);
             });
           }}

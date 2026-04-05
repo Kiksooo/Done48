@@ -7,19 +7,14 @@ import { CabinetEmptyState } from "@/components/cabinet/dashboard-ui";
 import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
 import { Button } from "@/components/ui/button";
-import { formatDateTime } from "@/lib/format";
+import { formatDateTime, formatMoneyFromCents } from "@/lib/format";
 import { listMyExecutorOrders } from "@/server/queries/orders";
-import { OrderBudgetTableCell } from "@/components/orders/order-budget-display";
-import { getPlatformFeePercent } from "@/server/finance/split";
 
 export default async function ExecutorOrdersPage() {
   const user = await getSessionUserForAction();
   if (!user || user.role !== Role.EXECUTOR) redirect("/login");
 
-  const [rows, platformFeePercent] = await Promise.all([
-    listMyExecutorOrders(user.id),
-    getPlatformFeePercent(),
-  ]);
+  const rows = await listMyExecutorOrders(user.id);
 
   return (
     <div className="space-y-6">
@@ -37,7 +32,7 @@ export default async function ExecutorOrdersPage() {
           <thead className="border-b border-border bg-muted/40">
             <tr>
               <th className="px-3 py-2 font-medium">Заказ</th>
-              <th className="px-3 py-2 font-medium">Сумма заказа</th>
+              <th className="px-3 py-2 font-medium">Бюджет</th>
               <th className="px-3 py-2 font-medium">Статус</th>
               <th className="px-3 py-2 font-medium">Дедлайн</th>
             </tr>
@@ -57,13 +52,7 @@ export default async function ExecutorOrdersPage() {
                     ) : null}
                   </div>
                 </td>
-                <td className="px-3 py-2">
-                  <OrderBudgetTableCell
-                    budgetCents={o.budgetCents}
-                    currency={o.currency}
-                    feePercent={platformFeePercent}
-                  />
-                </td>
+                <td className="px-3 py-2">{formatMoneyFromCents(o.budgetCents, o.currency)}</td>
                 <td className="px-3 py-2">
                   <OrderStatusBadge status={o.status} />
                 </td>

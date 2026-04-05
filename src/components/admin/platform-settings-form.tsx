@@ -108,10 +108,7 @@ export function PlatformSettingsForm({
             onChange={(e) => setFee(e.target.value)}
             disabled={pending}
           />
-          <p className="text-xs text-neutral-500">
-            Считается от суммы к резерву; в интерфейсе основная «сумма заказа» — за вычетом этой комиссии (к
-            исполнителю).
-          </p>
+          <p className="text-xs text-neutral-500">Удерживается из бюджета заказа при принятии работы заказчиком.</p>
         </div>
         <div className="space-y-2">
           <Label htmlFor="minp">Минимальная сумма выплаты, ₽</Label>

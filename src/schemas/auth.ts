@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { SITE_EMAIL_INFO } from "@/lib/site-contact";
 
 export const loginSchema = z.object({
   email: z.string().trim().email("Некорректный email"),
@@ -33,9 +34,12 @@ export const PASSWORD_RESET_REQUEST_SUCCESS =
 export const PASSWORD_RESET_DELIVERY_HINT =
   "Обычно письмо приходит за 1–3 минуты. Проверьте папку «Спам» и промоакции. Адрес в письме должен совпадать с тем, что вы ввели.";
 
-/** Когда на сервере не задан RESEND_API_KEY — письмо физически не уйдёт. */
+/** Не задан транспорт почты (SMTP_HOST или RESEND_API_KEY) или в продакшене нет EMAIL_FROM. */
 export const PASSWORD_RESET_MAIL_DISABLED_WARNING =
-  "Отправка писем с сайта сейчас не настроена (нет ключа Resend на сервере). Ссылка для сброса не может быть доставлена по email — обратитесь в поддержку или к администратору площадки.";
+  "Отправка писем с сайта сейчас не настроена: задайте SMTP (SMTP_HOST и при необходимости логин/пароль) или RESEND_API_KEY; в продакшене обязателен EMAIL_FROM. Ссылка для сброса по email недоступна — обратитесь в поддержку или к администратору площадки.";
+
+/** Ошибка SMTP/API или сеть — письмо не отправлено (аккаунт при этом мог существовать). */
+export const PASSWORD_RESET_SEND_FAILED_WARNING = `Отправить письмо сейчас не удалось (ошибка почтового сервиса или сети). Попробуйте через несколько минут. Если не поможет — напишите на ${SITE_EMAIL_INFO}, указав email, на который запрашивали сброс.`;
 
 export const forgotPasswordSchema = z.object({
   email: z.string().trim().email("Некорректный email"),

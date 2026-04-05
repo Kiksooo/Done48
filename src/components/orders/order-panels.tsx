@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { formatMoneyFromCents } from "@/lib/format";
-import { splitOrderBudget } from "@/lib/order-budget-math";
 import { PAYMENT_STATUS_LABELS } from "@/lib/order-labels";
 import { customerReserveOrderAction } from "@/server/actions/finance/customer-finance";
 import {
@@ -133,7 +132,6 @@ export function OrderPanels(props: {
     paymentStatus: PaymentStatus;
     budgetCents: number;
     currency: string;
-    platformFeePercent: number;
     canOpenDispute: boolean;
     hasActiveDispute: boolean;
   };
@@ -165,11 +163,6 @@ export function OrderPanels(props: {
   const [offerDays, setOfferDays] = useState<number | "">("");
   const [offerMsg, setOfferMsg] = useState("");
   const [disputeReason, setDisputeReason] = useState("");
-
-  const { feeCents, executorCents } = splitOrderBudget(
-    snapshot.budgetCents,
-    snapshot.platformFeePercent,
-  );
 
   return (
     <div className="space-y-6">
@@ -400,18 +393,15 @@ export function OrderPanels(props: {
           <OrderCustomerPartnersManage orderId={orderId} partners={snapshot.customerPartnersListed} />
           <h2 className="text-sm font-semibold">Действия заказчика</h2>
           <p className="mt-2 text-xs text-neutral-500">
-            {PAYMENT_STATUS_LABELS[snapshot.paymentStatus]} · исполнителю{" "}
-            {formatMoneyFromCents(executorCents, snapshot.currency)} (комиссия {snapshot.platformFeePercent}%:{" "}
-            {formatMoneyFromCents(feeCents, snapshot.currency)}), к резерву с баланса{" "}
+            {PAYMENT_STATUS_LABELS[snapshot.paymentStatus]} · бюджет{" "}
             {formatMoneyFromCents(snapshot.budgetCents, snapshot.currency)}
           </p>
           {snapshot.paymentStatus === "UNPAID" &&
           !["CANCELED", "COMPLETED", "DRAFT"].includes(snapshot.status) ? (
             <div className="mt-3 rounded-md border border-dashed border-amber-300/80 bg-amber-50/50 p-3 dark:border-amber-800 dark:bg-amber-950/20">
               <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
-                С баланса резервируется полная сумма к резерву (включая комиссию). Исполнителю после приёмки уйдёт{" "}
-                {formatMoneyFromCents(executorCents, snapshot.currency)}. Пока исполнитель не назначен, при отмене
-                заказа резерв снова доступен на балансе.
+                Сумма заказа резервируется с вашего баланса под этот заказ: исполнитель не получит её до вашей приёмки
+                результата. Пока исполнитель не назначен, при отмене заказа резерв снова доступен на балансе.
               </p>
               <Button
                 type="button"

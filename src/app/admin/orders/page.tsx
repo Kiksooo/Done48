@@ -1,10 +1,8 @@
 import type { OrderStatus } from "@prisma/client";
 import Link from "next/link";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
-import { formatDateTime } from "@/lib/format";
+import { formatDateTime, formatMoneyFromCents } from "@/lib/format";
 import { listOrdersForAdmin } from "@/server/queries/orders";
-import { OrderBudgetTableCell } from "@/components/orders/order-budget-display";
-import { getPlatformFeePercent } from "@/server/finance/split";
 
 const STATUSES: Array<OrderStatus | "ALL"> = [
   "ALL",
@@ -28,10 +26,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
   const filter =
     st && STATUSES.includes(st as OrderStatus | "ALL") ? (st as OrderStatus | "ALL") : "ALL";
 
-  const [rows, platformFeePercent] = await Promise.all([
-    listOrdersForAdmin({ status: filter }),
-    getPlatformFeePercent(),
-  ]);
+  const rows = await listOrdersForAdmin({ status: filter });
 
   return (
     <div className="space-y-6">
@@ -64,7 +59,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
               <th className="px-3 py-2 font-medium">Название</th>
               <th className="px-3 py-2 font-medium">Заказчик</th>
               <th className="px-3 py-2 font-medium">Исполнитель</th>
-              <th className="px-3 py-2 font-medium">Сумма заказа</th>
+              <th className="px-3 py-2 font-medium">Бюджет</th>
               <th className="px-3 py-2 font-medium">Статус</th>
               <th className="px-3 py-2 font-medium">Обновлён</th>
             </tr>
@@ -86,13 +81,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
                 <td className="px-3 py-2 text-neutral-600 dark:text-neutral-400">
                   {o.executor?.email ?? "—"}
                 </td>
-                <td className="px-3 py-2">
-                  <OrderBudgetTableCell
-                    budgetCents={o.budgetCents}
-                    currency={o.currency}
-                    feePercent={platformFeePercent}
-                  />
-                </td>
+                <td className="px-3 py-2">{formatMoneyFromCents(o.budgetCents, o.currency)}</td>
                 <td className="px-3 py-2">
                   <OrderStatusBadge status={o.status} />
                 </td>

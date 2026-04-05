@@ -14,10 +14,23 @@ export type PasswordResetResult = { ok: true } | { ok: false; error: string };
 /** Результат запроса ссылки сброса (флаг почты из env — без утечки «есть ли аккаунт»). */
 export type RequestPasswordResetResult =
   | { ok: false; error: string }
-  | { ok: true; emailDeliveryEnabled: boolean };
+  | {
+      ok: true;
+      /** Настроен SMTP или Resend (и в продакшене задан EMAIL_FROM). */
+      emailDeliveryEnabled: boolean;
+      /**
+       * Пользователь найден, но письмо не ушло (ошибка SMTP/API / сеть).
+       * Показываем отдельное предупреждение (теоретически даёт намёк на существование аккаунта только при сбое доставки).
+       */
+      sendFailedForKnownUser?: boolean;
+    };
 
 export async function requestPasswordResetAction(raw: unknown): Promise<RequestPasswordResetResult> {
-  const emailDeliveryEnabled = Boolean(process.env.RESEND_API_KEY?.trim());
+  const hasMailTransport =
+    Boolean(process.env.SMTP_HOST?.trim()) || Boolean(process.env.RESEND_API_KEY?.trim());
+  const hasEmailFrom = Boolean(process.env.EMAIL_FROM?.trim());
+  const emailDeliveryEnabled =
+    hasMailTransport && (process.env.NODE_ENV !== "production" || hasEmailFrom);
 
   const parsed = forgotPasswordSchema.safeParse(raw);
   if (!parsed.success) {
@@ -44,12 +57,21 @@ export async function requestPasswordResetAction(raw: unknown): Promise<RequestP
   const sendResult = await sendPasswordResetEmail(user.email, resetUrl);
   if (!sendResult.sent) {
     const hint =
-      sendResult.reason === "NO_API_KEY"
-        ? "нет RESEND_API_KEY"
-        : sendResult.reason === "RESEND_HTTP"
-          ? `Resend: ${sendResult.detail ?? "ошибка API"}`
-          : "сеть/Resend";
-    console.error(`[password-reset] Письмо не ушло (${hint}). Проверьте RESEND_API_KEY, EMAIL_FROM и домен в Resend. NEXT_PUBLIC_SITE_URL / NEXTAUTH_URL влияют на ссылку в письме.`);
+      sendResult.reason === "NOT_CONFIGURED"
+        ? "нет SMTP_HOST и RESEND_API_KEY"
+        : sendResult.reason === "MISSING_EMAIL_FROM"
+          ? "нет EMAIL_FROM в production"
+          : sendResult.reason === "PROVIDER_ERROR"
+            ? (sendResult.detail ?? "ошибка провайдера почты")
+            : "сеть";
+    console.error(
+      `[password-reset] Письмо не ушло (${hint}). Проверьте SMTP_* или RESEND_API_KEY, EMAIL_FROM, SPF/DKIM. NEXT_PUBLIC_SITE_URL / NEXTAUTH_URL влияют на ссылку в письме.`,
+    );
+    return {
+      ok: true,
+      emailDeliveryEnabled,
+      sendFailedForKnownUser: true,
+    };
   }
 
   return { ok: true, emailDeliveryEnabled };

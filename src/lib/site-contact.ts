@@ -1,2 +1,2 @@
-/** Контактная почта и значение по умолчанию для поля «От кого» (Resend), если не задано EMAIL_FROM. */
+/** Контактная почта и запасной From в dev, если не задан EMAIL_FROM. */
 export const SITE_EMAIL_INFO = "info@done48.com";

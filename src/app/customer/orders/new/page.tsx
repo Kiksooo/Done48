@@ -1,13 +1,11 @@
 import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
 import { getAntifraudPlatformSettings } from "@/lib/platform-antifraud";
 import { listCategoriesWithSubcategories } from "@/server/queries/categories";
-import { getPlatformFeePercent } from "@/server/finance/split";
 import { OrderCreateForm, type CategoryOption } from "./order-create-form";
 
 export default async function CustomerNewOrderPage() {
-  const [af, platformFeePercent, raw] = await Promise.all([
+  const [af, raw] = await Promise.all([
     getAntifraudPlatformSettings(),
-    getPlatformFeePercent(),
     listCategoriesWithSubcategories(),
   ]);
   const categories: CategoryOption[] = raw.map((c) => ({
@@ -27,11 +25,7 @@ export default async function CustomerNewOrderPage() {
         title="Создать заказ"
         description="Заполните поля — после публикации заказ увидят исполнители (при необходимости пройдёт модерацию)."
       />
-      <OrderCreateForm
-        categories={categories}
-        moderateAllNewOrders={af.moderateAllNewOrders}
-        platformFeePercent={platformFeePercent}
-      />
+      <OrderCreateForm categories={categories} moderateAllNewOrders={af.moderateAllNewOrders} />
     </div>
   );
 }
