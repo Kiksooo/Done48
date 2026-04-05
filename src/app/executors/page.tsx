@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { PublicPageNav } from "@/components/public/public-page-nav";
+import { Button } from "@/components/ui/button";
 import { SITE_SEO_BRAND, SITE_SEO_TITLE_TEMPLATE } from "@/lib/site-seo";
+import { cn } from "@/lib/utils";
 import {
   countPublicExecutors,
   listPublicExecutorCities,
@@ -41,24 +44,31 @@ type Props = {
 
 type PortfolioThumb = { id: string; imageUrl: string | null };
 
+const fieldClass =
+  "h-11 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none transition-[border-color,box-shadow] placeholder:text-muted-foreground/70 focus:border-primary/40 focus:ring-2 focus:ring-ring/30";
+
 function GalleryMosaic({ items }: { items: PortfolioThumb[] }) {
   const withUrl = items.filter((i): i is { id: string; imageUrl: string } => Boolean(i.imageUrl));
   if (withUrl.length === 0) {
     return (
-      <div className="flex h-full items-center justify-center bg-neutral-100 px-2 text-center text-xs leading-snug text-neutral-500 dark:bg-neutral-900">
-        Нет фото в галерее
+      <div className="flex h-full flex-col items-center justify-center gap-2 bg-gradient-to-b from-muted/50 to-muted/20 px-3 text-center">
+        <span className="text-3xl opacity-70" aria-hidden>
+          🖼
+        </span>
+        <p className="text-xs font-medium leading-snug text-muted-foreground">Пока нет одобренных фото</p>
+        <p className="text-[10px] leading-tight text-muted-foreground/80">после модерации появятся здесь</p>
       </div>
     );
   }
   if (withUrl.length === 1) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img src={withUrl[0].imageUrl} alt="" className="h-full w-full object-cover" />
+      <img src={withUrl[0].imageUrl} alt="" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
     );
   }
   if (withUrl.length === 2) {
     return (
-      <div className="grid h-full grid-cols-2 gap-px bg-neutral-200 dark:bg-neutral-800">
+      <div className="grid h-full grid-cols-2 gap-px bg-border">
         {withUrl.map((x) => (
           // eslint-disable-next-line @next/next/no-img-element
           <img key={x.id} src={x.imageUrl} alt="" className="h-full min-h-0 w-full object-cover" />
@@ -67,14 +77,12 @@ function GalleryMosaic({ items }: { items: PortfolioThumb[] }) {
     );
   }
   return (
-    <div className="grid h-full grid-cols-2 grid-rows-2 gap-px bg-neutral-200 dark:bg-neutral-800">
+    <div className="grid h-full grid-cols-2 grid-rows-2 gap-px bg-border">
       {withUrl.slice(0, 4).map((x) => (
         // eslint-disable-next-line @next/next/no-img-element
         <img key={x.id} src={x.imageUrl} alt="" className="h-full min-h-0 w-full object-cover" />
       ))}
-      {withUrl.length === 3 ? (
-        <span className="min-h-0 bg-neutral-100 dark:bg-neutral-950" aria-hidden />
-      ) : null}
+      {withUrl.length === 3 ? <span className="min-h-0 bg-muted/40" aria-hidden /> : null}
     </div>
   );
 }
@@ -117,86 +125,113 @@ export default async function ExecutorsPage({ searchParams }: Props) {
   const cityValue = listFilters.city?.trim() ?? "";
 
   return (
-    <div className="min-h-screen bg-neutral-50 px-4 py-10 dark:bg-neutral-950 sm:px-6">
-      <div className="mx-auto max-w-5xl space-y-8">
-        <header className="space-y-3 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-          <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
-            Исполнители
-          </h1>
-          <p className="text-sm text-neutral-600 dark:text-neutral-400">
-            В сетке — только фото, которые прошли модерацию, и <span className="font-medium">@ник</span> в системе. Пока
-            работа не одобрена в разделе «Модерация», она не появляется здесь и на публичной странице исполнителя.
-            Профили с жалобами <span className="font-medium">OPEN</span> / <span className="font-medium">IN_REVIEW</span>{" "}
-            скрыты.
-          </p>
+    <div className="min-h-screen bg-background px-4 py-10 sm:px-6 sm:py-12">
+      <div className="mx-auto max-w-5xl space-y-10 pb-16">
+        <PublicPageNav />
 
-          <form
-            method="get"
-            className="flex flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap sm:items-end"
-            action="/executors"
-            role="search"
-            aria-label="Поиск исполнителей"
+        <header className="space-y-5">
+          <div>
+            <h1 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+              Исполнители
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+              Листайте галерею и открывайте профиль по нику. Мы показываем только работы, которые уже проверила
+              модерация.
+            </p>
+          </div>
+
+          <div
+            className="rounded-2xl border border-primary/15 bg-primary/[0.06] px-4 py-3 dark:bg-primary/[0.09]"
+            role="note"
           >
-            <label className="block min-w-0 flex-1 sm:max-w-md">
-              <span className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-400">Поиск</span>
-              <input
-                type="search"
-                name="q"
-                defaultValue={qValue}
-                placeholder="@ник, имя, город…"
-                className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none ring-primary/30 focus:ring-2 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
-              />
-            </label>
-            <label className="block w-full sm:w-52">
-              <span className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-400">Город</span>
-              <select
-                name="city"
-                defaultValue={cityValue}
-                className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none ring-primary/30 focus:ring-2 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
-              >
-                <option value="">Все</option>
-                {cities.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
-              >
-                Найти
-              </button>
-              {qValue || cityValue ? (
-                <Link
-                  href="/executors"
-                  className="rounded-md border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-200 dark:hover:bg-neutral-800"
-                >
-                  Сбросить
-                </Link>
-              ) : null}
-            </div>
-          </form>
+            <p className="text-sm leading-relaxed text-foreground/90">
+              <span className="font-medium text-foreground">Как это устроено:</span> пока работа на проверке, её не
+              видно ни здесь, ни в профиле. Исполнители с открытой жалобой временно скрыты из каталога — так спокойнее
+              всем.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-elevated sm:p-6">
+            <form
+              method="get"
+              className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end"
+              action="/executors"
+              role="search"
+              aria-label="Поиск исполнителей"
+            >
+              <label className="block min-w-0 flex-1 sm:max-w-md">
+                <span className="mb-1.5 block text-sm font-medium text-foreground">Поиск</span>
+                <input
+                  type="search"
+                  name="q"
+                  defaultValue={qValue}
+                  placeholder="@ник, имя или город"
+                  className={fieldClass}
+                />
+              </label>
+              <label className="block w-full sm:w-56">
+                <span className="mb-1.5 block text-sm font-medium text-foreground">Город</span>
+                <select name="city" defaultValue={cityValue} className={cn(fieldClass, "cursor-pointer")}>
+                  <option value="">Все города</option>
+                  {cities.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <div className="flex flex-wrap gap-2 sm:pb-0.5">
+                <Button type="submit" size="lg" className="min-w-[7rem] rounded-xl">
+                  Найти
+                </Button>
+                {qValue || cityValue ? (
+                  <Button variant="outline" size="lg" className="rounded-xl" asChild>
+                    <Link href="/executors">Сбросить</Link>
+                  </Button>
+                ) : null}
+              </div>
+            </form>
+          </div>
 
           {total > 0 ? (
-            <p className="text-xs text-neutral-500">
-              Показано {executorsPaged.length} из {total}
-              {totalPages > 1 ? ` · страница ${page} из ${totalPages}` : null}
+            <p className="text-sm text-muted-foreground">
+              Показано <span className="font-medium text-foreground">{executorsPaged.length}</span> из{" "}
+              <span className="font-medium text-foreground">{total}</span>
+              {totalPages > 1 ? (
+                <>
+                  {" "}
+                  · страница{" "}
+                  <span className="font-medium text-foreground">
+                    {page} из {totalPages}
+                  </span>
+                </>
+              ) : null}
             </p>
           ) : null}
         </header>
 
-        <section id="gallery" aria-label="Галерея работ" className="scroll-mt-24 space-y-4">
+        <section id="gallery" aria-label="Галерея работ" className="scroll-mt-28 space-y-4">
           {executorsPaged.length === 0 ? (
-            <p className="text-sm text-neutral-600 dark:text-neutral-400">
-              {qValue || cityValue
-                ? "Никого не нашли — попробуйте другой запрос или сбросьте фильтры."
-                : "Пока нет активных исполнителей."}
-            </p>
+            <div className="rounded-2xl border border-dashed border-border bg-muted/30 px-6 py-12 text-center">
+              <p className="text-lg" aria-hidden>
+                🔍
+              </p>
+              <p className="mt-3 text-sm font-medium text-foreground">
+                {qValue || cityValue ? "Никого не нашли" : "Пока никого в каталоге"}
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {qValue || cityValue
+                  ? "Попробуйте другие слова или сбросьте фильтры."
+                  : "Загляните позже — список обновляется."}
+              </p>
+              {qValue || cityValue ? (
+                <Button variant="secondary" className="mt-6 rounded-xl" asChild>
+                  <Link href="/executors">Показать всех</Link>
+                </Button>
+              ) : null}
+            </div>
           ) : (
-            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
               {executorsPaged.map((u) => {
                 const username = u.executorProfile?.username;
                 if (!username) return null;
@@ -205,13 +240,19 @@ export default async function ExecutorsPage({ searchParams }: Props) {
                   <li key={u.id}>
                     <Link
                       href={`/u/${username}`}
-                      className="group block overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm transition-[box-shadow,transform] hover:shadow-md active:scale-[0.99] dark:border-neutral-800 dark:bg-neutral-950"
-                      aria-label={`Галерея @${username}`}
+                      className={cn(
+                        "group block overflow-hidden rounded-2xl border border-border bg-card shadow-sm",
+                        "transition-[box-shadow,transform,border-color] duration-200 ease-out",
+                        "hover:border-primary/25 hover:shadow-lg",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
+                        "active:scale-[0.99]",
+                      )}
+                      aria-label={`Открыть профиль @${username}`}
                     >
-                      <div className="aspect-square w-full overflow-hidden bg-neutral-100 dark:bg-neutral-900">
+                      <div className="aspect-square w-full overflow-hidden bg-muted">
                         <GalleryMosaic items={u.portfolioItems} />
                       </div>
-                      <p className="border-t border-neutral-100 px-2 py-2.5 text-center font-mono text-sm font-medium text-neutral-900 dark:border-neutral-800 dark:text-neutral-100">
+                      <p className="border-t border-border px-2 py-3 text-center font-mono text-sm font-semibold text-foreground">
                         @{username}
                       </p>
                     </Link>
@@ -224,28 +265,22 @@ export default async function ExecutorsPage({ searchParams }: Props) {
 
         {totalPages > 1 ? (
           <nav
-            className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
+            className="flex flex-wrap items-center justify-between gap-4 border-t border-border pt-8"
             aria-label="Страницы каталога"
           >
             {page > 1 ? (
-              <Link
-                href={buildExecutorsHref(page - 1, listFilters)}
-                className="text-sm font-medium text-primary underline-offset-4 hover:underline"
-              >
-                ← Назад
-              </Link>
+              <Button variant="outline" size="lg" className="rounded-xl" asChild>
+                <Link href={buildExecutorsHref(page - 1, listFilters)}>← Предыдущая</Link>
+              </Button>
             ) : (
-              <span className="text-sm text-neutral-400">← Назад</span>
+              <span className="min-h-11 inline-flex items-center text-sm text-muted-foreground">← Предыдущая</span>
             )}
             {page < totalPages ? (
-              <Link
-                href={buildExecutorsHref(page + 1, listFilters)}
-                className="text-sm font-medium text-primary underline-offset-4 hover:underline"
-              >
-                Вперёд →
-              </Link>
+              <Button variant="outline" size="lg" className="rounded-xl" asChild>
+                <Link href={buildExecutorsHref(page + 1, listFilters)}>Следующая →</Link>
+              </Button>
             ) : (
-              <span className="text-sm text-neutral-400">Вперёд →</span>
+              <span className="min-h-11 inline-flex items-center text-sm text-muted-foreground">Следующая →</span>
             )}
           </nav>
         ) : null}

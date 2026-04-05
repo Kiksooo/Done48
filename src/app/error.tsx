@@ -15,25 +15,28 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-4 py-16 text-center">
-      <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Не удалось загрузить страницу</h1>
-      <p className="max-w-md text-sm text-neutral-600 dark:text-neutral-400">
-        Попробуйте обновить вкладку. В браузере Яндекса иногда мешает режим «Турбо» или расширения — откройте сайт без Турбо или в другом браузере.
+    <div className="flex min-h-[50vh] flex-col items-center justify-center gap-5 px-4 py-16 text-center">
+      <p className="text-4xl" aria-hidden>
+        😕
+      </p>
+      <h1 className="text-balance text-xl font-bold text-foreground sm:text-2xl">Не удалось загрузить страницу</h1>
+      <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
+        Обновите вкладку. В Яндекс.Браузере отключите «Турбо» для сайта или откройте страницу в другом браузере.
       </p>
       {error.digest ? (
-        <p className="font-mono text-xs text-neutral-500">Код: {error.digest}</p>
+        <p className="font-mono text-xs text-muted-foreground">Код: {error.digest}</p>
       ) : null}
       <div className="flex flex-wrap justify-center gap-3">
         <button
           type="button"
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+          className="min-h-11 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-opacity hover:opacity-90"
           onClick={() => reset()}
         >
           Повторить
         </button>
         <Link
           href="/"
-          className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-200 dark:hover:bg-neutral-900"
+          className="inline-flex min-h-11 items-center rounded-xl border border-border bg-card px-6 py-2.5 text-sm font-semibold text-foreground shadow-sm transition-colors hover:bg-muted/60"
         >
           На главную
         </Link>

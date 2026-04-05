@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PublicPageNav, publicNavItemClassName } from "@/components/public/public-page-nav";
 import { ProfileReviewsSection } from "@/components/reviews/profile-reviews-section";
 import { ExecutorProfileJsonLd } from "@/components/seo/executor-profile-json-ld";
 import { toAbsoluteSiteUrl } from "@/lib/site-url";
@@ -62,7 +63,7 @@ export default async function PublicExecutorPortfolioPage({ params }: Props) {
   const slug = p.username ?? params.username;
 
   return (
-    <div className="min-h-screen bg-neutral-50 px-4 py-10 dark:bg-neutral-950 sm:px-6">
+    <div className="min-h-screen bg-background px-4 py-10 sm:px-6 sm:py-12">
       <ExecutorProfileJsonLd
         name={name}
         username={slug}
@@ -70,17 +71,16 @@ export default async function PublicExecutorPortfolioPage({ params }: Props) {
         imageUrl={p.avatarUrl}
       />
       <div className="mx-auto max-w-3xl space-y-8">
-        <header className="space-y-3 border-b border-neutral-200 pb-6 dark:border-neutral-800">
-          <p className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-neutral-500">
-            <Link href="/executors" className="underline hover:text-neutral-800 dark:hover:text-neutral-200">
+        <PublicPageNav
+          extra={
+            <Link href="/executors" className={publicNavItemClassName}>
               Все исполнители
             </Link>
-            <Link href="/login" className="underline hover:text-neutral-800 dark:hover:text-neutral-200">
-              Войти в DONE48
-            </Link>
-          </p>
+          }
+        />
+        <header className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-elevated">
           <div className="flex flex-wrap items-start gap-4">
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-neutral-200 bg-neutral-100 text-xl font-semibold text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300">
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border bg-muted text-xl font-semibold text-muted-foreground ring-2 ring-primary/10">
               {p.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -93,17 +93,21 @@ export default async function PublicExecutorPortfolioPage({ params }: Props) {
               )}
             </div>
             <div className="min-w-0 flex-1 space-y-2">
-              <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
+              <h1 className="text-balance text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                 {name}
               </h1>
             </div>
           </div>
           {p.username ? (
-            <p className="font-mono text-sm text-neutral-500">@{p.username}</p>
+            <p className="font-mono text-sm text-muted-foreground">@{p.username}</p>
           ) : null}
-          {p.city ? <p className="text-sm text-neutral-600 dark:text-neutral-400">{p.city}</p> : null}
+          {p.city ? (
+            <p className="inline-flex items-center gap-1.5 rounded-full bg-muted/80 px-3 py-1 text-sm text-muted-foreground">
+              {p.city}
+            </p>
+          ) : null}
           {p.bio ? (
-            <p className="whitespace-pre-wrap text-sm text-neutral-700 dark:text-neutral-300">{p.bio}</p>
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">{p.bio}</p>
           ) : null}
         </header>
 
@@ -114,42 +118,47 @@ export default async function PublicExecutorPortfolioPage({ params }: Props) {
           title="Отзывы заказчиков"
         />
 
-        <section>
-          <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Галерея работ</h2>
+        <section className="rounded-2xl border border-border bg-card/50 p-5 shadow-sm sm:p-6">
+          <h2 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">Галерея работ</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Показаны только работы, прошедшие модерацию площадки.
+          </p>
           {user.portfolioItems.length === 0 ? (
-            <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400">Пока нет опубликованных работ.</p>
+            <p className="mt-4 rounded-xl bg-muted/50 px-4 py-6 text-center text-sm text-muted-foreground">
+              Пока нет опубликованных работ — загляните позже.
+            </p>
           ) : (
-            <ul className="mt-4 space-y-6">
+            <ul className="mt-5 space-y-5">
               {user.portfolioItems.map((item) => (
                 <li
                   key={item.id}
-                  className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
+                  className="overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5"
                 >
-                  <h3 className="font-medium text-neutral-900 dark:text-neutral-100">{item.title}</h3>
+                  <h3 className="font-semibold text-foreground">{item.title}</h3>
                   {item.description ? (
-                    <p className="mt-2 whitespace-pre-wrap text-sm text-neutral-600 dark:text-neutral-400">
+                    <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
                       {item.description}
                     </p>
                   ) : null}
                   {item.imageUrl ? (
-                    <div className="mt-3 overflow-hidden rounded-md border border-neutral-100 dark:border-neutral-900">
+                    <div className="mt-4 overflow-hidden rounded-xl border border-border/80 bg-muted/30">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={item.imageUrl}
                         alt={
                           item.title ? `Работа «${item.title}», ${name}` : `Пример работы из портфолио, ${name}`
                         }
-                        className="max-h-64 w-full object-cover"
+                        className="max-h-72 w-full object-cover sm:max-h-80"
                       />
                     </div>
                   ) : null}
                   {item.linkUrl ? (
-                    <p className="mt-3">
+                    <p className="mt-4">
                       <a
                         href={item.linkUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-neutral-700 underline dark:text-neutral-300"
+                        className="inline-flex min-h-10 items-center rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/15"
                       >
                         Открыть работу →
                       </a>

@@ -116,7 +116,7 @@ export function LandingHeader() {
           </Link>
 
           <nav
-            className="hidden items-center gap-0.5 rounded-full border border-border/40 bg-card/70 px-1 py-1 shadow-sm backdrop-blur-md md:flex"
+            className="hidden items-center gap-0.5 rounded-full border border-border/50 bg-card/80 px-1 py-1 shadow-sm backdrop-blur-md md:flex"
             aria-label="По странице"
           >
             {landingNavLinks.map((l) =>
@@ -125,7 +125,7 @@ export function LandingHeader() {
                   key={l.href}
                   href={l.href}
                   title={l.hint}
-                  className="rounded-full px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground"
+                  className="rounded-full px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors duration-200 ease-out hover:bg-primary/12 hover:text-foreground"
                 >
                   {l.label}
                 </Link>
@@ -134,7 +134,7 @@ export function LandingHeader() {
                   key={l.href}
                   href={l.href}
                   title={l.hint}
-                  className="rounded-full px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground"
+                  className="rounded-full px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors duration-200 ease-out hover:bg-primary/12 hover:text-foreground"
                 >
                   {l.label}
                 </a>
@@ -143,10 +143,10 @@ export function LandingHeader() {
           </nav>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
-            <Button variant="ghost" size="sm" asChild className="hidden rounded-full sm:inline-flex">
+            <Button variant="ghost" size="sm" asChild className="hidden rounded-full sm:inline-flex sm:h-10">
               <Link href="/login">Войти</Link>
             </Button>
-            <Button size="sm" className="rounded-full px-4 shadow-md shadow-primary/20 sm:px-5" asChild>
+            <Button size="sm" className="rounded-full px-5 shadow-md shadow-primary/20 sm:h-10 sm:px-6" asChild>
               <Link href="/register">Начать бесплатно</Link>
             </Button>
             <Button
