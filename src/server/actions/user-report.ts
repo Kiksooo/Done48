@@ -2,6 +2,7 @@
 
 import { NotificationKind, ProposalStatus, Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { isPrismaTableDoesNotExist } from "@/lib/prisma-errors";
 import { prisma } from "@/lib/db";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { submitUserReportSchema } from "@/schemas/trust";
@@ -36,12 +37,21 @@ export async function submitUserReportAction(raw: unknown): Promise<ActionResult
   });
   if (!order) return { ok: false, error: "Заказ не найден" };
 
+  let isPartnerRow = false;
+  if (user.role === Role.CUSTOMER && user.id !== order.customerId) {
+    try {
+      isPartnerRow = Boolean(
+        await prisma.orderCustomerPartner.findUnique({
+          where: { orderId_userId: { orderId: order.id, userId: user.id } },
+        }),
+      );
+    } catch (e) {
+      if (!isPrismaTableDoesNotExist(e)) throw e;
+      isPartnerRow = false;
+    }
+  }
   const isCustomerSide =
-    user.role === Role.CUSTOMER &&
-    (user.id === order.customerId ||
-      (await prisma.orderCustomerPartner.findUnique({
-        where: { orderId_userId: { orderId: order.id, userId: user.id } },
-      })));
+    user.role === Role.CUSTOMER && (user.id === order.customerId || isPartnerRow);
 
   let targetUserId: string | null = null;
   if (isCustomerSide) {

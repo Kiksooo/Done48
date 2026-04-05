@@ -1,4 +1,5 @@
 import type { OrderStatus, Prisma } from "@prisma/client";
+import { isPrismaTableDoesNotExist } from "@/lib/prisma-errors";
 import { prisma } from "@/lib/db";
 
 /** Заказы, где пользователь основной заказчик или соучастник. */
@@ -45,11 +46,23 @@ export async function listOrdersForCustomer(
     ...ordersVisibleToCustomerWhere(customerId),
     ...(statusIn ? { status: { in: statusIn } } : {}),
   };
-  return prisma.order.findMany({
-    where,
-    include: orderListInclude,
-    orderBy: { updatedAt: "desc" },
-  });
+  try {
+    return await prisma.order.findMany({
+      where,
+      include: orderListInclude,
+      orderBy: { updatedAt: "desc" },
+    });
+  } catch (e) {
+    if (!isPrismaTableDoesNotExist(e)) throw e;
+    return prisma.order.findMany({
+      where: {
+        customerId,
+        ...(statusIn ? { status: { in: statusIn } } : {}),
+      },
+      include: orderListInclude,
+      orderBy: { updatedAt: "desc" },
+    });
+  }
 }
 
 export type CustomerOrderFilter =
@@ -148,19 +161,26 @@ export async function listAvailableOrdersForExecutor(executorUserId: string) {
   });
 }
 
-export async function getOrderDetailForPage(orderId: string) {
-  return prisma.order.findUnique({
-    where: { id: orderId },
+const orderDetailIncludeBase = {
+  category: true,
+  subcategory: true,
+  customer: {
+    select: {
+      id: true,
+      email: true,
+      customerProfile: { select: { city: true, displayName: true } },
+    },
+  },
+  executor: {
+    select: {
+      id: true,
+      email: true,
+      executorProfile: { select: { displayName: true, username: true } },
+    },
+  },
+  statusHistory: { orderBy: { createdAt: "asc" as const } },
+  proposals: {
     include: {
-      category: true,
-      subcategory: true,
-      customer: {
-        select: {
-          id: true,
-          email: true,
-          customerProfile: { select: { city: true, displayName: true } },
-        },
-      },
       executor: {
         select: {
           id: true,
@@ -168,33 +188,43 @@ export async function getOrderDetailForPage(orderId: string) {
           executorProfile: { select: { displayName: true, username: true } },
         },
       },
-      customerPartners: {
-        include: {
-          user: {
-            select: {
-              id: true,
-              email: true,
-              customerProfile: { select: { displayName: true } },
-            },
-          },
-        },
-        orderBy: { createdAt: "asc" },
-      },
-      statusHistory: { orderBy: { createdAt: "asc" } },
-      proposals: {
-        include: {
-          executor: {
-            select: {
-              id: true,
-              email: true,
-              executorProfile: { select: { displayName: true, username: true } },
-            },
-          },
-        },
-        orderBy: { createdAt: "desc" },
-      },
     },
-  });
+    orderBy: { createdAt: "desc" as const },
+  },
+} satisfies Prisma.OrderInclude;
+
+export async function getOrderDetailForPage(orderId: string) {
+  const includeWithPartners = {
+    ...orderDetailIncludeBase,
+    customerPartners: {
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            customerProfile: { select: { displayName: true } },
+          },
+        },
+      },
+      orderBy: { createdAt: "asc" as const },
+    },
+  } satisfies Prisma.OrderInclude;
+
+  try {
+    const row = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: includeWithPartners,
+    });
+    return row;
+  } catch (e) {
+    if (!isPrismaTableDoesNotExist(e)) throw e;
+    const row = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: orderDetailIncludeBase,
+    });
+    if (!row) return null;
+    return { ...row, customerPartners: [] };
+  }
 }
 
 export async function listExecutorsForSelect() {
@@ -211,18 +241,34 @@ export async function listExecutorsForSelect() {
 
 export async function countCustomerOrdersByBucket(customerId: string) {
   const base = ordersVisibleToCustomerWhere(customerId);
-  const [active, waiting, review] = await Promise.all([
-    prisma.order.count({
-      where: { ...base, status: { in: ["ASSIGNED", "IN_PROGRESS", "REVISION"] } },
-    }),
-    prisma.order.count({
-      where: { ...base, status: { in: ["NEW", "ON_MODERATION", "PUBLISHED"] } },
-    }),
-    prisma.order.count({
-      where: { ...base, status: "SUBMITTED" },
-    }),
-  ]);
-  return { active, waiting, review };
+  try {
+    const [active, waiting, review] = await Promise.all([
+      prisma.order.count({
+        where: { ...base, status: { in: ["ASSIGNED", "IN_PROGRESS", "REVISION"] } },
+      }),
+      prisma.order.count({
+        where: { ...base, status: { in: ["NEW", "ON_MODERATION", "PUBLISHED"] } },
+      }),
+      prisma.order.count({
+        where: { ...base, status: "SUBMITTED" },
+      }),
+    ]);
+    return { active, waiting, review };
+  } catch (e) {
+    if (!isPrismaTableDoesNotExist(e)) throw e;
+    const [active, waiting, review] = await Promise.all([
+      prisma.order.count({
+        where: { customerId, status: { in: ["ASSIGNED", "IN_PROGRESS", "REVISION"] } },
+      }),
+      prisma.order.count({
+        where: { customerId, status: { in: ["NEW", "ON_MODERATION", "PUBLISHED"] } },
+      }),
+      prisma.order.count({
+        where: { customerId, status: "SUBMITTED" },
+      }),
+    ]);
+    return { active, waiting, review };
+  }
 }
 
 export async function countAdminOverview() {

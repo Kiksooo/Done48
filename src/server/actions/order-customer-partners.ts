@@ -4,6 +4,7 @@ import { Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getSessionUserForAction } from "@/lib/rbac";
+import { isPrismaTableDoesNotExist } from "@/lib/prisma-errors";
 import {
   addOrderCustomerPartnerSchema,
   removeOrderCustomerPartnerSchema,
@@ -52,7 +53,13 @@ export async function addOrderCustomerPartnerAction(raw: unknown): Promise<Actio
         userId: partner.id,
       },
     });
-  } catch {
+  } catch (e) {
+    if (isPrismaTableDoesNotExist(e)) {
+      return {
+        ok: false,
+        error: "Функция соучастников недоступна: выполните миграции БД на сервере (prisma migrate deploy).",
+      };
+    }
     return { ok: false, error: "Этот пользователь уже добавлен к заказу" };
   }
 
@@ -86,12 +93,23 @@ export async function removeOrderCustomerPartnerAction(raw: unknown): Promise<Ac
     return { ok: false, error: "Только основной заказчик может убирать соучастников" };
   }
 
-  const deleted = await prisma.orderCustomerPartner.deleteMany({
-    where: {
-      orderId: parsed.data.orderId,
-      userId: parsed.data.partnerUserId,
-    },
-  });
+  let deleted;
+  try {
+    deleted = await prisma.orderCustomerPartner.deleteMany({
+      where: {
+        orderId: parsed.data.orderId,
+        userId: parsed.data.partnerUserId,
+      },
+    });
+  } catch (e) {
+    if (isPrismaTableDoesNotExist(e)) {
+      return {
+        ok: false,
+        error: "Функция соучастников недоступна: выполните миграции БД на сервере (prisma migrate deploy).",
+      };
+    }
+    throw e;
+  }
   if (deleted.count === 0) {
     return { ok: false, error: "Соучастник не найден" };
   }
