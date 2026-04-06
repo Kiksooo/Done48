@@ -44,6 +44,29 @@ const CATEGORIES = [
     ],
   },
   {
+    name: "Строительство и ремонт",
+    slug: "construction",
+    sortOrder: 45,
+    subcategories: [
+      { name: "Ремонт квартир и домов", slug: "renovation", sortOrder: 1 },
+      { name: "Отделочные работы", slug: "finishing", sortOrder: 2 },
+      { name: "Монтаж (окна, двери, перегородки)", slug: "installation-build", sortOrder: 3 },
+      { name: "Кровля, фасады, утепление", slug: "roofing-facade", sortOrder: 4 },
+      { name: "Демонтаж и подготовка", slug: "demolition-prep", sortOrder: 5 },
+    ],
+  },
+  {
+    name: "Красота и здоровье",
+    slug: "beauty-health",
+    sortOrder: 48,
+    subcategories: [
+      { name: "Парикмахер и стилист", slug: "hair", sortOrder: 1 },
+      { name: "Маникюр и педикюр", slug: "nails", sortOrder: 2 },
+      { name: "Массаж и wellness", slug: "massage", sortOrder: 3 },
+      { name: "Косметология и уход", slug: "cosmetology", sortOrder: 4 },
+    ],
+  },
+  {
     name: "Бытовые услуги",
     slug: "home-services",
     sortOrder: 50,
@@ -52,6 +75,61 @@ const CATEGORIES = [
       { name: "Сантехнические работы", slug: "plumbing", sortOrder: 2 },
       { name: "Электрика", slug: "electricity", sortOrder: 3 },
       { name: "Сборка мебели", slug: "furniture-assembly", sortOrder: 4 },
+    ],
+  },
+  {
+    name: "Переезды и логистика",
+    slug: "moving-logistics",
+    sortOrder: 55,
+    subcategories: [
+      { name: "Квартирный и офисный переезд", slug: "moving", sortOrder: 1 },
+      { name: "Грузчики", slug: "loaders", sortOrder: 2 },
+      { name: "Доставка и перевозка груза", slug: "cargo-delivery", sortOrder: 3 },
+      { name: "Упаковка и хранение", slug: "packing-storage", sortOrder: 4 },
+    ],
+  },
+  {
+    name: "Фото и видео",
+    slug: "photo-video",
+    sortOrder: 60,
+    subcategories: [
+      { name: "Фотосъёмка", slug: "photography", sortOrder: 1 },
+      { name: "Видеосъёмка и монтаж", slug: "videography", sortOrder: 2 },
+      { name: "Обработка и ретушь", slug: "retouch", sortOrder: 3 },
+      { name: "Предметная и рекламная съёмка", slug: "product-photo", sortOrder: 4 },
+    ],
+  },
+  {
+    name: "Образование и консультации",
+    slug: "education",
+    sortOrder: 65,
+    subcategories: [
+      { name: "Репетиторство", slug: "tutoring", sortOrder: 1 },
+      { name: "Курсы и тренинги", slug: "courses", sortOrder: 2 },
+      { name: "Подготовка к экзаменам", slug: "exam-prep", sortOrder: 3 },
+      { name: "Бизнес- и карьерные консультации", slug: "career-consulting", sortOrder: 4 },
+    ],
+  },
+  {
+    name: "Юридические и финансовые услуги",
+    slug: "legal-finance",
+    sortOrder: 70,
+    subcategories: [
+      { name: "Юридические консультации", slug: "legal-consult", sortOrder: 1 },
+      { name: "Документы и договоры", slug: "documents", sortOrder: 2 },
+      { name: "Бухгалтерия и налоги", slug: "accounting", sortOrder: 3 },
+      { name: "Регистрация бизнеса", slug: "business-registration", sortOrder: 4 },
+    ],
+  },
+  {
+    name: "Автоуслуги",
+    slug: "automotive",
+    sortOrder: 75,
+    subcategories: [
+      { name: "Ремонт и диагностика", slug: "car-repair", sortOrder: 1 },
+      { name: "Шины и сезонная смена", slug: "tires", sortOrder: 2 },
+      { name: "Детейлинг и химчистка", slug: "detailing", sortOrder: 3 },
+      { name: "Эвакуация и техпомощь", slug: "roadside", sortOrder: 4 },
     ],
   },
 ] as const;
