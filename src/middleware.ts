@@ -23,6 +23,10 @@ function isPublicPath(pathname: string): boolean {
   if (pathname === "/executors" || pathname.startsWith("/executors/")) {
     return true;
   }
+  // Блог — публичные страницы
+  if (pathname === "/blog" || pathname.startsWith("/blog/")) {
+    return true;
+  }
   return false;
 }
 

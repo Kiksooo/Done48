@@ -22,7 +22,8 @@ export type NavIconName =
   | "briefcase"
   | "search"
   | "flag"
-  | "mail";
+  | "mail"
+  | "penLine";
 
 export type CabinetNavItem = {
   href: string;
@@ -47,6 +48,7 @@ export const ADMIN_NAV: CabinetNavItem[] = [
   { href: "/admin/marketing", label: "Рассылки", icon: "mail" },
   { href: "/admin/support", label: "Чат поддержки", icon: "mail" },
   { href: "/admin/settings", label: "Настройки", icon: "settings" },
+  { href: "/admin/blog", label: "Блог", icon: "penLine" },
   { href: "/admin/audit-logs", label: "Логи", icon: "scrollText" },
 ];
 

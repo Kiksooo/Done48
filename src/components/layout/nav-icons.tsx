@@ -11,6 +11,7 @@ import {
   LayoutDashboard,
   Mail,
   MessageSquare,
+  PenLine,
   PlusCircle,
   Scale,
   ScrollText,
@@ -42,6 +43,7 @@ const MAP: Record<NavIconName, LucideIcon> = {
   briefcase: Briefcase,
   search: Search,
   mail: Mail,
+  penLine: PenLine,
 };
 
 export function NavIcon({ name, className }: { name: NavIconName; className?: string }) {

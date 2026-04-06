@@ -1,11 +1,13 @@
 import type { MetadataRoute } from "next";
 import { getSiteUrl } from "@/lib/site-url";
 import { listPublicExecutorUsernames } from "@/server/queries/public-executor";
+import { listBlogSlugs } from "@/server/queries/blog";
 
 /** Публичные URL для индексации (кабинеты и API закрыты в robots.txt). */
 const PATHS = [
   { path: "/", changeFrequency: "weekly", priority: 1 },
   { path: "/executors", changeFrequency: "weekly", priority: 0.7 },
+  { path: "/blog", changeFrequency: "weekly", priority: 0.8 },
   { path: "/login", changeFrequency: "monthly", priority: 0.6 },
   { path: "/register", changeFrequency: "monthly", priority: 0.8 },
   { path: "/forgot-password", changeFrequency: "yearly", priority: 0.3 },
@@ -26,8 +28,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority,
   }));
 
-  const executors = await listPublicExecutorUsernames();
-  const dynamic = executors.flatMap((r) => {
+  const [executors, blogPosts] = await Promise.all([
+    listPublicExecutorUsernames(),
+    listBlogSlugs(),
+  ]);
+
+  const executorUrls = executors.flatMap((r) => {
     const username = r.executorProfile?.username;
     if (!username) return [];
     return [
@@ -40,5 +46,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ];
   });
 
-  return [...fixed, ...dynamic] as MetadataRoute.Sitemap;
+  const blogUrls = blogPosts.map((p) => ({
+    url: `${origin}/blog/${p.slug}`,
+    lastModified: p.updatedAt,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
+  return [...fixed, ...executorUrls, ...blogUrls] as MetadataRoute.Sitemap;
 }
