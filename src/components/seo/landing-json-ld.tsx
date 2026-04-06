@@ -1,5 +1,9 @@
 import { SITE_EMAIL_INFO } from "@/lib/site-contact";
-import { SITE_SEO_DESCRIPTION } from "@/lib/site-seo";
+import {
+  SITE_SEO_DESCRIPTION,
+  SITE_SEO_KEYWORDS_STRING,
+  SITE_SEO_ORG_ALTERNATE_NAME,
+} from "@/lib/site-seo";
 import { getSiteUrl } from "@/lib/site-url";
 
 /** Структурированные данные для главной (лендинг): WebSite + Organization. */
@@ -18,7 +22,9 @@ export function LandingJsonLd() {
         "@id": idWeb,
         url: base.endsWith("/") ? base : `${base}/`,
         name: "DONE48",
+        alternateName: SITE_SEO_ORG_ALTERNATE_NAME,
         description: SITE_SEO_DESCRIPTION,
+        keywords: SITE_SEO_KEYWORDS_STRING,
         inLanguage: "ru-RU",
         publisher: { "@id": idOrg },
       },
@@ -26,9 +32,11 @@ export function LandingJsonLd() {
         "@type": "Organization",
         "@id": idOrg,
         name: "DONE48",
+        alternateName: SITE_SEO_ORG_ALTERNATE_NAME,
         url: base.endsWith("/") ? base : `${base}/`,
         logo: logoUrl,
         description: SITE_SEO_DESCRIPTION,
+        keywords: SITE_SEO_KEYWORDS_STRING,
         email: SITE_EMAIL_INFO,
       },
     ],

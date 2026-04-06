@@ -209,13 +209,13 @@ export function LandingPage() {
               <div>
                 <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3.5 py-1.5 text-xs font-medium text-primary opacity-0 animate-fade-up [animation-delay:40ms] sm:text-sm">
                   <Sparkles className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" aria-hidden />
-                  Площадка для микро-задач
+                  Для заказчиков: разместить заказ и найти исполнителя
                 </p>
                 <h1 className="text-balance text-4xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl lg:text-[2.75rem] xl:text-[3.15rem] opacity-0 animate-fade-up [animation-delay:80ms]">
-                  Найдите исполнителя под задачу — или зарабатывайте на мелких заказах
+                  Разместите заказ онлайн — исполнители откликнутся с условиями и сроками
                 </h1>
                 <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl opacity-0 animate-fade-up [animation-delay:140ms]">
-                  Зарегистрируйтесь бесплатно за минуту. Опубликуйте задачу как заказчик или откликайтесь как исполнитель — онлайн и выезд в одном понятном кабинете со статусами и чатом.
+                  Бесплатная регистрация за минуту: опишите задачу с бюджетом, сравните отклики и выберите специалиста. Онлайн и выезд — один кабинет со статусами, чатом и прозрачной оплатой. Исполнителям — отдельный вход к открытым заказам.
                 </p>
 
                 <ul className="mt-6 flex flex-wrap gap-2 opacity-0 animate-fade-up [animation-delay:180ms] sm:gap-3">
