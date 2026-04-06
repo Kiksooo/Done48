@@ -145,7 +145,7 @@ model CustomerProfile {
   phone        String?
   telegram     String?
   company      String?
-  /// Город заказчика (для исполнителей; можно выбрать из справочника или ввести вручную)
+  /// Город заказчика (для специалистов; можно выбрать из справочника или ввести вручную)
   city         String?
   billingInfo  String?  @db.Text
   avatarUrl    String?
@@ -663,7 +663,7 @@ model PortfolioItem {
   linkUrl     String?
 
   moderationStatus PortfolioItemModerationStatus @default(PENDING)
-  /// Комментарий модератора при отклонении (виден исполнителю)
+  /// Комментарий модератора при отклонении (виден специалисту)
   moderationNote   String?                       @db.Text
 
   createdAt   DateTime @default(now())
@@ -683,7 +683,7 @@ model PlatformSettings {
   moderateAllNewOrders                   Boolean  @default(true)
   /// Устарело: не используется (верификация по документам отключена). Сохраняется для совместимости БД.
   requireExecutorVerificationForProposals Boolean @default(false)
-  /// Макс. откликов одного исполнителя за сутки; 0 = без лимита
+  /// Макс. откликов одного специалиста за сутки; 0 = без лимита
   maxExecutorProposalsPerDay             Int      @default(30)
 
   updatedAt          DateTime @updatedAt

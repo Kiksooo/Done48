@@ -24,7 +24,7 @@ export default async function ExecutorOrdersPage() {
           { label: "Мои заказы" },
         ]}
         title="Мои заказы"
-        description="Задачи, где вы назначены исполнителем: статусы, дедлайны и переход в карточку заказа."
+        description="Задачи, где вы назначены специалистом: статусы, дедлайны и переход в карточку заказа."
       />
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">

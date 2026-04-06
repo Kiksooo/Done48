@@ -58,7 +58,7 @@ export default async function CustomerHomePage() {
         <div className="rounded-xl border border-primary/25 bg-primary/[0.06] px-4 py-4 dark:bg-primary/10">
           <p className="text-sm font-semibold text-foreground">Первый заказ</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Опишите задачу и бюджет — после публикации исполнители смогут откликнуться. Статусы и оплата — в одной
+            Опишите задачу и бюджет — после публикации специалисты смогут откликнуться. Статусы и оплата — в одной
             карточке заказа.
           </p>
           <Button asChild className="mt-3" size="sm">
@@ -76,7 +76,7 @@ export default async function CustomerHomePage() {
             icon={ClipboardList}
             label="В работе"
             value={buckets.active}
-            sublabel="Назначен исполнитель, идёт выполнение"
+            sublabel="Назначен специалист, идёт выполнение"
           />
           <DashboardStatTile
             icon={Hourglass}
@@ -88,7 +88,7 @@ export default async function CustomerHomePage() {
             icon={Eye}
             label="На вашей проверке"
             value={buckets.review}
-            sublabel="Исполнитель сдал результат"
+            sublabel="Специалист сдал результат"
           />
           <DashboardStatTile
             icon={Wallet}
@@ -107,7 +107,7 @@ export default async function CustomerHomePage() {
           <DashboardQuickLink
             href="/customer/orders/new"
             title="Создать заказ"
-            description="Опишите задачу, бюджет и срок — после модерации заказ появится для исполнителей."
+            description="Опишите задачу, бюджет и срок — после модерации заказ появится для специалистов."
             icon={Plus}
           />
           <DashboardQuickLink

@@ -22,7 +22,7 @@ function SubmitButton() {
 
 type RegisterFormProps = {
   referralCode?: string;
-  /** Из `?role=` на `/register` (например, с кнопки «Искать заказы как исполнитель»). */
+  /** Из `?role=` на `/register` (например, с кнопки «Искать заказы как специалист»). */
   defaultRole?: Extract<Role, "CUSTOMER" | "EXECUTOR">;
 };
 
@@ -62,7 +62,7 @@ export function RegisterForm({ referralCode, defaultRole }: RegisterFormProps) {
         </CardDescription>
         {defaultRole === "EXECUTOR" ? (
           <p className="mt-3 rounded-lg border border-primary/15 bg-primary/[0.06] px-3 py-2 text-sm text-foreground dark:bg-primary/[0.09]">
-            Роль «Исполнитель» подставлена по ссылке с главной. При необходимости смените в поле ниже до отправки
+            Роль «Специалист» подставлена по ссылке с главной. При необходимости смените в поле ниже до отправки
             формы.
           </p>
         ) : null}
@@ -111,7 +111,7 @@ export function RegisterForm({ referralCode, defaultRole }: RegisterFormProps) {
               defaultValue={initialRole}
             >
               <option value="CUSTOMER">Заказчик</option>
-              <option value="EXECUTOR">Исполнитель</option>
+              <option value="EXECUTOR">Специалист</option>
             </select>
             {state && !state.ok && state.fieldErrors?.role?.[0] && (
               <p className="text-sm text-red-600">{state.fieldErrors.role[0]}</p>

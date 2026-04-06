@@ -18,7 +18,7 @@ const ALLOWED = new Map([
 export async function POST(req: Request) {
   const user = await getSessionUserForAction();
   if (!user || user.role !== Role.EXECUTOR) {
-    return NextResponse.json({ error: "Нужна авторизация исполнителя" }, { status: 401 });
+    return NextResponse.json({ error: "Нужна авторизация специалиста" }, { status: 401 });
   }
 
   let form: FormData;

@@ -23,7 +23,7 @@ export function OrderCustomerPartnersManage({ orderId, partners }: { orderId: st
       <h3 className="text-sm font-medium text-neutral-800 dark:text-neutral-200">Соучастники заказа</h3>
       <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
         Добавьте email другого заказчика — он увидит заказ в своём кабинете и сможет участвовать в чате. Резерв суммы под
-        заказ и решения по исполнителю остаются за вами как за основным заказчиком.
+        заказ и решения по специалисту остаются за вами как за основным заказчиком.
       </p>
       {msg ? (
         <p className="mt-2 text-xs text-red-600 dark:text-red-400" role="alert">

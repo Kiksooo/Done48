@@ -74,7 +74,7 @@ export function PlatformSettingsForm({
               Все новые заказы — только «На модерации»
             </Label>
             <p className="mt-0.5 text-xs text-neutral-500">
-              Заказ не попадёт к исполнителям, пока админ не опубликует его. Рекомендуется для старта.
+              Заказ не попадёт к специалистам, пока админ не опубликует его. Рекомендуется для старта.
             </p>
           </div>
         </div>
@@ -121,7 +121,7 @@ export function PlatformSettingsForm({
             onChange={(e) => setMinPayout(e.target.value)}
             disabled={pending}
           />
-          <p className="text-xs text-neutral-500">Используется при проверке заявок исполнителей.</p>
+          <p className="text-xs text-neutral-500">Используется при проверке заявок специалистов.</p>
         </div>
       </div>
       <Button type="submit" disabled={pending}>

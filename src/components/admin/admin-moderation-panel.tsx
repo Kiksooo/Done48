@@ -346,7 +346,7 @@ export function AdminModerationPanel(props: {
       {tab === "portfolio" ? (
         <div className="space-y-4">
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
-            Фото из галереи исполнителей на публичных страницах и в каталоге показываются только после одобрения здесь.
+            Фото из галереи специалистов на публичных страницах и в каталоге показываются только после одобрения здесь.
           </p>
           {props.portfolioQueueError ? (
             <p
@@ -416,7 +416,7 @@ function PortfolioQueueCard(props: {
             </p>
           ) : null}
           <p className="text-xs text-neutral-500">
-            Исполнитель: {name}
+            Специалист: {name}
             {row.executorUsername ? (
               <>
                 {" "}

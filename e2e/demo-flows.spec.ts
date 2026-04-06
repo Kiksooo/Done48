@@ -32,7 +32,7 @@ test.describe.serial("Демо-аккаунты (нужен npm run db:seed)", (
     await expect(page.getByRole("heading", { name: "Дашборд" })).toBeVisible();
   });
 
-  test("исполнитель откликается на демо-заказ «вёрстка лендинга»", async ({ page }) => {
+  test("специалист откликается на демо-заказ «вёрстка лендинга»", async ({ page }) => {
     await page.goto("/login");
     await page.getByLabel("Email").fill(executor.email);
     await page.getByLabel("Пароль").fill(executor.password);
@@ -49,7 +49,7 @@ test.describe.serial("Демо-аккаунты (нужен npm run db:seed)", (
       await submit.click();
       await expect(submit).not.toBeVisible({ timeout: 25_000 });
     } else {
-      await expect(page.getByRole("heading", { name: "Действия исполнителя" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Действия специалиста" })).toBeVisible();
     }
   });
 });

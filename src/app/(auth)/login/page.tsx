@@ -4,11 +4,11 @@ import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = {
   title: "Вход в кабинет",
-  description: "Войдите в аккаунт DONE48 как заказчик или исполнитель.",
+  description: "Войдите в аккаунт DONE48 как заказчик или специалист.",
   alternates: { canonical: "/login" },
   openGraph: {
     title: "Вход в кабинет",
-    description: "Войдите в аккаунт DONE48 как заказчик или исполнитель.",
+    description: "Войдите в аккаунт DONE48 как заказчик или специалист.",
     url: "/login",
   },
 };

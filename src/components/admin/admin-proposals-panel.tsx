@@ -80,7 +80,7 @@ function ProposalTable({
           <thead className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/40">
             <tr>
               <th className="px-3 py-2 font-medium">Заказ</th>
-              <th className="px-3 py-2 font-medium">Исполнитель</th>
+              <th className="px-3 py-2 font-medium">Специалист</th>
               <th className="px-3 py-2 font-medium">Условия</th>
               <th className="px-3 py-2 font-medium">Статус</th>
               <th className="px-3 py-2 font-medium">Дата</th>

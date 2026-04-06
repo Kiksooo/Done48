@@ -13,7 +13,7 @@ const REVIEWABLE_STATUSES: OrderStatus[] = [OrderStatus.ACCEPTED, OrderStatus.CO
 export async function createReviewAction(raw: unknown): Promise<ActionResult> {
   const user = await getSessionUserForAction();
   if (!user || (user.role !== Role.CUSTOMER && user.role !== Role.EXECUTOR)) {
-    return { ok: false, error: "Отзыв могут оставить заказчик или исполнитель по завершённому заказу" };
+    return { ok: false, error: "Отзыв могут оставить заказчик или специалист по завершённому заказу" };
   }
 
   const parsed = createReviewSchema.safeParse(raw);

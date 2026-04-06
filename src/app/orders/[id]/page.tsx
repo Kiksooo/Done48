@@ -126,7 +126,7 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
   let reviewTarget: { toUserId: string; label: string } | null = null;
   if (reviewable && order.executorId) {
     if (user.role === "CUSTOMER" && user.id === order.customerId) {
-      reviewTarget = { toUserId: order.executorId, label: "исполнителю" };
+      reviewTarget = { toUserId: order.executorId, label: "специалисту" };
     } else if (user.role === "EXECUTOR" && user.id === order.executorId) {
       reviewTarget = { toUserId: order.customerId, label: "заказчику" };
     }
@@ -176,7 +176,7 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
     reportTargetId === order.customerId
       ? "Заказчик"
       : reportTargetId === order.executorId
-        ? "Исполнитель"
+        ? "Специалист"
         : "Участник";
 
   const showCustomerEmail = canRevealOrderPartyEmail({
@@ -210,7 +210,7 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
     if (dn) executorPublicName = dn;
     else if (un) executorPublicName = `@${un}`;
     else if (showExecutorEmail) executorPublicName = order.executor.email;
-    else executorPublicName = "Исполнитель";
+    else executorPublicName = "Специалист";
   }
 
   const proposals = order.proposals.map((p) => {
@@ -292,7 +292,7 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
             <p className="font-medium">{showCustomerEmail ? order.customer.email : customerPublicName}</p>
             {!showCustomerEmail ? (
               <p className="mt-1 text-xs text-neutral-500">
-                Почта скрыта до назначения исполнителя. Общение — в чате по заказу после того, как вас назначат.
+                Почта скрыта до назначения специалиста. Общение — в чате по заказу после того, как вас назначат.
               </p>
             ) : null}
             {order.customer.customerProfile?.city ? (
@@ -325,12 +325,12 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
             ) : null}
           </div>
           <div>
-            <p className="text-neutral-500">Исполнитель</p>
+            <p className="text-neutral-500">Специалист</p>
             <p className="font-medium">
               {order.executor ? (showExecutorEmail ? order.executor.email : executorPublicName) : "—"}
             </p>
             {order.executor && !showExecutorEmail ? (
-              <p className="mt-1 text-xs text-neutral-500">Контакт исполнителя доступен сторонам сделки.</p>
+              <p className="mt-1 text-xs text-neutral-500">Контакт специалиста доступен сторонам сделки.</p>
             ) : null}
           </div>
           <div>
@@ -354,7 +354,7 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
           </p>
           {order.executorRequirements ? (
             <>
-              <h3 className="mt-4 text-sm font-semibold">Требования к исполнителю</h3>
+              <h3 className="mt-4 text-sm font-semibold">Требования к специалисту</h3>
               <p className="mt-2 whitespace-pre-wrap text-sm text-neutral-600 dark:text-neutral-400">
                 {order.executorRequirements}
               </p>

@@ -261,7 +261,7 @@ export function OrderCreateForm({
               <Input id="deadlineAt" type="datetime-local" {...form.register("deadlineAt")} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="visibilityType">Доступ для исполнителей</Label>
+              <Label htmlFor="visibilityType">Доступ для специалистов</Label>
               <select
                 id="visibilityType"
                 className="flex h-10 w-full rounded-md border border-neutral-300 bg-transparent px-3 text-sm dark:border-neutral-700"
@@ -274,7 +274,7 @@ export function OrderCreateForm({
           </div>
           {moderateAllNewOrders ? (
             <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100">
-              Новые заказы проходят проверку модератором перед публикацией для исполнителей.
+              Новые заказы проходят проверку модератором перед публикацией для специалистов.
             </div>
           ) : (
             <div className="space-y-2">
@@ -296,7 +296,7 @@ export function OrderCreateForm({
             </Label>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="executorRequirements">Требования к исполнителю</Label>
+            <Label htmlFor="executorRequirements">Требования к специалисту</Label>
             <Textarea id="executorRequirements" {...form.register("executorRequirements")} />
           </div>
 
@@ -329,7 +329,7 @@ export function OrderCreateForm({
                   Задача с выездом (офлайн)
                 </Label>
                 <p className="mt-1 text-xs text-neutral-500">
-                  Укажите на карте, где нужно выполнить работу или встретиться — так исполнителю проще оценить
+                  Укажите на карте, где нужно выполнить работу или встретиться — так специалисту проще оценить
                   логистику.
                 </p>
               </div>

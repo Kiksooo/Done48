@@ -26,7 +26,7 @@ import { writeAuditLog } from "@/server/audit/log";
 import type { ActionResult } from "./create-order";
 
 const ESCROW_REQUIRED_MSG =
-  "Сначала зарезервируйте сумму заказа под безопасную сделку (кнопка выше), затем вы сможете выбрать исполнителя по отклику.";
+  "Сначала зарезервируйте сумму заказа под безопасную сделку (кнопка выше), затем вы сможете выбрать специалиста по отклику.";
 
 const ACTIVE_DISPUTE: DisputeStatus[] = [DisputeStatus.OPEN, DisputeStatus.IN_REVIEW];
 
@@ -63,7 +63,7 @@ export async function customerCancelOrderAction(raw: unknown): Promise<ActionRes
     return { ok: false, error: "Отмена недоступна для текущего статуса" };
   }
   if (check.order.executorId) {
-    return { ok: false, error: "Нельзя отменить заказ с назначенным исполнителем" };
+    return { ok: false, error: "Нельзя отменить заказ с назначенным специалистом" };
   }
 
   const orderId = check.order.id;
@@ -140,7 +140,7 @@ export async function customerCancelOrderAction(raw: unknown): Promise<ActionRes
     const msg = e instanceof Error ? e.message : "";
     if (msg === "FORBIDDEN") return { ok: false, error: "Нет доступа" };
     if (msg === "HAS_EXECUTOR") {
-      return { ok: false, error: "Нельзя отменить заказ с назначенным исполнителем" };
+      return { ok: false, error: "Нельзя отменить заказ с назначенным специалистом" };
     }
     if (msg === "BAD_STATUS") {
       return { ok: false, error: "Отмена недоступна для текущего статуса" };
@@ -178,11 +178,11 @@ export async function customerUnassignExecutorAction(raw: unknown): Promise<Acti
   if (orderPre.status !== OrderStatus.ASSIGNED) {
     return {
       ok: false,
-      error: "Снять исполнителя можно только пока заказ «Назначен» и работа ещё не начата.",
+      error: "Снять специалиста можно только пока заказ «Назначен» и работа ещё не начата.",
     };
   }
   if (!orderPre.executorId) {
-    return { ok: false, error: "Исполнитель не назначен" };
+    return { ok: false, error: "Специалист не назначен" };
   }
   if (orderPre.paymentStatus !== PaymentStatus.RESERVED) {
     return { ok: false, error: "Снятие назначения недоступно в текущем платёжном статусе" };
@@ -193,7 +193,7 @@ export async function customerUnassignExecutorAction(raw: unknown): Promise<Acti
     select: { id: true },
   });
   if (activeDispute) {
-    return { ok: false, error: "Нельзя снять исполнителя, пока открыт спор" };
+    return { ok: false, error: "Нельзя снять специалиста, пока открыт спор" };
   }
 
   const orderId = orderPre.id;
@@ -255,7 +255,7 @@ export async function customerUnassignExecutorAction(raw: unknown): Promise<Acti
           fromStatus: OrderStatus.ASSIGNED,
           toStatus: OrderStatus.PUBLISHED,
           actorUserId: user.id,
-          note: "Назначение исполнителя отменено заказчиком",
+          note: "Назначение специалиста отменено заказчиком",
         });
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
@@ -266,7 +266,7 @@ export async function customerUnassignExecutorAction(raw: unknown): Promise<Acti
     if (msg === "STATE") {
       return {
         ok: false,
-        error: "Снять исполнителя сейчас нельзя (возможно, исполнитель уже начал работу). Обновите страницу.",
+        error: "Снять специалиста сейчас нельзя (возможно, специалист уже начал работу). Обновите страницу.",
       };
     }
     if (isPrismaTransactionConflict(e)) {
@@ -291,7 +291,7 @@ export async function customerUnassignExecutorAction(raw: unknown): Promise<Acti
       userId: formerExecutorId,
       kind: NotificationKind.GENERIC,
       title: "Назначение по заказу отменено",
-      body: `Заказчик снял вас с задачи «${orderTitle}». Заказ снова открыт для откликов; резерв суммы у заказчика под этот заказ сохраняется до выбора другого исполнителя или возврата по правилам.`,
+      body: `Заказчик снял вас с задачи «${orderTitle}». Заказ снова открыт для откликов; резерв суммы у заказчика под этот заказ сохраняется до выбора другого специалиста или возврата по правилам.`,
       link: `/orders/${orderId}`,
     });
   });
@@ -324,13 +324,13 @@ export async function customerAcceptProposalAction(raw: unknown): Promise<Action
 
   const orderPre = proposalPre.order;
   if (orderPre.executorId) {
-    return { ok: false, error: "У заказа уже есть исполнитель" };
+    return { ok: false, error: "У заказа уже есть специалист" };
   }
   if (
     orderPre.status !== OrderStatus.PUBLISHED ||
     orderPre.visibilityType !== VisibilityType.OPEN_FOR_RESPONSES
   ) {
-    return { ok: false, error: "Сейчас нельзя выбрать исполнителя по отклику" };
+    return { ok: false, error: "Сейчас нельзя выбрать специалиста по отклику" };
   }
   if (orderPre.paymentStatus !== PaymentStatus.RESERVED) {
     return { ok: false, error: ESCROW_REQUIRED_MSG };
@@ -427,7 +427,7 @@ export async function customerAcceptProposalAction(raw: unknown): Promise<Action
           fromStatus: ord.status,
           toStatus: OrderStatus.ASSIGNED,
           actorUserId: user.id,
-          note: "Исполнитель выбран заказчиком по отклику",
+          note: "Специалист выбран заказчиком по отклику",
         });
 
         const chat = await tx.chat.findUnique({ where: { orderId: ord.id } });
@@ -462,10 +462,10 @@ export async function customerAcceptProposalAction(raw: unknown): Promise<Action
       return { ok: false, error: "Отклик уже обработан" };
     }
     if (msg === "ORDER_EXEC") {
-      return { ok: false, error: "У заказа уже есть исполнитель" };
+      return { ok: false, error: "У заказа уже есть специалист" };
     }
     if (msg === "ORDER_BAD" || msg === "ORDER_STATE") {
-      return { ok: false, error: "Сейчас нельзя выбрать исполнителя по отклику" };
+      return { ok: false, error: "Сейчас нельзя выбрать специалиста по отклику" };
     }
     if (msg === "NEED_ESCROW") {
       return { ok: false, error: ESCROW_REQUIRED_MSG };
@@ -495,7 +495,7 @@ export async function customerAcceptProposalAction(raw: unknown): Promise<Action
     await createNotification({
       userId: acceptOut.executorId,
       kind: NotificationKind.EXECUTOR_ASSIGNED,
-      title: "Вас выбрали исполнителем",
+      title: "Вас выбрали специалистом",
       body: acceptOut.orderTitle,
       link: `/orders/${acceptOut.orderId}`,
     });
@@ -529,7 +529,7 @@ export async function customerAcceptWorkAction(raw: unknown): Promise<ActionResu
   }
 
   if (!check.order.executorId) {
-    return { ok: false, error: "У заказа нет исполнителя" };
+    return { ok: false, error: "У заказа нет специалиста" };
   }
 
   const orderId = check.order.id;
@@ -609,7 +609,7 @@ export async function customerAcceptWorkAction(raw: unknown): Promise<ActionResu
     const msg = e instanceof Error ? e.message : "";
     if (msg === "FORBIDDEN") return { ok: false, error: "Нет доступа" };
     if (msg === "EXECUTOR") {
-      return { ok: false, error: "У заказа нет исполнителя" };
+      return { ok: false, error: "У заказа нет специалиста" };
     }
     if (msg === "RESERVE_STATE") {
       return {

@@ -11,7 +11,7 @@ import type { ActionResult } from "@/server/actions/orders/create-order";
 export async function executorRequestPayoutAction(raw: unknown): Promise<ActionResult> {
   const user = await getSessionUserForAction();
   if (!user || user.role !== Role.EXECUTOR) {
-    return { ok: false, error: "Только для исполнителя" };
+    return { ok: false, error: "Только для специалиста" };
   }
 
   const parsed = payoutRequestSchema.safeParse(raw);
@@ -60,7 +60,7 @@ export async function executorRequestPayoutAction(raw: unknown): Promise<ActionR
     );
   } catch (e) {
     const msg = e instanceof Error ? e.message : "";
-    if (msg === "NO_PROFILE") return { ok: false, error: "Профиль исполнителя не найден" };
+    if (msg === "NO_PROFILE") return { ok: false, error: "Профиль специалиста не найден" };
     if (msg === "INSUFFICIENT") {
       return {
         ok: false,

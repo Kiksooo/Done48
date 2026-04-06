@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { MapPin, Star } from "lucide-react";
 import { PublicPageNav, publicNavItemClassName } from "@/components/public/public-page-nav";
 import { ProfileReviewsSection } from "@/components/reviews/profile-reviews-section";
 import { ExecutorProfileJsonLd } from "@/components/seo/executor-profile-json-ld";
@@ -17,16 +18,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const canonical = `/u/${params.username}`;
   if (!row?.executorProfile) {
     return {
-      title: { absolute: "Исполнитель не найден · DONE48" },
-      description: "Такого исполнителя нет в каталоге DONE48.",
+      title: { absolute: "Специалист не найден · DONE48" },
+      description: "Такого специалиста нет в каталоге DONE48.",
       alternates: { canonical },
       robots: { index: false, follow: true },
     };
   }
-  const name = row.executorProfile.displayName ?? row.executorProfile.username ?? "Исполнитель";
+  const name = row.executorProfile.displayName ?? row.executorProfile.username ?? "Специалист";
   const description =
-    row.executorProfile.bio?.slice(0, 160) ?? `Галерея работ исполнителя ${name} на DONE48.`;
-  const titleAbs = `${name} · Галерея работ · DONE48`;
+    row.executorProfile.bio?.slice(0, 160) ?? `Портфолио специалиста ${name} на DONE48.`;
+  const titleAbs = `${name} · Портфолио · DONE48`;
   const ogImage = row.executorProfile.avatarUrl ? toAbsoluteSiteUrl(row.executorProfile.avatarUrl) : undefined;
   return {
     title: { absolute: titleAbs },
@@ -74,13 +75,13 @@ export default async function PublicExecutorPortfolioPage({ params }: Props) {
         <PublicPageNav
           extra={
             <Link href="/executors" className={publicNavItemClassName}>
-              Все исполнители
+              Все специалисты
             </Link>
           }
         />
-        <header className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-elevated">
-          <div className="flex flex-wrap items-start gap-4">
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border bg-muted text-xl font-semibold text-muted-foreground ring-2 ring-primary/10">
+        <header className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-elevated sm:p-8">
+          <div className="flex flex-wrap items-start gap-5">
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border bg-muted text-2xl font-bold text-muted-foreground ring-2 ring-primary/10">
               {p.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -96,16 +97,28 @@ export default async function PublicExecutorPortfolioPage({ params }: Props) {
               <h1 className="text-balance text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                 {name}
               </h1>
+              {p.username ? (
+                <p className="font-mono text-sm text-muted-foreground">@{p.username}</p>
+              ) : null}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                {stats.count > 0 ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700 dark:bg-amber-950/50 dark:text-amber-300">
+                    <Star className="h-4 w-4 fill-current" aria-hidden />
+                    {stats.avg?.toFixed(1) ?? "—"}
+                    <span className="text-amber-600/70 dark:text-amber-400/70">
+                      · {stats.count} {stats.count === 1 ? "отзыв" : stats.count < 5 ? "отзыва" : "отзывов"}
+                    </span>
+                  </span>
+                ) : null}
+                {p.city ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-muted/80 px-3 py-1 text-sm text-muted-foreground">
+                    <MapPin className="h-3.5 w-3.5" aria-hidden />
+                    {p.city}
+                  </span>
+                ) : null}
+              </div>
             </div>
           </div>
-          {p.username ? (
-            <p className="font-mono text-sm text-muted-foreground">@{p.username}</p>
-          ) : null}
-          {p.city ? (
-            <p className="inline-flex items-center gap-1.5 rounded-full bg-muted/80 px-3 py-1 text-sm text-muted-foreground">
-              {p.city}
-            </p>
-          ) : null}
           {p.bio ? (
             <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">{p.bio}</p>
           ) : null}
@@ -119,7 +132,7 @@ export default async function PublicExecutorPortfolioPage({ params }: Props) {
         />
 
         <section className="rounded-2xl border border-border bg-card/50 p-5 shadow-sm sm:p-6">
-          <h2 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">Галерея работ</h2>
+          <h2 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">Портфолио</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Показаны только работы, прошедшие модерацию площадки.
           </p>

@@ -36,10 +36,10 @@ export default async function AdminProposalsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Отклики исполнителей</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Отклики специалистов</h1>
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
           Принятие отклика доступно только для заказов в статусе «Опубликован» с открытыми откликами и без
-          назначенного исполнителя — как на карточке заказа.
+          назначенного специалиста — как на карточке заказа.
         </p>
       </div>
       <AdminProposalsPanel

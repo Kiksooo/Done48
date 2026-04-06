@@ -99,7 +99,7 @@ export async function getPublicExecutorByUsername(usernameRaw: string) {
   });
 }
 
-/** Для sitemap: активные исполнители с username, без открытых жалоб в модерации. */
+/** Для sitemap: активные специалисты с username, без открытых жалоб в модерации. */
 export async function listPublicExecutorUsernames() {
   return prisma.user.findMany({
     where: buildPublicExecutorWhere(),
@@ -152,6 +152,10 @@ export async function listPublicExecutors({
       executorProfile: {
         select: {
           username: true,
+          displayName: true,
+          avatarUrl: true,
+          city: true,
+          bio: true,
         },
       },
       portfolioItems: {
@@ -161,6 +165,7 @@ export async function listPublicExecutors({
         select: {
           id: true,
           imageUrl: true,
+          title: true,
         },
       },
     },

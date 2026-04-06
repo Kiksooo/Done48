@@ -60,7 +60,7 @@ export function LandingHeroSearch({ className }: Props) {
         </Button>
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
-        Мы подскажем шаги после регистрации: опубликовать заказ или смотреть задачи как исполнитель.
+        Мы подскажем шаги после регистрации: опубликовать заказ или смотреть задачи как специалист.
       </p>
     </form>
   );

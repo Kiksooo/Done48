@@ -52,7 +52,7 @@ export async function sendChatMessageAction(raw: unknown): Promise<ActionResult>
   if (!access.ok) return { ok: false, error: "Нет доступа к чату" };
 
   if (!(await canPostOrderChat(user.id, user.role as Role, order))) {
-    return { ok: false, error: "Отправка сообщений доступна заказчику, исполнителю и админу" };
+    return { ok: false, error: "Отправка сообщений доступна заказчику, специалисту и админу" };
   }
 
   const chat = await prisma.chat.findUnique({ where: { orderId: order.id } });

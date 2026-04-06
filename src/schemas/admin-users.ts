@@ -6,7 +6,7 @@ export const adminDeleteUserSchema = z.object({
   userId: cuid,
 });
 
-/** Смена роли только между заказчиком и исполнителем (не админ). */
+/** Смена роли только между заказчиком и специалистом (не админ). */
 export const adminSetUserRoleSchema = z.object({
   userId: cuid,
   role: z.enum(["CUSTOMER", "EXECUTOR"]),

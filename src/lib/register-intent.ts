@@ -9,7 +9,7 @@ export function parseRegisterRoleFromSearchParam(
 ): Extract<Role, "CUSTOMER" | "EXECUTOR"> | undefined {
   if (raw === undefined) return undefined;
   const s = (Array.isArray(raw) ? raw[0] : raw)?.trim().toLowerCase() ?? "";
-  if (s === "executor" || s === "исполнитель") return "EXECUTOR";
+  if (s === "executor" || s === "специалист") return "EXECUTOR";
   if (s === "customer" || s === "заказчик") return "CUSTOMER";
   return undefined;
 }

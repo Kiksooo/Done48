@@ -33,7 +33,7 @@ export function AdminUserActionsCell(props: {
           onClick={() =>
             startTransition(async () => {
               const ok = window.confirm(
-                `Назначить пользователю «${props.email}» роль «Заказчик»?\n\nКабинет станет заказческим; данные профиля исполнителя в базе сохранятся.`,
+                `Назначить пользователю «${props.email}» роль «Заказчик»?\n\nКабинет станет заказческим; данные профиля специалиста в базе сохранятся.`,
               );
               if (!ok) return;
               const r = await adminSetUserRoleAction({ userId: props.userId, role: "CUSTOMER" });
@@ -53,11 +53,11 @@ export function AdminUserActionsCell(props: {
           variant="outline"
           className="h-8"
           disabled={pending || props.role === "EXECUTOR"}
-          title="Кабинет исполнителя"
+          title="Кабинет специалиста"
           onClick={() =>
             startTransition(async () => {
               const ok = window.confirm(
-                `Назначить пользователю «${props.email}» роль «Исполнитель»?\n\nКабинет станет исполнительским; анкета будет в статусе «Активен»; данные профиля заказчика сохранятся.`,
+                `Назначить пользователю «${props.email}» роль «Специалист»?\n\nКабинет станет специалистским; анкета будет в статусе «Активен»; данные профиля заказчика сохранятся.`,
               );
               if (!ok) return;
               const r = await adminSetUserRoleAction({ userId: props.userId, role: "EXECUTOR" });
@@ -69,7 +69,7 @@ export function AdminUserActionsCell(props: {
             })
           }
         >
-          Исполнитель
+          Специалист
         </Button>
       </div>
       <div className="flex flex-col gap-1 sm:flex-row sm:flex-wrap">
@@ -97,7 +97,7 @@ export function AdminUserActionsCell(props: {
         onClick={() =>
           startTransition(async () => {
             const ok = window.confirm(
-              `Удалить пользователя «${props.email}» безвозвратно?\n\nБудут удалены все заказы, где он заказчик, и связанные данные. Отклики этого исполнитца также исчезнут.`,
+              `Удалить пользователя «${props.email}» безвозвратно?\n\nБудут удалены все заказы, где он заказчик, и связанные данные. Отклики этого специалиста также исчезнут.`,
             );
             if (!ok) return;
             const r = await adminDeleteUserAction({ userId: props.userId });

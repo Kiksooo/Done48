@@ -24,7 +24,7 @@ function revalidateOrderDeletePaths(orderId: string) {
 
 function assertDeletablePayment(ps: PaymentStatus): string | null {
   if (ps === PaymentStatus.PAYOUT_PENDING || ps === PaymentStatus.PAYOUT_DONE) {
-    return "Удаление недоступно: по заказу уже есть выплаты или удержание у исполнителя.";
+    return "Удаление недоступно: по заказу уже есть выплаты или удержание у специалиста.";
   }
   return null;
 }
@@ -57,7 +57,7 @@ async function requireAdmin() {
 }
 
 /**
- * Заказчик: только без исполнителя, до активной работы / после отмены.
+ * Заказчик: только без специалиста, до активной работы / после отмены.
  * При RESERVED — возврат на баланс, затем удаление строки заказа.
  */
 export async function customerDeleteOrderAction(raw: unknown): Promise<ActionResult> {
@@ -84,7 +84,7 @@ export async function customerDeleteOrderAction(raw: unknown): Promise<ActionRes
     return {
       ok: false,
       error:
-        "Нельзя удалить заказ с назначенным исполнителем. Сначала снимите исполнителя в карточке заказа.",
+        "Нельзя удалить заказ с назначенным специалистом. Сначала снимите специалиста в карточке заказа.",
     };
   }
 
@@ -168,7 +168,7 @@ export async function customerDeleteOrderAction(raw: unknown): Promise<ActionRes
     if (msg === "EXECUTOR") {
       return {
         ok: false,
-        error: "Нельзя удалить заказ с назначенным исполнителем. Сначала снимите исполнителя.",
+        error: "Нельзя удалить заказ с назначенным специалистом. Сначала снимите специалиста.",
       };
     }
     if (msg === "STATUS" || msg === "PAYMENT" || msg === "STATE") {
@@ -193,7 +193,7 @@ export async function customerDeleteOrderAction(raw: unknown): Promise<ActionRes
 }
 
 /**
- * Администратор: удаление с возвратом резерва заказчику; без выплат исполнителю (PAYOUT_*).
+ * Администратор: удаление с возвратом резерва заказчику; без выплат специалисту (PAYOUT_*).
  */
 export async function adminDeleteOrderAction(raw: unknown): Promise<ActionResult> {
   const admin = await requireAdmin();

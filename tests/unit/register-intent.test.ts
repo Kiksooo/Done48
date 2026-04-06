@@ -6,7 +6,7 @@ describe("parseRegisterRoleFromSearchParam", () => {
     expect(parseRegisterRoleFromSearchParam("executor")).toBe("EXECUTOR");
     expect(parseRegisterRoleFromSearchParam("EXECUTOR")).toBe("EXECUTOR");
     expect(parseRegisterRoleFromSearchParam("customer")).toBe("CUSTOMER");
-    expect(parseRegisterRoleFromSearchParam("исполнитель")).toBe("EXECUTOR");
+    expect(parseRegisterRoleFromSearchParam("специалист")).toBe("EXECUTOR");
     expect(parseRegisterRoleFromSearchParam("заказчик")).toBe("CUSTOMER");
   });
 

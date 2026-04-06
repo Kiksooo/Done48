@@ -109,7 +109,7 @@ export async function adminMarkPayoutPaidAction(raw: unknown): Promise<ActionRes
             amountCents: p.amountCents,
             currency: p.currency,
             fromUserId: p.executorId,
-            meta: { payoutId: p.id, note: "Выплата исполнителю" },
+            meta: { payoutId: p.id, note: "Выплата специалисту" },
           },
         });
 
@@ -133,9 +133,9 @@ export async function adminMarkPayoutPaidAction(raw: unknown): Promise<ActionRes
     if (msg === "PAYOUT_STATE") {
       return { ok: false, error: "Нужна заявка в статусе «Одобрено»" };
     }
-    if (msg === "NO_PROFILE") return { ok: false, error: "Профиль исполнителя не найден" };
+    if (msg === "NO_PROFILE") return { ok: false, error: "Профиль специалиста не найден" };
     if (msg === "INSUFFICIENT") {
-      return { ok: false, error: "У исполнителя недостаточно средств (холд + баланс)" };
+      return { ok: false, error: "У специалиста недостаточно средств (холд + баланс)" };
     }
     if (msg === "PROFILE_RACE" || msg === "PAYOUT_RACE") {
       return { ok: false, error: "Данные изменились, обновите страницу и попробуйте снова" };

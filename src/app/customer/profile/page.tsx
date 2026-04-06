@@ -44,7 +44,7 @@ export default async function CustomerProfilePage() {
           { label: "Профиль" },
         ]}
         title="Профиль заказчика"
-        description="Контактные данные и город — исполнители увидят их в карточке заказа."
+        description="Контактные данные и город — специалисты увидят их в карточке заказа."
       />
       <CustomerProfileForm
         initial={{

@@ -51,7 +51,7 @@ export function LoginForm() {
     <Card>
       <CardHeader>
         <CardTitle>С возвращением</CardTitle>
-        <CardDescription>Войдите в кабинет заказчика или исполнителя.</CardDescription>
+        <CardDescription>Войдите в кабинет заказчика или специалиста.</CardDescription>
       </CardHeader>
       <CardContent>
         <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)} noValidate>

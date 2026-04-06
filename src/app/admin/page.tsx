@@ -46,7 +46,7 @@ export default async function AdminHomePage() {
             icon={Users}
             label="Пользователи"
             value={o.users}
-            sublabel={`Заказчики ${o.customers} · Исполнители ${o.executors}`}
+            sublabel={`Заказчики ${o.customers} · Специалисты ${o.executors}`}
           />
           <DashboardStatTile
             icon={ClipboardList}
@@ -76,8 +76,8 @@ export default async function AdminHomePage() {
           />
           <DashboardQuickLink
             href="/admin/executors"
-            title="Исполнители"
-            description="Статусы анкет исполнителей: «Активен» для откликов и ручные смены при необходимости."
+            title="Специалисты"
+            description="Статусы анкет специалистов: «Активен» для откликов и ручные смены при необходимости."
             icon={Briefcase}
           />
           <DashboardQuickLink
@@ -107,7 +107,7 @@ export default async function AdminHomePage() {
           <DashboardQuickLink
             href="/admin/payouts"
             title="Выплаты"
-            description="Заявки исполнителей на вывод."
+            description="Заявки специалистов на вывод."
             icon={Banknote}
           />
           <DashboardQuickLink href="/admin/disputes" title="Споры" description="Разбор спорных сделок." icon={Scale} />

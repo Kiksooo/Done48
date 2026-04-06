@@ -15,11 +15,11 @@ function isPublicPath(pathname: string): boolean {
   if (PUBLIC_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
     return true;
   }
-  // Публичное портфолио исполнителя: /u/username
+  // Публичное портфолио специалиста: /u/username
   if (pathname.startsWith("/u/") && pathname.length > 3) {
     return true;
   }
-  // Каталог исполнителей и превью галереи — без входа
+  // Каталог специалистов и превью галереи — без входа
   if (pathname === "/executors" || pathname.startsWith("/executors/")) {
     return true;
   }
@@ -117,7 +117,7 @@ export async function middleware(request: NextRequest) {
   }
 
   /**
-   * Кабинеты заказчика и исполнителя: пускаем любого вошедшего с завершённым онбордингом.
+   * Кабинеты заказчика и специалиста: пускаем любого вошедшего с завершённым онбордингом.
    * Точная роль берётся из БД в layout — так после смены роли админом не ловим «ложный» /login.
    * Админ-префикс по-прежнему только при role === ADMIN в JWT.
    */

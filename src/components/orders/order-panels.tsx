@@ -224,13 +224,13 @@ export function OrderPanels(props: {
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-2">
-              <Label>Назначить исполнителя</Label>
+              <Label>Назначить специалиста</Label>
               <p className="text-xs text-neutral-500">
-                Назначить исполнителя можно только после того, как заказчик зарезервировал сумму заказа с баланса
+                Назначить специалиста можно только после того, как заказчик зарезервировал сумму заказа с баланса
                 (резерв под заказ до приёмки; безопасная сделка).
               </p>
               {executorOptions.length === 0 ? (
-                <p className="text-sm text-neutral-500">Нет активных исполнителей в системе.</p>
+                <p className="text-sm text-neutral-500">Нет активных специалистов в системе.</p>
               ) : (
                 <>
                   <select
@@ -265,7 +265,7 @@ export function OrderPanels(props: {
               !snapshot.hasActiveDispute ? (
                 <div className="mt-3 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
                   <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                    Пока исполнитель не начал работу, можно снять назначение: заказ вернётся в поиск, отклики
+                    Пока специалист не начал работу, можно снять назначение: заказ вернётся в поиск, отклики
                     восстановятся, резерв средств сохранится.
                   </p>
                   <Button
@@ -277,7 +277,7 @@ export function OrderPanels(props: {
                     onClick={() => {
                       if (
                         !window.confirm(
-                          "Снять исполнителя с заказа? Заказ снова станет открытым для откликов.",
+                          "Снять специалиста с заказа? Заказ снова станет открытым для откликов.",
                         )
                       ) {
                         return;
@@ -285,7 +285,7 @@ export function OrderPanels(props: {
                       run("admin-unassign", () => adminUnassignExecutorAction({ orderId }));
                     }}
                   >
-                    Снять исполнителя
+                    Снять специалиста
                   </Button>
                 </div>
               ) : null}
@@ -382,7 +382,7 @@ export function OrderPanels(props: {
         <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
           <h2 className="text-sm font-semibold">Вы — соучастник заказа</h2>
           <p className="mt-2 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-            Основной заказчик управляет резервом суммы под заказ, выбором исполнителя и статусами. У вас есть доступ к
+            Основной заказчик управляет резервом суммы под заказ, выбором специалиста и статусами. У вас есть доступ к
             карточке и чату, чтобы быть в контексте сделки.
           </p>
         </section>
@@ -400,8 +400,8 @@ export function OrderPanels(props: {
           !["CANCELED", "COMPLETED", "DRAFT"].includes(snapshot.status) ? (
             <div className="mt-3 rounded-md border border-dashed border-amber-300/80 bg-amber-50/50 p-3 dark:border-amber-800 dark:bg-amber-950/20">
               <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
-                Сумма заказа резервируется с вашего баланса под этот заказ: исполнитель не получит её до вашей приёмки
-                результата. Пока исполнитель не назначен, при отмене заказа резерв снова доступен на балансе.
+                Сумма заказа резервируется с вашего баланса под этот заказ: специалист не получит её до вашей приёмки
+                результата. Пока специалист не назначен, при отмене заказа резерв снова доступен на балансе.
               </p>
               <Button
                 type="button"
@@ -427,7 +427,7 @@ export function OrderPanels(props: {
           !snapshot.hasActiveDispute ? (
             <div className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
               <p className="text-xs text-neutral-700 dark:text-neutral-300">
-                Пока исполнитель не нажал «Начать работу», вы можете снять назначение: заказ снова появится в поиске,
+                Пока специалист не нажал «Начать работу», вы можете снять назначение: заказ снова появится в поиске,
                 отклики вернутся в ожидание, резерв под заказ сохранится.
               </p>
               <Button
@@ -439,7 +439,7 @@ export function OrderPanels(props: {
                 onClick={() => {
                   if (
                     !window.confirm(
-                      "Снять исполнителя с заказа? Заказ снова станет доступен для откликов, вы сможете выбрать другого исполнителя.",
+                      "Снять специалиста с заказа? Заказ снова станет доступен для откликов, вы сможете выбрать другого специалиста.",
                     )
                   ) {
                     return;
@@ -447,7 +447,7 @@ export function OrderPanels(props: {
                   run("unassign", () => customerUnassignExecutorAction({ orderId }));
                 }}
               >
-                Снять исполнителя
+                Снять специалиста
               </Button>
             </div>
           ) : null}
@@ -459,7 +459,7 @@ export function OrderPanels(props: {
               {snapshot.paymentStatus === "RESERVED" ? (
                 <>
                   <p className="mt-1 text-xs text-neutral-500">
-                    Выберите исполнителя по одному из откликов. Остальные отклики будут отклонены автоматически.
+                    Выберите специалиста по одному из откликов. Остальные отклики будут отклонены автоматически.
                   </p>
                   <ul className="mt-2 space-y-2 text-sm">
                     {snapshot.proposals
@@ -484,18 +484,18 @@ export function OrderPanels(props: {
                               run("pick", () => customerAcceptProposalAction({ proposalId: p.id }))
                             }
                           >
-                            Выбрать исполнителем
+                            Выбрать специалистом
                           </Button>
                         </li>
                       ))}
                     {snapshot.proposals.filter((p) => p.status === "PENDING").length === 0 ? (
-                      <li className="text-neutral-500">Пока нет откликов — дождитесь исполнителей.</li>
+                      <li className="text-neutral-500">Пока нет откликов — дождитесь специалистов.</li>
                     ) : null}
                   </ul>
                 </>
               ) : (
                 <p className="mt-1 text-xs text-amber-800 dark:text-amber-200/90">
-                  Чтобы выбрать исполнителя, сначала зарезервируйте сумму заказа (кнопка выше) — так исполнитель
+                  Чтобы выбрать специалиста, сначала зарезервируйте сумму заказа (кнопка выше) — так специалист
                   получит оплату только после приёмки работы.
                 </p>
               )}
@@ -546,8 +546,8 @@ export function OrderPanels(props: {
             {snapshot.status === "SUBMITTED" ? (
               <div className="w-full space-y-2">
                 <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                  Исполнитель сдал результат. Если всё устраивает, завершите заказ — зарезервированная сумма пойдёт
-                  исполнителю по правилам сделки. Иначе отправьте на доработку.
+                  Специалист сдал результат. Если всё устраивает, завершите заказ — зарезервированная сумма пойдёт
+                  специалисту по правилам сделки. Иначе отправьте на доработку.
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <Button
@@ -634,7 +634,7 @@ export function OrderPanels(props: {
           id="executor-respond"
           className="scroll-mt-24 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
         >
-          <h2 className="text-sm font-semibold">Действия исполнителя</h2>
+          <h2 className="text-sm font-semibold">Действия специалиста</h2>
           {canPropose ? (
             <form
               className="mt-3 space-y-3"

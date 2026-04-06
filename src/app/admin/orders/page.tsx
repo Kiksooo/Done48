@@ -58,7 +58,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
               <th className="px-3 py-2 font-medium">Номер</th>
               <th className="px-3 py-2 font-medium">Название</th>
               <th className="px-3 py-2 font-medium">Заказчик</th>
-              <th className="px-3 py-2 font-medium">Исполнитель</th>
+              <th className="px-3 py-2 font-medium">Специалист</th>
               <th className="px-3 py-2 font-medium">Бюджет</th>
               <th className="px-3 py-2 font-medium">Статус</th>
               <th className="px-3 py-2 font-medium">Обновлён</th>

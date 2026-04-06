@@ -4,10 +4,14 @@ import {
   ArrowRight,
   Banknote,
   Briefcase,
+  Camera,
   CheckCircle2,
   Clock,
   Code2,
   Gift,
+  GraduationCap,
+  Hammer,
+  Heart,
   Layers,
   Megaphone,
   MessageSquare,
@@ -17,9 +21,10 @@ import {
   ShieldCheck,
   Sparkles,
   Star,
-  Wrench,
+  Truck,
   Users,
   Wallet,
+  Wrench,
   Zap,
 } from "lucide-react";
 import { LandingHeader } from "@/components/landing/landing-header";
@@ -36,30 +41,35 @@ const categories = [
   { icon: PenLine, title: "Тексты и контент", desc: "Копирайт, статьи, сценарии, редактура" },
   { icon: Code2, title: "Разработка и техника", desc: "Скрипты, правки сайта, мелкие задачи по коду" },
   { icon: Megaphone, title: "Маркетинг и соцсети", desc: "Креативы, воронки, настройка рекламы" },
-  { icon: Wrench, title: "Бытовые услуги", desc: "Уборка, сантехнические работы, сборка мебели и мелкий ремонт" },
+  { icon: Wrench, title: "Бытовые услуги", desc: "Уборка, сантехника, сборка мебели и мелкий ремонт" },
+  { icon: Hammer, title: "Строительство и ремонт", desc: "Плиточники, электрики, штукатуры, ремонт под ключ" },
+  { icon: GraduationCap, title: "Репетиторы", desc: "Математика, английский, подготовка к ЕГЭ и ОГЭ" },
+  { icon: Camera, title: "Фото и видео", desc: "Съёмка, монтаж, обработка, контент для соцсетей" },
+  { icon: Heart, title: "Красота и здоровье", desc: "Макияж, маникюр, причёски, массаж, фитнес-тренеры" },
+  { icon: Truck, title: "Доставка и перевозки", desc: "Курьеры, грузоперевозки, переезды" },
 ];
 
 const forCustomers = [
   "Рассказываете, что нужно сделать, с бюджетом и сроками — как короткое ТЗ.",
   "Получаете отклики и спокойно выбираете человека, который вам откликается.",
   "Оплата и учёт — в кабинете, статус заказа всегда на виду.",
-  "По желанию резервируете сумму под заказ: исполнитель получает оплату после вашей приёмки, а не сразу на карту.",
+  "По желанию резервируете сумму под заказ: специалист получает оплату после вашей приёмки, а не сразу на карту.",
   "Если вдруг спор — команда площадки поможет разобраться.",
 ];
 
 const forExecutors = [
+  "Создайте портфолио с примерами работ — заказчики увидят ваш стиль и опыт.",
   "Смотрите открытые задачи и откликайтесь там, где вам интересно.",
-  "Общаетесь и сдаёте работу в рамках одного заказа — без прыжков между чатами.",
-  "Когда заказчик резервирует сумму под сделку, оплата учитывается в вашу пользу после приёмки работы — в рамках платформы, с понятным статусом в кабинете.",
-  "Баланс и выплаты видны прямо в профиле.",
-  "Хотите — покажите портфолио: заказчикам проще понять ваш стиль.",
+  "Собирайте отзывы от заказчиков — рейтинг помогает выделиться среди других специалистов.",
+  "Когда заказчик резервирует сумму под сделку, оплата учитывается в вашу пользу после приёмки работы.",
+  "Баланс и выплаты видны прямо в профиле — прозрачная финансовая история.",
 ];
 
 const steps = [
   {
     step: "1",
     title: "Знакомство",
-    text: "При регистрации выберите роль заказчика или исполнителя; в онбординге — короткая справка по кабинету.",
+    text: "При регистрации выберите роль заказчика или специалиста; в онбординге — короткая справка по кабинету.",
   },
   {
     step: "2",
@@ -74,7 +84,7 @@ const steps = [
   {
     step: "4",
     title: "Подстраховка",
-    text: "Резерв под заказ и выплаты видны в балансе; исполнитель не получает сумму, пока вы не примете результат. Если что-то неясно — мы на связи по правилам площадки.",
+    text: "Резерв под заказ и выплаты видны в балансе; специалист не получает сумму, пока вы не примете результат. Если что-то неясно — мы на связи по правилам площадки.",
   },
 ];
 
@@ -92,7 +102,7 @@ const highlights = [
 const marketplaceBenefits = [
   {
     icon: MessageSquare,
-    title: "Исполнители откликнутся сами",
+    title: "Специалисты откликнутся сами",
     text: "Опишите задачу — подходящие люди пришлют условия, сроки и детали.",
   },
   {
@@ -103,19 +113,19 @@ const marketplaceBenefits = [
   {
     icon: ShieldCheck,
     title: "Защита сделки",
-    text: "Сумму можно зарезервировать под конкретный заказ: исполнитель получает деньги после приёмки работы — так спокойнее и заказчику, и исполнителю.",
+    text: "Сумму можно зарезервировать под конкретный заказ: специалист получает деньги после приёмки работы — так спокойнее и заказчику, и специалисту.",
   },
   {
     icon: Star,
     title: "Отзывы после сделки",
-    text: "Оценка по завершённой работе помогает отличить надёжных исполнителей.",
+    text: "Оценка по завершённой работе помогает отличить надёжных специалистов.",
   },
 ];
 
 const heroTrust = [
   { icon: Gift, text: "Регистрация бесплатно" },
   { icon: Clock, text: "Около минуты до старта" },
-  { icon: Users, text: "Заказчик или исполнитель" },
+  { icon: Users, text: "Заказчик или специалист" },
 ] as const;
 
 function HeroPreview() {
@@ -144,10 +154,10 @@ function HeroPreview() {
           <div className="space-y-3">
             <div className="flex gap-3 rounded-2xl border border-border/50 bg-background/80 p-3 shadow-sm">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium">
-                ИП
+                СП
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium text-foreground">Отклик исполнителя</p>
+                <p className="text-xs font-medium text-foreground">Отклик специалиста</p>
                 <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
                   готов за 1 день, приложу ссылки на прошлые работы.
                 </p>
@@ -209,13 +219,13 @@ export function LandingPage() {
               <div>
                 <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3.5 py-1.5 text-xs font-medium text-primary opacity-0 animate-fade-up [animation-delay:40ms] sm:text-sm">
                   <Sparkles className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" aria-hidden />
-                  Для заказчиков: разместить заказ и найти исполнителя
+                  Для заказчиков: разместить заказ и найти специалиста
                 </p>
                 <h1 className="text-balance text-4xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl lg:text-[2.75rem] xl:text-[3.15rem] opacity-0 animate-fade-up [animation-delay:80ms]">
-                  Разместите заказ онлайн — исполнители откликнутся с условиями и сроками
+                  Найдите проверенного специалиста для любой задачи
                 </h1>
                 <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl opacity-0 animate-fade-up [animation-delay:140ms]">
-                  Бесплатная регистрация за минуту: опишите задачу с бюджетом, сравните отклики и выберите специалиста. Онлайн и выезд — один кабинет со статусами, чатом и прозрачной оплатой. Исполнителям — отдельный вход к открытым заказам.
+                  Бесплатная регистрация за минуту: опишите задачу с бюджетом, сравните отклики и выберите специалиста. Онлайн и выезд — один кабинет со статусами, чатом и прозрачной оплатой. Специалистам — портфолио, отзывы и отдельный вход к открытым заказам.
                 </p>
 
                 <ul className="mt-6 flex flex-wrap gap-2 opacity-0 animate-fade-up [animation-delay:180ms] sm:gap-3">
@@ -245,7 +255,7 @@ export function LandingPage() {
                   >
                     <Link href={REGISTER_HREF_EXECUTOR}>
                       <Briefcase className="h-4 w-4" aria-hidden />
-                      Искать заказы как исполнитель
+                      Стать специалистом
                     </Link>
                   </Button>
                 </div>
@@ -318,7 +328,7 @@ export function LandingPage() {
               Всё под рукой — без лишних вкладок
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-center text-lg text-muted-foreground">
-              И заказчику, и исполнителю не нужно прыгать между чатами и таблицами: важное собрано в одном окне.
+              И заказчику, и специалисту не нужно прыгать между чатами и таблицами: важное собрано в одном окне.
             </p>
             <ul className="mt-12 grid gap-6 sm:grid-cols-3">
               {highlights.map(({ icon: Icon, label, sub }) => (
@@ -349,7 +359,7 @@ export function LandingPage() {
               И тем, кто заказывает, и тем, кто помогает
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-center text-lg text-muted-foreground">
-              Один сервис — две роли. Мы постарались, чтобы и заказчикам, и фрилансерам было понятно и спокойно.
+              Один сервис — две роли. Мы постарались, чтобы и заказчикам, и специалистам было понятно и спокойно.
             </p>
             <div className="mt-14 grid gap-8 lg:grid-cols-2">
               {[
@@ -360,9 +370,9 @@ export function LandingPage() {
                   items: forCustomers,
                 },
                 {
-                  title: "Если вы делаете классные вещи",
+                  title: "Если вы — профессионал своего дела",
                   icon: Briefcase,
-                  intro: "Короткие заказы, понятные отклики и прозрачный цикл — витрина задач прямо внутри DONE48.",
+                  intro: "Портфолио, отзывы, заказы и прозрачные выплаты — всё для того, чтобы вас находили и выбирали.",
                   items: forExecutors,
                 },
               ].map((block) => {
@@ -454,31 +464,81 @@ export function LandingPage() {
               </div>
               <Layers className="h-12 w-12 text-primary/30 lg:shrink-0" aria-hidden />
             </div>
-            <ul className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-              {categories.map(({ icon: Icon, title, desc }, idx) => (
+            <ul className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-5 lg:gap-5">
+              {categories.map(({ icon: Icon, title, desc }) => (
                 <li
                   key={title}
                   className={cn(
-                    "group flex flex-col rounded-2xl border border-border/70 bg-card p-6 shadow-sm transition-all duration-300",
+                    "group flex flex-col rounded-2xl border border-border/70 bg-card p-5 shadow-sm transition-all duration-300",
                     "hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md",
-                    idx === 0 && "lg:col-span-2 lg:flex-row lg:items-center lg:gap-6 lg:p-8",
                   )}
                 >
-                  <div
-                    className={cn(
-                      "mb-4 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-transform group-hover:scale-105",
-                      idx === 0 && "lg:mb-0 lg:h-14 lg:w-14",
-                    )}
-                  >
-                    <Icon className="h-6 w-6" aria-hidden />
+                  <div className="mb-3 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform group-hover:scale-105">
+                    <Icon className="h-5 w-5" aria-hidden />
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold">{title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{desc}</p>
-                  </div>
+                  <h3 className="text-sm font-semibold">{title}</h3>
+                  <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{desc}</p>
                 </li>
               ))}
             </ul>
+          </div>
+        </section>
+
+        <section
+          id="specialists"
+          className="scroll-mt-20 py-20 sm:scroll-mt-24 sm:py-24"
+          aria-labelledby="specialists-heading"
+        >
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
+            <SectionEyebrow>Специалисты</SectionEyebrow>
+            <h2 id="specialists-heading" className="text-center text-3xl font-bold tracking-tight sm:text-4xl">
+              Профессионалы с портфолио и отзывами
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-center text-lg text-muted-foreground">
+              Каждый специалист создаёт профиль с примерами работ, описанием опыта и контактами.
+              Отзывы оставляют только реальные заказчики после завершённой сделки.
+            </p>
+            <div className="mt-12 grid gap-6 sm:grid-cols-3">
+              {[
+                {
+                  icon: Briefcase,
+                  title: "Портфолио работ",
+                  text: "Специалисты загружают примеры выполненных проектов — фото, описания и ссылки. Всё проходит модерацию.",
+                },
+                {
+                  icon: Star,
+                  title: "Рейтинг и отзывы",
+                  text: "Оценки ставятся по итогам реальных заказов. Чем больше положительных отзывов — тем выше доверие.",
+                },
+                {
+                  icon: CheckCircle2,
+                  title: "Проверенные профили",
+                  text: "Анкеты проходят модерацию администраторами. Только подтверждённые специалисты видны в каталоге.",
+                },
+              ].map((item) => {
+                const ItemIcon = item.icon;
+                return (
+                  <div
+                    key={item.title}
+                    className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
+                  >
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                      <ItemIcon className="h-6 w-6" aria-hidden />
+                    </div>
+                    <h3 className="mt-4 text-lg font-semibold">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.text}</p>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-10 text-center">
+              <Button size="lg" variant="outline" className="h-12 gap-2 rounded-xl px-8 text-base" asChild>
+                <Link href="/executors">
+                  Смотреть каталог специалистов
+                  <ArrowRight className="h-4 w-4" aria-hidden />
+                </Link>
+              </Button>
+            </div>
           </div>
         </section>
 
@@ -564,7 +624,7 @@ export function LandingPage() {
               <span className="text-lg font-bold">DONE48</span>
             </div>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
-              Маркетплейс микро-услуг: заказчики и исполнители в одной экосистеме — чат, статусы, опциональный резерв
+              Маркетплейс услуг: заказчики и специалисты в одной экосистеме — портфолио, чат, статусы, опциональный резерв
               суммы под заказ до приёмки работы.
             </p>
             <p className="mt-3 text-sm">

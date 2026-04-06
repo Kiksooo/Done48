@@ -73,7 +73,7 @@ export default async function CustomerOrdersPage({ searchParams }: { searchParam
             <tr>
               <th className="px-4 py-3 font-medium">Номер</th>
               <th className="px-4 py-3 font-medium">Название</th>
-              <th className="px-4 py-3 font-medium">Исполнитель</th>
+              <th className="px-4 py-3 font-medium">Специалист</th>
               <th className="px-4 py-3 font-medium">Бюджет</th>
               <th className="px-4 py-3 font-medium">Статус</th>
               <th className="px-4 py-3 font-medium">Дедлайн</th>
@@ -110,7 +110,7 @@ export default async function CustomerOrdersPage({ searchParams }: { searchParam
               <CabinetEmptyState
                 icon={ClipboardList}
                 title="У вас ещё нет заказов"
-                description="Создайте задачу с описанием и бюджетом — после модерации её увидят исполнители."
+                description="Создайте задачу с описанием и бюджетом — после модерации её увидят специалисты."
               >
                 <Button size="sm" asChild>
                   <Link href="/customer/orders/new">Создать заказ</Link>
@@ -144,7 +144,7 @@ export default async function CustomerOrdersPage({ searchParams }: { searchParam
             <CabinetEmptyState
               icon={ClipboardList}
               title="У вас ещё нет заказов"
-              description="Создайте задачу — после модерации её увидят исполнители."
+              description="Создайте задачу — после модерации её увидят специалисты."
             >
               <Button size="sm" asChild>
                 <Link href="/customer/orders/new">Создать заказ</Link>

@@ -31,7 +31,7 @@ export async function adminSetExecutorAccountStatusAction(raw: unknown): Promise
   });
 
   if (!row || row.user.role !== Role.EXECUTOR) {
-    return { ok: false, error: "Профиль исполнителя не найден" };
+    return { ok: false, error: "Профиль специалиста не найден" };
   }
 
   const beforeStatus = row.accountStatus;
@@ -69,7 +69,7 @@ export async function adminSetExecutorAccountStatusAction(raw: unknown): Promise
         data: {
           userId,
           kind: NotificationKind.GENERIC,
-          title: "Аккаунт исполнителя заблокирован",
+          title: "Аккаунт специалиста заблокирован",
           body: "Обратитесь в поддержку площадки, если нужны детали.",
           link: "/executor/profile",
         },

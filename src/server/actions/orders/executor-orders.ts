@@ -61,7 +61,7 @@ export async function executorCreateProposalAction(raw: unknown): Promise<Action
     return {
       ok: false,
       error:
-        "Отклики доступны только при статусе исполнителя «Активен». Если анкета на проверке или заблокирована — дождитесь смены статуса администратором (раздел «Исполнители»).",
+        "Отклики доступны только при статусе специалиста «Активен». Если анкета на проверке или заблокирована — дождитесь смены статуса администратором (раздел «Специалисты»).",
     };
   }
 
@@ -213,7 +213,7 @@ export async function executorStartWorkAction(raw: unknown): Promise<ActionResul
     await createNotification({
       userId: check.order.customerId,
       kind: NotificationKind.GENERIC,
-      title: "Исполнитель начал работу",
+      title: "Специалист начал работу",
       body: `Заказ: ${check.order.title}`,
       link: `/orders/${orderId}`,
     });
@@ -300,7 +300,7 @@ export async function executorSubmitWorkAction(raw: unknown): Promise<ActionResu
 
 const ACTIVE_DISPUTE: DisputeStatus[] = [DisputeStatus.OPEN, DisputeStatus.IN_REVIEW];
 
-/** Исполнитель закрывает заказ после приёмки работы заказчиком (ACCEPTED → COMPLETED). */
+/** Специалист закрывает заказ после приёмки работы заказчиком (ACCEPTED → COMPLETED). */
 export async function executorCompleteOrderAction(raw: unknown): Promise<ActionResult> {
   const user = await getSessionUserForAction();
   if (!user || user.role !== Role.EXECUTOR) {
@@ -344,7 +344,7 @@ export async function executorCompleteOrderAction(raw: unknown): Promise<ActionR
           fromStatus: OrderStatus.ACCEPTED,
           toStatus: OrderStatus.COMPLETED,
           actorUserId: user.id,
-          note: "Заказ закрыт исполнителем",
+          note: "Заказ закрыт специалистом",
         });
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
@@ -375,7 +375,7 @@ export async function executorCompleteOrderAction(raw: unknown): Promise<ActionR
     await createNotification({
       userId: check.order.customerId,
       kind: NotificationKind.GENERIC,
-      title: "Заказ закрыт исполнителем",
+      title: "Заказ закрыт специалистом",
       body: `«${check.order.title}» отмечен как завершённый.`,
       link: `/orders/${orderId}`,
     });

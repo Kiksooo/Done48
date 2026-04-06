@@ -7,7 +7,7 @@ type Props = {
   imageUrl?: string | null;
 };
 
-/** Schema.org Person для публичного портфолио исполнителя. */
+/** Schema.org Person для публичного портфолио специалиста. */
 export function ExecutorProfileJsonLd({ name, username, description, imageUrl }: Props) {
   const base = getSiteUrl();
   const origin = base.endsWith("/") ? base.slice(0, -1) : base;

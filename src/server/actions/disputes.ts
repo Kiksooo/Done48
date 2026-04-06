@@ -36,7 +36,7 @@ function revalidateDisputePaths(orderId: string) {
 export async function openDisputeAction(raw: unknown): Promise<ActionResult> {
   const user = await getSessionUserForAction();
   if (!user || (user.role !== Role.CUSTOMER && user.role !== Role.EXECUTOR)) {
-    return { ok: false, error: "Доступно заказчику или исполнителю" };
+    return { ok: false, error: "Доступно заказчику или специалисту" };
   }
 
   const parsed = openDisputeSchema.safeParse(raw);

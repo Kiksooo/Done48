@@ -19,7 +19,7 @@ function greetingName(displayName: string | null | undefined, username: string |
   if (d) return d.split(/\s+/)[0] ?? d;
   const u = username?.trim();
   if (u) return u;
-  return email.split("@")[0] || "исполнитель";
+  return email.split("@")[0] || "специалист";
 }
 
 export default async function ExecutorHomePage() {
@@ -49,10 +49,10 @@ export default async function ExecutorHomePage() {
   let statusTone: "neutral" | "amber" | "rose" = "neutral";
   if (profile?.accountStatus === ExecutorAccountStatus.PENDING_MODERATION) {
     statusNote =
-      "Анкета на проверке у администратора: пока статус не «Активен», отклики на заказы недоступны. Статус меняется в разделе «Исполнители».";
+      "Анкета на проверке у администратора: пока статус не «Активен», отклики на заказы недоступны. Статус меняется в разделе «Специалисты».";
     statusTone = "amber";
   } else if (profile?.accountStatus === ExecutorAccountStatus.BLOCKED) {
-    statusNote = "Аккаунт исполнителя заблокирован. Обратитесь в поддержку площадки.";
+    statusNote = "Аккаунт специалиста заблокирован. Обратитесь в поддержку площадки.";
     statusTone = "rose";
   } else if (profile?.accountStatus === ExecutorAccountStatus.ARCHIVED) {
     statusNote = "Профиль в архиве. Восстановите статус в кабинете или через поддержку.";
@@ -108,7 +108,7 @@ export default async function ExecutorHomePage() {
         <div className="rounded-xl border border-emerald-200/80 bg-emerald-50/80 px-4 py-4 dark:border-emerald-900/40 dark:bg-emerald-950/25">
           <p className="text-sm font-semibold text-emerald-950 dark:text-emerald-100">Пока нет назначенных задач</p>
           <p className="mt-1 text-sm text-emerald-900/90 dark:text-emerald-200/90">
-            Загляните в каталог открытых заказов и откликнитесь на подходящие — заказчик выберет исполнителя по откликам.
+            Загляните в каталог открытых заказов и откликнитесь на подходящие — заказчик выберет специалиста по откликам.
           </p>
           <Button asChild className="mt-3" size="sm" variant="secondary">
             <Link href="/executor/orders/available">Смотреть доступные заказы</Link>
@@ -156,7 +156,7 @@ export default async function ExecutorHomePage() {
           <DashboardQuickLink
             href="/executor/orders"
             title="Мои заказы"
-            description="Всё, где вы назначены исполнителем."
+            description="Всё, где вы назначены специалистом."
             icon={Briefcase}
           />
           <DashboardQuickLink

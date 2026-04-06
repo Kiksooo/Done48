@@ -10,7 +10,7 @@ export type ChatInboxRow = {
 };
 
 /**
- * Чаты, где пользователь состоит в ChatMember (заказчик / исполнитель / добавленный админом).
+ * Чаты, где пользователь состоит в ChatMember (заказчик / специалист / добавленный админом).
  */
 export async function listChatsForInbox(userId: string): Promise<ChatInboxRow[]> {
   const members = await prisma.chatMember.findMany({

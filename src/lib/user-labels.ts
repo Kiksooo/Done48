@@ -3,7 +3,7 @@ import type { ContactBlocklistKind, Role } from "@prisma/client";
 export const ROLE_LABELS: Record<Role, string> = {
   ADMIN: "Администратор",
   CUSTOMER: "Заказчик",
-  EXECUTOR: "Исполнитель",
+  EXECUTOR: "Специалист",
 };
 
 export function roleRu(role: string): string {

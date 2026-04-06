@@ -81,7 +81,7 @@ export function MarketingCampaignForm({
         >
           <option value="ALL">Всем подписанным</option>
           <option value="CUSTOMER">Только заказчикам</option>
-          <option value="EXECUTOR">Только исполнителям</option>
+          <option value="EXECUTOR">Только специалистам</option>
         </select>
       </div>
 

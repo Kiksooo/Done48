@@ -24,7 +24,7 @@ export default async function ExecutorLayout({ children }: { children: ReactNode
 
   return (
     <CabinetShell
-      brand="DONE48 · Исполнитель"
+      brand="DONE48 · Специалист"
       nav={EXECUTOR_NAV}
       userEmail={user.email}
       unreadNotifications={unreadNotifications}

@@ -113,7 +113,7 @@ export async function adminPublishOrder(orderId: string): Promise<ActionResult> 
       userId: customerId,
       kind: NotificationKind.ORDER_PUBLISHED,
       title: "Заказ опубликован",
-      body: `«${orderTitle}» доступен исполнителям`,
+      body: `«${orderTitle}» доступен специалистам`,
       link: `/orders/${orderId}`,
     });
   });
@@ -142,13 +142,13 @@ export async function adminAssignExecutorAction(
   ]);
 
   if (!order) return { ok: false, error: "Заказ не найден" };
-  if (!executor) return { ok: false, error: "Исполнитель не найден" };
+  if (!executor) return { ok: false, error: "Специалист не найден" };
 
   if (order.executorId === executorUserId && order.status === OrderStatus.ASSIGNED) {
     return { ok: true };
   }
   if (order.executorId && order.executorId !== executorUserId) {
-    return { ok: false, error: "У заказа уже другой исполнитель" };
+    return { ok: false, error: "У заказа уже другой специалист" };
   }
 
   const assignable: OrderStatus[] = [
@@ -227,7 +227,7 @@ export async function adminAssignExecutorAction(
           fromStatus: ord.status,
           toStatus: OrderStatus.ASSIGNED,
           actorUserId: admin.id,
-          note: "Назначен исполнитель админом",
+          note: "Назначен специалист админом",
         });
 
         const chat = await tx.chat.findUnique({ where: { orderId } });
@@ -257,7 +257,7 @@ export async function adminAssignExecutorAction(
     const msg = e instanceof Error ? e.message : "";
     if (msg === "NOT_FOUND") return { ok: false, error: "Заказ не найден" };
     if (msg === "OTHER_EXEC") {
-      return { ok: false, error: "У заказа уже другой исполнитель" };
+      return { ok: false, error: "У заказа уже другой специалист" };
     }
     if (msg === "BAD_STATUS" || msg === "STATE") {
       return { ok: false, error: "Назначение недоступно для текущего статуса" };
@@ -289,7 +289,7 @@ export async function adminAssignExecutorAction(
   notifySafe(async () => {
     await createNotificationsForUsers([assignResult.customerId, executorUserId], {
       kind: NotificationKind.EXECUTOR_ASSIGNED,
-      title: "Исполнитель назначен",
+      title: "Специалист назначен",
       body: `Заказ: ${assignResult.title}`,
       link: `/orders/${orderId}`,
     });
@@ -298,7 +298,7 @@ export async function adminAssignExecutorAction(
   return { ok: true };
 }
 
-/** До начала работы исполнителем: как у заказчика — заказ снова в поиске, отклики восстанавливаются. */
+/** До начала работы специалистом: как у заказчика — заказ снова в поиске, отклики восстанавливаются. */
 export async function adminUnassignExecutorAction(raw: unknown): Promise<ActionResult> {
   const admin = await requireAdmin();
   if (!admin) return { ok: false, error: "Нет доступа" };
@@ -313,11 +313,11 @@ export async function adminUnassignExecutorAction(raw: unknown): Promise<ActionR
   if (orderPre.status !== OrderStatus.ASSIGNED) {
     return {
       ok: false,
-      error: "Снять исполнителя можно только пока заказ «Назначен» и работа ещё не начата.",
+      error: "Снять специалиста можно только пока заказ «Назначен» и работа ещё не начата.",
     };
   }
   if (!orderPre.executorId) {
-    return { ok: false, error: "Исполнитель не назначен" };
+    return { ok: false, error: "Специалист не назначен" };
   }
   if (orderPre.paymentStatus !== PaymentStatus.RESERVED) {
     return { ok: false, error: "Снятие назначения недоступно в текущем платёжном статусе" };
@@ -328,7 +328,7 @@ export async function adminUnassignExecutorAction(raw: unknown): Promise<ActionR
     select: { id: true },
   });
   if (activeDispute) {
-    return { ok: false, error: "Нельзя снять исполнителя, пока открыт спор" };
+    return { ok: false, error: "Нельзя снять специалиста, пока открыт спор" };
   }
 
   const formerExecutorId = orderPre.executorId;
@@ -389,7 +389,7 @@ export async function adminUnassignExecutorAction(raw: unknown): Promise<ActionR
           fromStatus: OrderStatus.ASSIGNED,
           toStatus: OrderStatus.PUBLISHED,
           actorUserId: admin.id,
-          note: "Назначение исполнителя снято администратором",
+          note: "Назначение специалиста снято администратором",
         });
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
@@ -400,7 +400,7 @@ export async function adminUnassignExecutorAction(raw: unknown): Promise<ActionR
     if (msg === "STATE") {
       return {
         ok: false,
-        error: "Снять исполнителя сейчас нельзя (возможно, исполнитель уже начал работу). Обновите страницу.",
+        error: "Снять специалиста сейчас нельзя (возможно, специалист уже начал работу). Обновите страницу.",
       };
     }
     if (isPrismaTransactionConflict(e)) {
@@ -431,8 +431,8 @@ export async function adminUnassignExecutorAction(raw: unknown): Promise<ActionR
     await createNotification({
       userId: customerId,
       kind: NotificationKind.GENERIC,
-      title: "Исполнитель снят администратором",
-      body: `По заказу «${orderTitle}» назначение снято. Заказ снова в поиске исполнителя; резерв суммы под заказ сохраняется до приёмки или возврата по правилам.`,
+      title: "Специалист снят администратором",
+      body: `По заказу «${orderTitle}» назначение снято. Заказ снова в поиске специалиста; резерв суммы под заказ сохраняется до приёмки или возврата по правилам.`,
       link: `/orders/${orderId}`,
     });
   });
@@ -536,7 +536,7 @@ export async function adminAcceptProposalAction(raw: unknown): Promise<ActionRes
 
   const orderPre = proposal.order;
   if (orderPre.executorId) {
-    return { ok: false, error: "У заказа уже есть исполнитель" };
+    return { ok: false, error: "У заказа уже есть специалист" };
   }
   if (
     orderPre.status !== OrderStatus.PUBLISHED ||
@@ -635,7 +635,7 @@ export async function adminAcceptProposalAction(raw: unknown): Promise<ActionRes
           fromStatus: ord.status,
           toStatus: OrderStatus.ASSIGNED,
           actorUserId: admin.id,
-          note: "Исполнитель выбран по отклику",
+          note: "Специалист выбран по отклику",
         });
 
         const chat = await tx.chat.findUnique({ where: { orderId: ord.id } });
@@ -669,7 +669,7 @@ export async function adminAcceptProposalAction(raw: unknown): Promise<ActionRes
       return { ok: false, error: "Отклик уже обработан" };
     }
     if (msg === "ORDER_EXEC") {
-      return { ok: false, error: "У заказа уже есть исполнитель" };
+      return { ok: false, error: "У заказа уже есть специалист" };
     }
     if (msg === "ORDER_BAD" || msg === "ORDER_STATE") {
       return { ok: false, error: "Назначение по отклику недоступно" };
@@ -702,7 +702,7 @@ export async function adminAcceptProposalAction(raw: unknown): Promise<ActionRes
     await createNotification({
       userId: acceptOut.customerId,
       kind: NotificationKind.EXECUTOR_ASSIGNED,
-      title: "Выбран исполнитель",
+      title: "Выбран специалист",
       body: `По заказу «${acceptOut.orderTitle}»`,
       link: `/orders/${acceptOut.orderId}`,
     });

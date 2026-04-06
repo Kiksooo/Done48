@@ -293,12 +293,12 @@ async function main() {
     where: { userId: executor.id },
     create: {
       userId: executor.id,
-      displayName: "Исполнитель демо",
+      displayName: "Специалист демо",
       username: "demo_executor",
       accountStatus: ExecutorAccountStatus.ACTIVE,
     },
     update: {
-      displayName: "Исполнитель демо",
+      displayName: "Специалист демо",
       username: "demo_executor",
       accountStatus: ExecutorAccountStatus.ACTIVE,
     },
@@ -315,7 +315,7 @@ async function main() {
           customerId: customer.id,
           title: demoPubTitle,
           description:
-            "Нужна адаптивная вёрстка по макету. Это демо-заказ для витрины исполнителям.",
+            "Нужна адаптивная вёрстка по макету. Это демо-заказ для витрины специалистам.",
           categoryId: catDev.id,
           subcategoryId: subWeb.id,
           budgetCents: 1_500_000,
@@ -435,7 +435,7 @@ async function main() {
   // eslint-disable-next-line no-console
   console.log("  Заказчик:", customerEmail, "/ demo12345");
   // eslint-disable-next-line no-console
-  console.log("  Исполнитель:", executorEmail, "/ demo12345");
+  console.log("  Специалист:", executorEmail, "/ demo12345");
 }
 
 main()

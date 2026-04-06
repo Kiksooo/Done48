@@ -10,8 +10,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { completeOnboarding } from "@/server/actions/onboarding";
 
 const CUSTOMER_HINTS = [
-  "Создавайте заказы с бюджетом и сроком — после модерации их увидят исполнители.",
-  "В карточке заказа можно зарезервировать сумму под сделку: исполнитель получит оплату после вашей приёмки работы.",
+  "Создавайте заказы с бюджетом и сроком — после модерации их увидят специалисты.",
+  "В карточке заказа можно зарезервировать сумму под сделку: специалист получит оплату после вашей приёмки работы.",
   "Переписка и файлы живут в одной карточке заказа — контекст не теряется.",
 ];
 
@@ -51,7 +51,7 @@ export function OnboardingClient({ role }: { role: Role }) {
     role === "EXECUTOR" ? EXECUTOR_HINTS : role === "ADMIN" ? ADMIN_HINTS : CUSTOMER_HINTS;
   /** После «как» — именительный падеж: «вошли как заказчик», не «как заказчика». */
   const roleLabel =
-    role === "EXECUTOR" ? "исполнитель" : role === "ADMIN" ? "администратор" : "заказчик";
+    role === "EXECUTOR" ? "специалист" : role === "ADMIN" ? "администратор" : "заказчик";
 
   return (
     <Card>

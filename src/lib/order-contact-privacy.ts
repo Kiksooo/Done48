@@ -48,7 +48,7 @@ export function orderChatMessageSenderLine(params: {
     return "Заказчик";
   }
   if (params.executorId && params.senderId === params.executorId) {
-    return "Исполнитель";
+    return "Специалист";
   }
   return "Участник";
 }

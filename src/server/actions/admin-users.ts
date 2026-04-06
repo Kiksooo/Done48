@@ -63,7 +63,7 @@ export async function adminDeleteUserAction(raw: unknown): Promise<ActionResult>
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2003") {
       return {
         ok: false,
-        error: "Не удалось удалить: остались связанные данные в БД. Попробуйте сначала снять исполнителя с заказов или выполните миграции.",
+        error: "Не удалось удалить: остались связанные данные в БД. Попробуйте сначала снять специалиста с заказов или выполните миграции.",
       };
     }
     return { ok: false, error: "Не удалось удалить пользователя. См. логи сервера." };
@@ -142,7 +142,7 @@ export async function adminSetUserRoleAction(raw: unknown): Promise<ActionResult
       return {
         ok: false,
         error:
-          "Нельзя сменить роль: у пользователя есть незавершённые заказы как исполнитель (не «Завершён» и не «Отменён»).",
+          "Нельзя сменить роль: у пользователя есть незавершённые заказы как специалист (не «Завершён» и не «Отменён»).",
       };
     }
     const pendingProposals = await prisma.proposal.count({

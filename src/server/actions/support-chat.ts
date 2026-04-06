@@ -20,7 +20,7 @@ function cabinetSupportPath(role: Role): string {
 export async function sendSupportMessageAction(rawMessage: string): Promise<ActionResult> {
   const user = await getSessionUserForAction();
   if (!user || (user.role !== Role.CUSTOMER && user.role !== Role.EXECUTOR)) {
-    return { ok: false, error: "Доступно только заказчику или исполнителю" };
+    return { ok: false, error: "Доступно только заказчику или специалисту" };
   }
 
   const message = sanitizeMessage(rawMessage);
@@ -66,7 +66,7 @@ export async function sendSupportReplyAction(targetUserId: string, rawMessage: s
   });
   if (!target) return { ok: false, error: "Пользователь не найден" };
   if (target.role !== Role.CUSTOMER && target.role !== Role.EXECUTOR) {
-    return { ok: false, error: "Можно отвечать только заказчику или исполнителю" };
+    return { ok: false, error: "Можно отвечать только заказчику или специалисту" };
   }
 
   await createNotification({

@@ -22,10 +22,10 @@ export default async function AdminExecutorsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Исполнители</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Специалисты</h1>
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
           Статус <strong className="font-medium text-neutral-800 dark:text-neutral-200">«Активен»</strong> нужен, чтобы
-          исполнитель мог откликаться на заказы (новые регистрации получают его по умолчанию; при необходимости переведите в
+          специалист мог откликаться на заказы (новые регистрации получают его по умолчанию; при необходимости переведите в
           «На модерации» или заблокируйте). Раздел «Модерация» в меню — жалобы и блоклист контактов, не анкеты.
         </p>
       </div>

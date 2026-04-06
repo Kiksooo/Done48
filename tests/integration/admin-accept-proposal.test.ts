@@ -43,7 +43,7 @@ describe.skipIf(!hasTestDatabase())("adminAcceptProposalAction", () => {
     rbac.getSessionUserForAction.mockReset();
   });
 
-  it("назначает исполнителя по отклику и закрывает остальные PENDING", async () => {
+  it("назначает специалиста по отклику и закрывает остальные PENDING", async () => {
     const customer = await createCustomerUser(100_000);
     const executor = await createExecutorUser(0, 0);
     const admin = await createAdminUser();

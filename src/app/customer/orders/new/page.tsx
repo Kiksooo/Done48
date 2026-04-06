@@ -23,7 +23,7 @@ export default async function CustomerNewOrderPage() {
           { label: "Новый заказ" },
         ]}
         title="Создать заказ"
-        description="Заполните поля — после публикации заказ увидят исполнители (при необходимости пройдёт модерацию)."
+        description="Заполните поля — после публикации заказ увидят специалисты (при необходимости пройдёт модерацию)."
       />
       <OrderCreateForm categories={categories} moderateAllNewOrders={af.moderateAllNewOrders} />
     </div>

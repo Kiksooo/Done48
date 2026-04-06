@@ -10,7 +10,7 @@ type MinimalFrom = {
 
 export function reviewerDisplayName(u: MinimalFrom, mode: "full" | "anonymous_role"): string {
   if (mode === "anonymous_role") {
-    return u.role === "CUSTOMER" ? "Заказчик" : "Исполнитель";
+    return u.role === "CUSTOMER" ? "Заказчик" : "Специалист";
   }
   if (u.role === "CUSTOMER") {
     return u.customerProfile?.displayName?.trim() || u.email.split("@")[0] || "Заказчик";
@@ -19,7 +19,7 @@ export function reviewerDisplayName(u: MinimalFrom, mode: "full" | "anonymous_ro
     u.executorProfile?.displayName?.trim() ||
     (u.executorProfile?.username ? `@${u.executorProfile.username}` : null) ||
     u.email.split("@")[0] ||
-    "Исполнитель"
+    "Специалист"
   );
 }
 

@@ -27,7 +27,7 @@ export async function getReviewStatsForUser(userId: string): Promise<{ avg: numb
   };
 }
 
-/** Для каталога исполнителей: одна группировка вместо N запросов. */
+/** Для каталога специалистов: одна группировка вместо N запросов. */
 export async function getReviewStatsForUsers(
   userIds: string[],
 ): Promise<Map<string, { avg: number | null; count: number }>> {

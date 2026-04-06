@@ -107,7 +107,7 @@ export async function listMyExecutorOrders(executorId: string) {
 }
 
 /**
- * Заказы с открытыми откликами. Если у исполнителя заданы `orderCities`, показываем заказы,
+ * Заказы с открытыми откликами. Если у специалиста заданы `orderCities`, показываем заказы,
  * где город заказчика совпадает (без учёта регистра) или город не указан / нет профиля.
  */
 export async function listAvailableOrdersForExecutor(executorUserId: string) {

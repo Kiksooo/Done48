@@ -59,7 +59,7 @@ export function AdminExecutorProfilesPanel({ rows }: { rows: ExecutorProfileAdmi
   if (ordered.length === 0) {
     return (
       <p className="rounded-lg border border-neutral-200 px-4 py-8 text-center text-sm text-neutral-500 dark:border-neutral-800">
-        Нет исполнителей в базе.
+        Нет специалистов в базе.
       </p>
     );
   }
@@ -152,7 +152,7 @@ function ExecutorProfileRow({ row }: { row: ExecutorProfileAdminRow }) {
               className="h-8"
               disabled={pending}
               onClick={() => {
-                if (!window.confirm(`Заблокировать аккаунт исполнителя ${row.email}?`)) return;
+                if (!window.confirm(`Заблокировать аккаунт специалиста ${row.email}?`)) return;
                 startTransition(() => setStatus("BLOCKED"));
               }}
             >

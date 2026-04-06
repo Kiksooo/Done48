@@ -11,7 +11,7 @@ export default async function AdminPayoutsPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Заявки на вывод</h1>
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Одобрение и отметка фактической выплаты исполнителю
+          Одобрение и отметка фактической выплаты специалисту
         </p>
       </div>
 
@@ -20,7 +20,7 @@ export default async function AdminPayoutsPage() {
           <thead className="border-b border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900/40">
             <tr>
               <th className="px-3 py-2">Дата</th>
-              <th className="px-3 py-2">Исполнитель</th>
+              <th className="px-3 py-2">Специалист</th>
               <th className="px-3 py-2">Сумма</th>
               <th className="px-3 py-2">Статус</th>
               <th className="px-3 py-2">Реквизиты</th>
