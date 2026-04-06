@@ -3,6 +3,8 @@ import { getSiteUrl } from "@/lib/site-url";
 import { listPublicExecutorUsernames } from "@/server/queries/public-executor";
 import { listBlogSlugs } from "@/server/queries/blog";
 
+export const dynamic = "force-dynamic";
+
 /** Публичные URL для индексации (кабинеты и API закрыты в robots.txt). */
 const PATHS = [
   { path: "/", changeFrequency: "weekly", priority: 1 },
