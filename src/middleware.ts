@@ -29,6 +29,16 @@ function isPublicPath(pathname: string): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  /** За прокси (Vercel, nginx) http → https, чтобы канонический доступ был по TLS. */
+  if (request.headers.get("x-forwarded-proto") === "http") {
+    const host = request.headers.get("host")?.split(":")[0]?.toLowerCase() ?? "";
+    if (host && host !== "localhost" && host !== "127.0.0.1" && !host.endsWith(".local")) {
+      const url = request.nextUrl.clone();
+      url.protocol = "https:";
+      return NextResponse.redirect(url, 308);
+    }
+  }
+
   if (pathname === "/api/health") {
     return NextResponse.next();
   }

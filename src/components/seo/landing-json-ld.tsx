@@ -10,7 +10,7 @@ import { getSiteUrl } from "@/lib/site-url";
 export function LandingJsonLd() {
   const base = getSiteUrl();
   const origin = base.endsWith("/") ? base.slice(0, -1) : base;
-  const logoUrl = `${origin}/icon.svg`;
+  const logoUrl = `${origin}/icon`;
   const idOrg = `${base}/#organization`;
   const idWeb = `${base}/#website`;
 
