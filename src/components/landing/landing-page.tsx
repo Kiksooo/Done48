@@ -147,6 +147,21 @@ const trustVisuals = [
   },
 ] as const;
 
+const specialistVisuals = [
+  {
+    src: "/images/blog/blog-portfolio-specialista-kak-oformit.jpg",
+    badge: "Проверенный профиль",
+  },
+  {
+    src: "/images/blog/blog-otzyvy-na-marketpleise-zachem-vazhny.jpg",
+    badge: "Реальные отзывы",
+  },
+  {
+    src: "/images/blog/blog-kak-specialistu-poluchat-bolshe-zakazov.jpg",
+    badge: "Прозрачные выплаты",
+  },
+] as const;
+
 function HeroPreview() {
   return (
     <div className="relative mx-auto w-full max-w-lg lg:max-w-none">
@@ -172,8 +187,14 @@ function HeroPreview() {
           </div>
           <div className="space-y-3">
             <div className="flex gap-3 rounded-2xl border border-border/50 bg-background/80 p-3 shadow-sm">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium">
-                СП
+              <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border border-border/60">
+                <Image
+                  src="/images/blog/blog-kak-vybrat-dizaynera-dlya-logotipa.jpg"
+                  alt="Фото специалиста"
+                  fill
+                  className="object-cover"
+                  sizes="40px"
+                />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-medium text-foreground">Отклик специалиста</p>
@@ -181,6 +202,28 @@ function HeroPreview() {
                   готов за 1 день, приложу ссылки на прошлые работы.
                 </p>
               </div>
+            </div>
+            <div className="flex items-center justify-between rounded-2xl border border-border/50 bg-background/80 px-3 py-2.5">
+              <p className="text-[11px] text-muted-foreground">Последние активные специалисты</p>
+              <div className="flex -space-x-2">
+                {[
+                  "/images/blog/blog-kak-nayti-khoroshego-specialista.jpg",
+                  "/images/blog/blog-portfolio-specialista-kak-oformit.jpg",
+                  "/images/blog/blog-kak-specialistu-poluchat-bolshe-zakazov.jpg",
+                ].map((src, i) => (
+                  <div
+                    key={src}
+                    className="relative h-7 w-7 overflow-hidden rounded-full border-2 border-card"
+                    style={{ zIndex: 10 - i }}
+                  >
+                    <Image src={src} alt="Аватар специалиста" fill className="object-cover" sizes="28px" />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center justify-between rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-2">
+              <span className="text-[11px] font-medium text-emerald-800 dark:text-emerald-300">Проверенный профиль</span>
+              <span className="text-[10px] text-emerald-700 dark:text-emerald-400">Модерация пройдена</span>
             </div>
             <div className="rounded-2xl border border-dashed border-primary/25 bg-primary/[0.04] p-3 dark:bg-primary/[0.07]">
               <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
@@ -536,11 +579,21 @@ export function LandingPage() {
                 },
               ].map((item) => {
                 const ItemIcon = item.icon;
+                const visual = specialistVisuals[
+                  item.title === "Портфолио работ" ? 0 : item.title === "Рейтинг и отзывы" ? 1 : 2
+                ];
                 return (
                   <div
                     key={item.title}
                     className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
                   >
+                    <div className="relative -mx-2 -mt-2 mb-4 aspect-[16/9] overflow-hidden rounded-xl border border-border/60">
+                      <Image src={visual.src} alt={item.title} fill className="object-cover" sizes="(min-width: 640px) 33vw, 100vw" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                      <span className="absolute bottom-2 left-2 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-medium text-foreground">
+                        {visual.badge}
+                      </span>
+                    </div>
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                       <ItemIcon className="h-6 w-6" aria-hidden />
                     </div>
