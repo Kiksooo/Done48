@@ -58,17 +58,16 @@ export function RegisterForm({ referralCode, defaultRole }: RegisterFormProps) {
       <CardHeader>
         <CardTitle>Создайте аккаунт</CardTitle>
         <CardDescription>
-          Минутка — и можно публиковать заказы или откликаться на них. Роль выберите ниже; в онбординге — только краткая справка по кабинету. Регистрация бесплатна.
+          Регистрация займёт пару минут. Выберите роль и сразу переходите к заказам или откликам.
         </CardDescription>
         {defaultRole === "EXECUTOR" ? (
           <p className="mt-3 rounded-lg border border-primary/15 bg-primary/[0.06] px-3 py-2 text-sm text-foreground dark:bg-primary/[0.09]">
-            Роль «Специалист» подставлена по ссылке с главной. При необходимости смените в поле ниже до отправки
-            формы.
+            Роль «Специалист» подставилась автоматически. Если нужно, поменяйте её перед отправкой формы.
           </p>
         ) : null}
         {landingTaskHint ? (
           <p className="mt-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-foreground">
-            С главной вы искали: «{landingTaskHint}». После регистрации перенесите это в описание заказа или в отклик.
+            Вы искали на главной: «{landingTaskHint}». После регистрации это можно использовать в заказе или отклике.
           </p>
         ) : null}
       </CardHeader>

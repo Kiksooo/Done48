@@ -11,9 +11,6 @@ type Props = {
   className?: string;
 };
 
-/**
- * Паттерн как на маркетплейсах: поле + «Найти» → мягкий CTA на регистрацию.
- */
 export function LandingHeroSearch({ className }: Props) {
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -50,7 +47,7 @@ export function LandingHeroSearch({ className }: Props) {
             name="task"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Например: лендинг, уборка, замена смесителя, копирайт…"
+            placeholder="Например: лендинг, уборка, замена смесителя"
             className="min-w-0 flex-1 bg-transparent py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
             autoComplete="off"
           />
@@ -59,9 +56,7 @@ export function LandingHeroSearch({ className }: Props) {
           Найти
         </Button>
       </div>
-      <p className="mt-2 text-xs text-muted-foreground">
-        Мы подскажем шаги после регистрации: опубликовать заказ или смотреть задачи как специалист.
-      </p>
+      <p className="mt-2 text-xs text-muted-foreground">После регистрации поможем быстро начать: разместить заказ или откликнуться на задачи.</p>
     </form>
   );
 }

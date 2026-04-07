@@ -2,7 +2,7 @@ import raw from "@/data/russian-cities.json";
 
 export const RUSSIAN_CITY_NAMES = raw as readonly string[];
 
-/** Подсказки по справочнику городов РФ (~1100 записей, источник: hflabs/city). */
+/** Подсказки по справочнику городов РФ (актуализированный полный список). */
 export function searchRussianCities(query: string, limit = 20): string[] {
   const q = query.trim().toLowerCase();
   if (q.length === 0) return [];
