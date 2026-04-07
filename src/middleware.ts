@@ -86,11 +86,13 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isPublicPath(pathname)) {
-    // Публичные страницы галереи / каталога — всем, в т. ч. авторизованным (без редиректа в кабинет)
+    // Публичные страницы галереи / каталога / блога — всем, в т. ч. авторизованным (без редиректа в кабинет)
     if (
       pathname.startsWith("/u/") ||
       pathname === "/executors" ||
-      pathname.startsWith("/executors/")
+      pathname.startsWith("/executors/") ||
+      pathname === "/blog" ||
+      pathname.startsWith("/blog/")
     ) {
       return NextResponse.next();
     }
