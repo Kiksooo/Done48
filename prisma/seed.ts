@@ -334,7 +334,7 @@ async function main() {
         actorUserId: admin.id,
         note: "Демо-данные seed",
       });
-    });
+    }, { timeout: 30_000 });
   }
 
   const demoProgTitle = "Демо: правки по API";
@@ -411,7 +411,7 @@ async function main() {
         actorUserId: executor.id,
         note: "Демо: старт работ",
       });
-    });
+    }, { timeout: 30_000 });
   }
 
   const welcome = await prisma.notification.findFirst({
@@ -435,6 +435,7 @@ async function main() {
       slug: "kak-nayti-khoroshego-specialista",
       title: "Как найти хорошего специалиста: 7 проверенных советов",
       excerpt: "Рассказываем, на что обращать внимание при выборе специалиста на маркетплейсе услуг — от портфолио до первого общения.",
+      coverImageUrl: "/images/blog/blog-kak-nayti-khoroshego-specialista.jpg",
       metaTitle: "Как найти хорошего специалиста — 7 советов | DONE48",
       metaDescription: "Пошаговое руководство по поиску специалиста на маркетплейсе услуг. Портфолио, отзывы, первый контакт — на что смотреть.",
       content: `<h2>Почему важно подойти к выбору осознанно</h2>
@@ -485,6 +486,7 @@ async function main() {
       slug: "kak-sozdat-idealnyy-zakaz",
       title: "Как создать идеальный заказ: инструкция для заказчиков",
       excerpt: "Правильно составленное ТЗ — половина успеха. Разбираем, как описать задачу, чтобы специалисты откликнулись быстро.",
+      coverImageUrl: "/images/blog/blog-kak-sozdat-idealnyy-zakaz.jpg",
       metaTitle: "Как правильно создать заказ на маркетплейсе услуг | DONE48",
       metaDescription: "Подробная инструкция: как составить описание заказа, выбрать бюджет и получить больше откликов от специалистов.",
       content: `<h2>Зачем нужно хорошее описание заказа</h2>
@@ -525,6 +527,7 @@ async function main() {
       slug: "portfolio-specialista-kak-oformit",
       title: "Портфолио специалиста: как оформить, чтобы заказчики выбирали вас",
       excerpt: "Портфолио — ваша визитная карточка. Разбираем, как показать работы так, чтобы заказчики сразу захотели с вами работать.",
+      coverImageUrl: "/images/blog/blog-portfolio-specialista-kak-oformit.jpg",
       metaTitle: "Как оформить портфолио специалиста — советы и примеры | DONE48",
       metaDescription: "Руководство по созданию продающего портфолио на маркетплейсе услуг. Фото, описания, структура — всё для привлечения заказчиков.",
       content: `<h2>Почему портфолио решает</h2>
@@ -570,6 +573,7 @@ async function main() {
       slug: "bezopasnost-sdelok-online",
       title: "Безопасность сделок онлайн: как защитить себя при заказе услуг",
       excerpt: "Разбираем, как работает безопасная сделка, зачем нужен резерв средств и как избежать мошенничества при работе с фрилансерами.",
+      coverImageUrl: "/images/blog/blog-bezopasnost-sdelok-online.jpg",
       metaTitle: "Безопасность сделок онлайн — как защитить деньги при заказе услуг | DONE48",
       metaDescription: "Как работает безопасная сделка на маркетплейсе услуг. Резерв средств, проверка специалистов, разрешение споров.",
       content: `<h2>Доверие — основа любой сделки</h2>
@@ -612,6 +616,7 @@ async function main() {
       slug: "skolko-stoit-remont-kvartiry-2026",
       title: "Сколько стоит ремонт квартиры в 2026 году: актуальные цены",
       excerpt: "Разбираем стоимость основных видов ремонтных работ — от косметического до капитального. Средние цены по России.",
+      coverImageUrl: "/images/blog/blog-skolko-stoit-remont-kvartiry-2026.jpg",
       metaTitle: "Стоимость ремонта квартиры в 2026 году — актуальные цены | DONE48",
       metaDescription: "Средние цены на ремонт квартиры в 2026 году. Косметический, капитальный, дизайнерский ремонт — сколько стоит каждый вид работ.",
       content: `<h2>Виды ремонта и средние цены</h2>
@@ -664,6 +669,7 @@ async function main() {
     },
     {
       slug: "kak-vybrat-dizaynera-dlya-logotipa",
+      coverImageUrl: "/images/blog/blog-kak-vybrat-dizaynera-dlya-logotipa.jpg",
       title: "Как выбрать дизайнера для логотипа: полное руководство",
       excerpt: "Логотип — лицо бренда. Рассказываем, как найти дизайнера, сформулировать бриф и получить результат, который будет работать.",
       metaTitle: "Как выбрать дизайнера для логотипа — руководство | DONE48",
@@ -709,6 +715,7 @@ async function main() {
     },
     {
       slug: "otzyvy-na-marketpleise-zachem-vazhny",
+      coverImageUrl: "/images/blog/blog-otzyvy-na-marketpleise-zachem-vazhny.jpg",
       title: "Зачем нужны отзывы на маркетплейсе: для заказчиков и специалистов",
       excerpt: "Отзывы — валюта доверия. Объясняем, как они работают, почему важно их оставлять и как реагировать на негатив.",
       metaTitle: "Отзывы на маркетплейсе услуг — почему они важны | DONE48",
@@ -739,6 +746,7 @@ async function main() {
     },
     {
       slug: "freelance-ili-marketpleis-chto-vybrat",
+      coverImageUrl: "/images/blog/blog-freelance-ili-marketpleis-chto-vybrat.jpg",
       title: "Фриланс-биржа или маркетплейс услуг: что выбрать в 2026 году",
       excerpt: "Сравниваем два подхода к поиску специалистов — классические фриланс-биржи и современные маркетплейсы услуг.",
       metaTitle: "Фриланс-биржа vs маркетплейс услуг — сравнение в 2026 году | DONE48",
@@ -787,6 +795,7 @@ async function main() {
     },
     {
       slug: "top-5-oshibok-pri-zakaze-uslug-online",
+      coverImageUrl: "/images/blog/blog-top-5-oshibok-pri-zakaze-uslug-online.jpg",
       title: "Топ-5 ошибок при заказе услуг онлайн и как их избежать",
       excerpt: "Разбираем типичные ошибки заказчиков — от размытого ТЗ до попытки сэкономить на всём. С примерами и решениями.",
       metaTitle: "5 ошибок при заказе услуг онлайн — как избежать | DONE48",
@@ -816,6 +825,7 @@ async function main() {
     },
     {
       slug: "kak-specialistu-poluchat-bolshe-zakazov",
+      coverImageUrl: "/images/blog/blog-kak-specialistu-poluchat-bolshe-zakazov.jpg",
       title: "Как специалисту получать больше заказов на маркетплейсе",
       excerpt: "Практические советы для специалистов: как выделиться среди конкурентов, оформить профиль и увеличить поток заказов.",
       metaTitle: "Как получать больше заказов на маркетплейсе услуг | DONE48",
@@ -869,13 +879,16 @@ async function main() {
         title: post.title,
         excerpt: post.excerpt,
         content: post.content,
+        coverImageUrl: post.coverImageUrl ?? null,
         metaTitle: post.metaTitle,
         metaDescription: post.metaDescription,
         published: true,
         publishedAt: new Date(),
         authorId: admin.id,
       },
-      update: {},
+      update: {
+        coverImageUrl: post.coverImageUrl ?? null,
+      },
     });
   }
 
