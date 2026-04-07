@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
   Banknote,
@@ -126,6 +127,24 @@ const heroTrust = [
   { icon: Gift, text: "Регистрация бесплатно" },
   { icon: Clock, text: "Около минуты до старта" },
   { icon: Users, text: "Заказчик или специалист" },
+] as const;
+
+const trustVisuals = [
+  {
+    src: "/images/blog/blog-bezopasnost-sdelok-online.jpg",
+    title: "Безопасные расчёты",
+    text: "Показываем прозрачную схему: резерв, приёмка и перевод оплаты.",
+  },
+  {
+    src: "/images/blog/blog-otzyvy-na-marketpleise-zachem-vazhny.jpg",
+    title: "Отзывы после работ",
+    text: "Оценки появляются по итогам завершённых заказов, а не «из воздуха».",
+  },
+  {
+    src: "/images/blog/blog-kak-nayti-khoroshego-specialista.jpg",
+    title: "Проверка исполнителя",
+    text: "Портфолио, описание опыта и репутация помогают выбрать спокойнее.",
+  },
 ] as const;
 
 function HeroPreview() {
@@ -585,6 +604,19 @@ export function LandingPage() {
                 );
               })}
             </ul>
+            <div className="mt-10 grid gap-6 md:grid-cols-3">
+              {trustVisuals.map((item) => (
+                <article key={item.title} className="overflow-hidden rounded-3xl border border-border/60 bg-card shadow-sm">
+                  <div className="relative aspect-[16/10]">
+                    <Image src={item.src} alt={item.title} fill className="object-cover" sizes="(min-width: 768px) 33vw, 100vw" />
+                  </div>
+                  <div className="p-4">
+                    <h3 className="text-base font-semibold">{item.title}</h3>
+                    <p className="mt-1 text-sm text-muted-foreground">{item.text}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
         </section>
 
