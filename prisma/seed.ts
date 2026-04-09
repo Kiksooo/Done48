@@ -876,7 +876,8 @@ async function main() {
       coverImageUrl: "/images/blog/blog-kak-sozdat-idealnyy-zakaz.jpg",
       metaTitle: "Сколько стоит сайт-визитка в 2026 году — цены и сроки | DONE48",
       metaDescription: "Актуальные цены на сайт-визитку в 2026 году: шаблонный и индивидуальный вариант, сроки, типичные ошибки заказчиков.",
-      content: `<h2>Средняя стоимость сайта-визитки</h2>
+      content: `<p><img src="/images/blog/blog-kak-sozdat-idealnyy-zakaz.jpg" alt="Стоимость разработки сайта-визитки в 2026 году" /></p>
+<h2>Средняя стоимость сайта-визитки</h2>
 <p>В 2026 году цена сайта-визитки зависит от сложности дизайна, количества блоков и того, нужен ли вам уникальный функционал. В среднем по рынку:</p>
 <ul>
 <li><strong>Шаблонный вариант:</strong> 15 000 — 35 000 ₽</li>
@@ -914,7 +915,8 @@ async function main() {
       coverImageUrl: "/images/blog/blog-kak-nayti-khoroshego-specialista.jpg",
       metaTitle: "Как выбрать репетитора онлайн — советы и чеклист | DONE48",
       metaDescription: "Как найти репетитора онлайн без ошибок: опыт, программа, пробный урок, стоимость и контроль прогресса.",
-      content: `<h2>С чего начать поиск репетитора</h2>
+      content: `<p><img src="/images/blog/blog-kak-nayti-khoroshego-specialista.jpg" alt="Как выбрать репетитора онлайн" /></p>
+<h2>С чего начать поиск репетитора</h2>
 <p>Главная ошибка — искать «самого дешёвого» или «самого популярного». Лучше начать с цели: подтянуть оценки, подготовиться к ОГЭ/ЕГЭ, закрыть пробелы по программе.</p>
 
 <h2>Чеклист выбора репетитора</h2>
@@ -946,7 +948,8 @@ async function main() {
       coverImageUrl: "/images/blog/blog-kak-vybrat-dizaynera-dlya-logotipa.jpg",
       metaTitle: "Стоимость дизайна интерьера квартиры в 2026 году | DONE48",
       metaDescription: "Актуальные цены на дизайн интерьера квартиры: за м2, состав проекта, сроки и советы по выбору дизайнера.",
-      content: `<h2>Средние цены на дизайн интерьера</h2>
+      content: `<p><img src="/images/blog/blog-kak-vybrat-dizaynera-dlya-logotipa.jpg" alt="Стоимость дизайна интерьера квартиры" /></p>
+<h2>Средние цены на дизайн интерьера</h2>
 <p>Стоимость зависит от опыта дизайнера, региона и состава проекта. В 2026 году ориентиры такие:</p>
 <ul>
 <li><strong>Базовый проект:</strong> 1 500 — 3 000 ₽ за м²</li>
@@ -984,7 +987,8 @@ async function main() {
       coverImageUrl: "/images/blog/blog-bezopasnost-sdelok-online.jpg",
       metaTitle: "Как найти сантехника на дом — советы заказчику | DONE48",
       metaDescription: "Как выбрать сантехника для квартиры: проверка мастера, цены на работы, гарантия и безопасная оплата.",
-      content: `<h2>Какие работы чаще всего заказывают</h2>
+      content: `<p><img src="/images/blog/blog-bezopasnost-sdelok-online.jpg" alt="Как нанять сантехника на дом" /></p>
+<h2>Какие работы чаще всего заказывают</h2>
 <p>Чаще всего вызывают сантехника для замены смесителя, устранения протечки, установки унитаза или подключения стиральной машины. Для каждой задачи важна правильная диагностика до начала работ.</p>
 
 <h2>Как проверить мастера</h2>
@@ -1021,7 +1025,8 @@ async function main() {
       coverImageUrl: "/images/blog/blog-top-5-oshibok-pri-zakaze-uslug-online.jpg",
       metaTitle: "Уборка квартиры — цена за м² в 2026 году | DONE48",
       metaDescription: "Актуальные цены на уборку квартиры: поддерживающая, генеральная, после ремонта. Что влияет на стоимость и как выбрать клинера.",
-      content: `<h2>Средние цены на уборку</h2>
+      content: `<p><img src="/images/blog/blog-top-5-oshibok-pri-zakaze-uslug-online.jpg" alt="Цена уборки квартиры за квадратный метр" /></p>
+<h2>Средние цены на уборку</h2>
 <p>Стоимость уборки зависит от площади, степени загрязнения и типа услуги. Ориентиры по рынку:</p>
 <ul>
 <li><strong>Поддерживающая уборка:</strong> 80 — 180 ₽ за м²</li>
@@ -1055,7 +1060,8 @@ async function main() {
       coverImageUrl: "/images/blog/blog-freelance-ili-marketpleis-chto-vybrat.jpg",
       metaTitle: "Как проверить фрилансера перед оплатой — чеклист | DONE48",
       metaDescription: "Проверка фрилансера перед началом работы: портфолио, отзывы, этапы, безопасная оплата и контроль сроков.",
-      content: `<h2>Почему проверка обязательна</h2>
+      content: `<p><img src="/images/blog/blog-freelance-ili-marketpleis-chto-vybrat.jpg" alt="Как проверить фрилансера перед оплатой" /></p>
+<h2>Почему проверка обязательна</h2>
 <p>Даже сильный исполнитель может не подойти под вашу задачу. Быстрый скрининг перед оплатой экономит деньги и нервы.</p>
 
 <h2>Чеклист до старта</h2>
@@ -1099,7 +1105,13 @@ async function main() {
         authorId: admin.id,
       },
       update: {
+        title: post.title,
+        excerpt: post.excerpt,
+        content: post.content,
         coverImageUrl: post.coverImageUrl ?? null,
+        metaTitle: post.metaTitle,
+        metaDescription: post.metaDescription,
+        published: true,
       },
     });
   }
