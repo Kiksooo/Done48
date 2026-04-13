@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { landingNavLinks } from "@/components/landing/nav-data";
 
-const mobileNavTop = "top-[3.75rem] sm:top-16";
+const mobileNavTop = "top-14 sm:top-14";
 
 function isInternalLandingHref(href: string) {
   return href.startsWith("/");
@@ -25,7 +25,7 @@ function LandingMobileNavPanel({ onClose }: { onClose: () => void }) {
           <Link
             key={l.href}
             href={l.href}
-            className="flex flex-col rounded-2xl px-4 py-3.5 transition-colors hover:bg-primary/8 active:bg-primary/12"
+            className="flex flex-col rounded-xl px-3 py-3 transition-colors hover:bg-muted/60 active:bg-muted/80"
             onClick={onClose}
           >
             <span className="font-semibold text-foreground">{l.label}</span>
@@ -35,7 +35,7 @@ function LandingMobileNavPanel({ onClose }: { onClose: () => void }) {
           <a
             key={l.href}
             href={l.href}
-            className="flex flex-col rounded-2xl px-4 py-3.5 transition-colors hover:bg-primary/8 active:bg-primary/12"
+            className="flex flex-col rounded-xl px-3 py-3 transition-colors hover:bg-muted/60 active:bg-muted/80"
             onClick={onClose}
           >
             <span className="font-semibold text-foreground">{l.label}</span>
@@ -44,12 +44,12 @@ function LandingMobileNavPanel({ onClose }: { onClose: () => void }) {
         ),
       )}
       <div className="space-y-2 pt-2">
-        <Button className="w-full rounded-2xl shadow-md shadow-primary/20" asChild>
+        <Button className="w-full rounded-xl shadow-sm" asChild>
           <Link href="/register" onClick={onClose}>
             Начать бесплатно
           </Link>
         </Button>
-        <Button variant="outline" className="w-full rounded-2xl border-dashed" asChild>
+        <Button variant="outline" className="w-full rounded-xl" asChild>
           <Link href="/login" onClick={onClose}>
             Уже есть аккаунт — войти
           </Link>
@@ -99,24 +99,24 @@ export function LandingHeader() {
     <Fragment>
       <header
         className={cn(
-          "sticky top-0 border-b border-border/30 bg-background/80 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/70",
+          "sticky top-0 border-b border-border/40 bg-background/90 backdrop-blur-md supports-[backdrop-filter]:bg-background/80",
           open ? "z-[110]" : "z-50",
         )}
       >
-        <div className="mx-auto flex h-[3.75rem] max-w-7xl items-center justify-between gap-3 px-4 sm:h-16 sm:px-6 lg:px-10">
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-10">
           <Link
             href="/"
-            className="group flex shrink-0 items-center gap-2.5 rounded-2xl py-1 pr-2 transition-transform active:scale-[0.98]"
+            className="group flex shrink-0 items-center gap-2 rounded-lg py-1 pr-1 transition-opacity hover:opacity-90"
             onClick={close}
           >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-md shadow-primary/25 ring-2 ring-primary/20 transition-[transform,box-shadow] group-hover:scale-[1.02] group-hover:shadow-lg">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-xs font-semibold text-primary-foreground">
               D
             </span>
-            <span className="whitespace-nowrap text-lg font-bold tracking-tight">DONE48</span>
+            <span className="whitespace-nowrap text-base font-semibold tracking-tight text-foreground">DONE48</span>
           </Link>
 
           <nav
-            className="hidden items-center gap-0.5 rounded-full border border-border/50 bg-card/80 px-1 py-1 shadow-sm backdrop-blur-md md:flex"
+            className="hidden items-center gap-1 md:flex"
             aria-label="По странице"
           >
             {landingNavLinks.map((l) =>
@@ -125,7 +125,7 @@ export function LandingHeader() {
                   key={l.href}
                   href={l.href}
                   title={l.hint}
-                  className="rounded-full px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors duration-200 ease-out hover:bg-primary/12 hover:text-foreground"
+                  className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/80 hover:text-foreground"
                 >
                   {l.label}
                 </Link>
@@ -134,7 +134,7 @@ export function LandingHeader() {
                   key={l.href}
                   href={l.href}
                   title={l.hint}
-                  className="rounded-full px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors duration-200 ease-out hover:bg-primary/12 hover:text-foreground"
+                  className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/80 hover:text-foreground"
                 >
                   {l.label}
                 </a>
@@ -142,11 +142,11 @@ export function LandingHeader() {
             )}
           </nav>
 
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <Button variant="ghost" size="sm" asChild className="hidden rounded-full sm:inline-flex sm:h-10">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Button variant="ghost" size="sm" asChild className="hidden h-9 rounded-md px-3 sm:inline-flex">
               <Link href="/login">Войти</Link>
             </Button>
-            <Button size="sm" className="rounded-full px-5 shadow-md shadow-primary/20 sm:h-10 sm:px-6" asChild>
+            <Button size="sm" className="h-9 rounded-md px-4 shadow-sm sm:px-4" asChild>
               <Link href="/register">Начать бесплатно</Link>
             </Button>
             <Button
@@ -154,7 +154,7 @@ export function LandingHeader() {
               type="button"
               variant="ghost"
               size="sm"
-              className="h-10 w-10 shrink-0 rounded-full p-0 md:hidden"
+              className="h-9 w-9 shrink-0 rounded-md p-0 md:hidden"
               aria-expanded={open}
               aria-controls="landing-mobile-nav"
               aria-label={open ? "Закрыть меню" : "Открыть меню"}
@@ -181,7 +181,7 @@ export function LandingHeader() {
               <div
                 id="landing-mobile-nav"
                 className={cn(
-                  "fixed inset-x-0 z-[105] max-h-[min(85dvh,calc(100dvh-3.75rem))] overflow-y-auto rounded-b-3xl border-b border-border/50 bg-card shadow-2xl md:hidden sm:max-h-[min(85dvh,calc(100dvh-4rem))]",
+                  "fixed inset-x-0 z-[105] max-h-[min(85dvh,calc(100dvh-3.5rem))] overflow-y-auto border-b border-border/40 bg-card shadow-lg md:hidden",
                   "motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-2 duration-200",
                   mobileNavTop,
                 )}

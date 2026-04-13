@@ -148,7 +148,7 @@ export function CabinetChrome({
       </aside>
 
       <div className="flex min-h-screen flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border/90 bg-background/90 px-4 shadow-sm backdrop-blur-xl supports-[backdrop-filter]:bg-background/75">
+        <header className="sticky top-0 z-30 flex h-12 items-center gap-2 border-b border-border/50 bg-background/95 px-3 backdrop-blur-sm supports-[backdrop-filter]:bg-background/85 sm:px-4">
           <Button
             type="button"
             variant="ghost"
