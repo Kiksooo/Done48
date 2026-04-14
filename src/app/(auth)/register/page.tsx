@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
+import { BreadcrumbJsonLd, PublicBreadcrumbs } from "@/components/public/public-breadcrumbs";
 import { parseRegisterRoleFromSearchParam } from "@/lib/register-intent";
+import { BREADCRUMB_REGISTER } from "@/lib/public-breadcrumb-presets";
+import {
+  AUTH_REGISTER_ABSOLUTE_TITLE,
+  AUTH_REGISTER_DESCRIPTION,
+  SITE_SEO_BRAND,
+} from "@/lib/site-seo";
 import { RegisterForm } from "./register-form";
 
 function pickSearchParamRef(raw: string | string[] | undefined): string | undefined {
@@ -10,13 +17,20 @@ function pickSearchParamRef(raw: string | string[] | undefined): string | undefi
 }
 
 export const metadata: Metadata = {
-  title: "Регистрация",
-  description: "Создайте аккаунт DONE48: заказывайте услуги или выполняйте задачи в одном сервисе.",
+  title: { absolute: AUTH_REGISTER_ABSOLUTE_TITLE },
+  description: AUTH_REGISTER_DESCRIPTION,
   alternates: { canonical: "/register" },
   openGraph: {
-    title: "Регистрация",
-    description: "Создайте аккаунт DONE48: заказывайте услуги или выполняйте задачи в одном сервисе.",
+    title: AUTH_REGISTER_ABSOLUTE_TITLE,
+    description: AUTH_REGISTER_DESCRIPTION,
     url: "/register",
+    siteName: SITE_SEO_BRAND,
+    locale: "ru_RU",
+  },
+  twitter: {
+    card: "summary",
+    title: AUTH_REGISTER_ABSOLUTE_TITLE,
+    description: AUTH_REGISTER_DESCRIPTION,
   },
 };
 
@@ -27,5 +41,11 @@ export default function RegisterPage({
 }) {
   const ref = pickSearchParamRef(searchParams.ref);
   const defaultRole = parseRegisterRoleFromSearchParam(searchParams.role);
-  return <RegisterForm referralCode={ref} defaultRole={defaultRole} />;
+  return (
+    <div className="flex w-full max-w-md flex-col gap-5">
+      <BreadcrumbJsonLd items={BREADCRUMB_REGISTER} />
+      <PublicBreadcrumbs items={BREADCRUMB_REGISTER} />
+      <RegisterForm referralCode={ref} defaultRole={defaultRole} />
+    </div>
+  );
 }

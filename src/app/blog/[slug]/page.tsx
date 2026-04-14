@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Calendar } from "lucide-react";
+import { BreadcrumbJsonLd, PublicBreadcrumbs } from "@/components/public/public-breadcrumbs";
 import { PublicPageNav, publicNavItemClassName } from "@/components/public/public-page-nav";
+import { breadcrumbBlogPost } from "@/lib/public-breadcrumb-presets";
 import { SITE_SEO_BRAND } from "@/lib/site-seo";
 import { toAbsoluteSiteUrl } from "@/lib/site-url";
 import { getPublishedBlogPost } from "@/server/queries/blog";
@@ -55,6 +57,8 @@ export default async function BlogPostPage({ params }: Props) {
   const post = await getPublishedBlogPost(params.slug);
   if (!post) notFound();
 
+  const postCrumbs = breadcrumbBlogPost(post.slug, post.title);
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -79,6 +83,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-background px-4 py-10 sm:px-6 sm:py-12">
+      <BreadcrumbJsonLd items={postCrumbs} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -92,6 +97,8 @@ export default async function BlogPostPage({ params }: Props) {
             </Link>
           }
         />
+
+        <PublicBreadcrumbs items={postCrumbs} />
 
         <article>
           {post.coverImageUrl ? (

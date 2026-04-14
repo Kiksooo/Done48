@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { LegalDocument } from "@/components/legal/legal-document";
+import { BreadcrumbJsonLd, PublicBreadcrumbs } from "@/components/public/public-breadcrumbs";
 import { SITE_EMAIL_INFO } from "@/lib/site-contact";
+import { BREADCRUMB_LEGAL_PRIVACY } from "@/lib/public-breadcrumb-presets";
 
 export const metadata: Metadata = {
   title: "Политика конфиденциальности",
@@ -15,7 +17,13 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <LegalDocument title="Политика конфиденциальности и обработка персональных данных" updated="29.03.2026">
+    <>
+      <BreadcrumbJsonLd items={BREADCRUMB_LEGAL_PRIVACY} />
+      <LegalDocument
+        lead={<PublicBreadcrumbs items={BREADCRUMB_LEGAL_PRIVACY} />}
+        title="Политика конфиденциальности и обработка персональных данных"
+        updated="29.03.2026"
+      >
       <p>
         Настоящая политика описывает порядок обработки персональных данных (далее — ПДн) в сервисе DONE48
         (далее — Сервис), доступном по адресу в сети Интернет, и реализуется в соответствии с Федеральным законом от
@@ -94,5 +102,6 @@ export default function PrivacyPage() {
         редакции.
       </p>
     </LegalDocument>
+    </>
   );
 }

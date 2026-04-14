@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { MapPin, Star } from "lucide-react";
+import { BreadcrumbJsonLd, PublicBreadcrumbs } from "@/components/public/public-breadcrumbs";
 import { PublicPageNav } from "@/components/public/public-page-nav";
 import { Button } from "@/components/ui/button";
+import { BREADCRUMB_EXECUTORS } from "@/lib/public-breadcrumb-presets";
 import { SITE_SEO_BRAND, SITE_SEO_TITLE_TEMPLATE } from "@/lib/site-seo";
 import { cn } from "@/lib/utils";
 import {
@@ -19,7 +21,7 @@ const PAGE_SIZE = 12;
 
 const catalogOgTitle = SITE_SEO_TITLE_TEMPLATE.replace("%s", "Каталог специалистов");
 const catalogDescription =
-  "Каталог проверенных специалистов DONE48 с портфолио и отзывами. Найдите профессионала для любой задачи.";
+  "Каталог специалистов на фриланс-бирже DONE48: портфолио, отзывы после сделок и фильтры по городу и запросу. Подберите исполнителя под вашу задачу.";
 
 export const metadata: Metadata = {
   title: "Специалисты",
@@ -89,7 +91,10 @@ export default async function SpecialistsPage({ searchParams }: Props) {
   return (
     <div className="min-h-screen overflow-x-hidden bg-background px-4 py-10 sm:px-6 sm:py-12">
       <div className="mx-auto max-w-6xl space-y-8 pb-16">
+        <BreadcrumbJsonLd items={BREADCRUMB_EXECUTORS} />
         <PublicPageNav />
+
+        <PublicBreadcrumbs items={BREADCRUMB_EXECUTORS} />
 
         <header className="space-y-5">
           <div>

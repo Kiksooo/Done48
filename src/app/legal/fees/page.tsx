@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalDocument } from "@/components/legal/legal-document";
+import { BreadcrumbJsonLd, PublicBreadcrumbs } from "@/components/public/public-breadcrumbs";
 import { SITE_EMAIL_INFO } from "@/lib/site-contact";
+import { BREADCRUMB_LEGAL_FEES } from "@/lib/public-breadcrumb-presets";
 
 export const metadata: Metadata = {
   title: "Комиссии и расчёты",
@@ -16,7 +18,13 @@ export const metadata: Metadata = {
 
 export default function LegalFeesPage() {
   return (
-    <LegalDocument title="Комиссии, резерв средств и расчёты" updated="03.04.2026">
+    <>
+      <BreadcrumbJsonLd items={BREADCRUMB_LEGAL_FEES} />
+      <LegalDocument
+        lead={<PublicBreadcrumbs items={BREADCRUMB_LEGAL_FEES} />}
+        title="Комиссии, резерв средств и расчёты"
+        updated="03.04.2026"
+      >
       <p>
         Здесь описана <strong>модель расчётов</strong> в сервисе DONE48 для заказчиков и специалистов. Конкретные
         проценты и сроки при публичном запуске необходимо согласовать с юристом и финансовой политикой платформы и
@@ -79,5 +87,6 @@ export default function LegalFeesPage() {
         .
       </p>
     </LegalDocument>
+    </>
   );
 }

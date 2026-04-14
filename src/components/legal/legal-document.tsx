@@ -4,10 +4,13 @@ import Link from "next/link";
 export function LegalDocument(props: {
   title: string;
   updated: string;
+  /** Блок над ссылкой «назад» (например хлебные крошки). */
+  lead?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <article className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+      {props.lead ? <div className="mb-4">{props.lead}</div> : null}
       <p className="text-sm text-neutral-500">
         <Link href="/legal" className="text-primary underline-offset-4 hover:underline">
           ← Юридическая информация

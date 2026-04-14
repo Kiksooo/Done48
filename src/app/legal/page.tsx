@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BreadcrumbJsonLd, PublicBreadcrumbs } from "@/components/public/public-breadcrumbs";
 import { SITE_EMAIL_INFO } from "@/lib/site-contact";
+import { BREADCRUMB_LEGAL_INDEX } from "@/lib/public-breadcrumb-presets";
 
 export const metadata: Metadata = {
   title: "Юридическая информация",
@@ -16,6 +18,8 @@ export const metadata: Metadata = {
 export default function LegalIndexPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
+      <BreadcrumbJsonLd items={BREADCRUMB_LEGAL_INDEX} />
+      <PublicBreadcrumbs items={BREADCRUMB_LEGAL_INDEX} className="mb-6" />
       <h1 className="text-2xl font-semibold tracking-tight text-foreground">Юридическая информация</h1>
       <p className="mt-3 text-sm text-muted-foreground">
         Документы, регулирующие использование сервиса DONE48. Тексты носят информационный характер; при запуске в

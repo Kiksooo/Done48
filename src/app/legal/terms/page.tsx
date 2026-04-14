@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { LegalDocument } from "@/components/legal/legal-document";
+import { BreadcrumbJsonLd, PublicBreadcrumbs } from "@/components/public/public-breadcrumbs";
 import { SITE_EMAIL_INFO } from "@/lib/site-contact";
+import { BREADCRUMB_LEGAL_TERMS } from "@/lib/public-breadcrumb-presets";
 
 export const metadata: Metadata = {
   title: "Пользовательское соглашение",
@@ -15,7 +17,13 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <LegalDocument title="Пользовательское соглашение и правила площадки" updated="29.03.2026">
+    <>
+      <BreadcrumbJsonLd items={BREADCRUMB_LEGAL_TERMS} />
+      <LegalDocument
+        lead={<PublicBreadcrumbs items={BREADCRUMB_LEGAL_TERMS} />}
+        title="Пользовательское соглашение и правила площадки"
+        updated="29.03.2026"
+      >
       <p>
         Настоящее соглашение (далее — Соглашение) регулирует отношения между владельцем сервиса DONE48 (далее —
         Администрация) и пользователем сети Интернет (далее — Пользователь), использующим сайт и функциональность
@@ -86,5 +94,6 @@ export default function TermsPage() {
         .
       </p>
     </LegalDocument>
+    </>
   );
 }

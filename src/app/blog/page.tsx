@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Calendar } from "lucide-react";
+import { BreadcrumbJsonLd, PublicBreadcrumbs } from "@/components/public/public-breadcrumbs";
 import { PublicPageNav } from "@/components/public/public-page-nav";
+import { BREADCRUMB_BLOG_INDEX } from "@/lib/public-breadcrumb-presets";
 import { SITE_SEO_BRAND, SITE_SEO_TITLE_TEMPLATE } from "@/lib/site-seo";
 import { countPublishedBlogPosts, listPublishedBlogPosts } from "@/server/queries/blog";
 import { Button } from "@/components/ui/button";
@@ -10,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 const blogOgTitle = SITE_SEO_TITLE_TEMPLATE.replace("%s", "Блог");
 const blogDescription =
-  "Блог DONE48: полезные статьи для заказчиков и специалистов — советы, кейсы и новости платформы.";
+  "Блог фриланс-биржи DONE48: статьи для заказчиков и специалистов — советы по заказам, безопасной сделке и развитию на площадке.";
 
 export const metadata: Metadata = {
   title: "Блог",
@@ -50,7 +52,10 @@ export default async function BlogPage({ searchParams }: Props) {
   return (
     <div className="min-h-screen bg-background px-4 py-10 sm:px-6 sm:py-12">
       <div className="mx-auto max-w-5xl space-y-8 pb-16">
+        <BreadcrumbJsonLd items={BREADCRUMB_BLOG_INDEX} />
         <PublicPageNav />
+
+        <PublicBreadcrumbs items={BREADCRUMB_BLOG_INDEX} />
 
         <header>
           <h1 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl">

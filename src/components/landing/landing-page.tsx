@@ -281,13 +281,13 @@ export function LandingPage() {
               <div>
                 <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3.5 py-1.5 text-xs font-medium text-primary opacity-0 animate-fade-up [animation-delay:40ms] sm:text-sm">
                   <Sparkles className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" aria-hidden />
-                  Для заказчиков: разместить заказ и найти специалиста
+                  Фриланс-биржа для заказчиков и специалистов
                 </p>
                 <h1 className="text-balance text-4xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl lg:text-[2.75rem] xl:text-[3.15rem] opacity-0 animate-fade-up [animation-delay:80ms]">
-                  Найдите специалиста без лишней суеты
+                  Найдите специалиста на фриланс-бирже — без лишней суеты
                 </h1>
                 <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl opacity-0 animate-fade-up [animation-delay:140ms]">
-                  Разместите задачу, получите отклики и выберите исполнителя, который вам подходит по цене и подходу. Вся работа по заказу ведётся в одном кабинете: статусы, чат и оплата.
+                  Как на удобной фриланс-бирже: разместите задачу, получите отклики и выберите исполнителя по цене и подходу. Статусы, чат и оплата — в одном кабинете.
                 </p>
 
                 <ul className="mt-6 flex flex-wrap gap-2 opacity-0 animate-fade-up [animation-delay:180ms] sm:gap-3">
