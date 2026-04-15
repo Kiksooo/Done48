@@ -8,6 +8,9 @@ import { dashboardPath } from "@/lib/routes";
 import { countTotalUnreadChatMessagesForUser } from "@/server/queries/chat-inbox";
 import { countUnreadNotifications } from "@/server/queries/notifications";
 
+// Кабинет специалиста зависит от runtime-сессии и данных БД.
+export const dynamic = "force-dynamic";
+
 export default async function ExecutorLayout({ children }: { children: ReactNode }) {
   const user = await getSessionUserForAction();
   if (!user) {

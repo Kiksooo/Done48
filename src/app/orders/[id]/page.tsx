@@ -1,5 +1,5 @@
 import { OrderStatus, ProposalStatus, type Role } from "@prisma/client";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { OrderChat } from "@/components/orders/order-chat";
@@ -26,7 +26,10 @@ import { canRevealOrderPartyEmail } from "@/lib/order-contact-privacy";
 import { reviewerAvatarUrl, reviewerDisplayName } from "@/lib/review-display";
 import { findReviewByOrderAndAuthor, listReviewsForOrder } from "@/server/queries/reviews";
 
-const OrderLocationMap = dynamic(
+// Карточка заказа содержит приватные данные и зависит от runtime-сессии/БД.
+export const dynamic = "force-dynamic";
+
+const OrderLocationMap = nextDynamic(
   () =>
     import("@/components/maps/order-location-map").then((m) => ({
       default: m.OrderLocationMap,

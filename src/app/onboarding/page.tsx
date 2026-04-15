@@ -3,6 +3,9 @@ import { getSessionUserForAction } from "@/lib/rbac";
 import { dashboardPath } from "@/lib/routes";
 import { OnboardingClient } from "./onboarding-client";
 
+// Онбординг читается из сессии пользователя, не подходит для статического пререндера.
+export const dynamic = "force-dynamic";
+
 export default async function OnboardingPage() {
   const user = await getSessionUserForAction();
   if (!user) {

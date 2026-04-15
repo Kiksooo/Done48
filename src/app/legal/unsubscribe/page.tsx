@@ -5,6 +5,9 @@ import { getSessionUserForAction } from "@/lib/rbac";
 import { prisma } from "@/lib/db";
 import { setMarketingOptInAction } from "@/server/actions/marketing";
 
+// Управление подпиской привязано к авторизованному пользователю и БД.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: { absolute: "Управление рассылкой — DONE48" },
   description: "Настройки подписки на рассылки DONE48.",

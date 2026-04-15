@@ -7,6 +7,9 @@ import { getSessionUserForAction } from "@/lib/rbac";
 import { dashboardPath } from "@/lib/routes";
 import { countUnreadNotifications } from "@/server/queries/notifications";
 
+// Админка зависит от runtime-сессии и БД, не должна статически пререндериться на build.
+export const dynamic = "force-dynamic";
+
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const user = await getSessionUserForAction();
   if (!user) {
