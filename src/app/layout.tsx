@@ -12,8 +12,6 @@ import {
 import { getMetadataBase } from "@/lib/site-url";
 import "./globals.css";
 
-export const dynamic = "force-dynamic";
-
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",

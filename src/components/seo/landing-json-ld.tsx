@@ -47,6 +47,15 @@ export function LandingJsonLd() {
         description: SITE_SEO_DESCRIPTION,
         keywords: SITE_SEO_KEYWORDS_STRING,
         email: SITE_EMAIL_INFO,
+        areaServed: "RU",
+        contactPoint: [
+          {
+            "@type": "ContactPoint",
+            email: SITE_EMAIL_INFO,
+            contactType: "customer support",
+            availableLanguage: ["ru"],
+          },
+        ],
       },
     ],
   };

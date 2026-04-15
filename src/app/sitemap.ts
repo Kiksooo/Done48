@@ -10,10 +10,8 @@ const PATHS = [
   { path: "/", changeFrequency: "weekly", priority: 1 },
   { path: "/executors", changeFrequency: "weekly", priority: 0.7 },
   { path: "/blog", changeFrequency: "weekly", priority: 0.8 },
-  { path: "/login", changeFrequency: "monthly", priority: 0.6 },
-  { path: "/register", changeFrequency: "monthly", priority: 0.8 },
-  { path: "/forgot-password", changeFrequency: "yearly", priority: 0.3 },
   { path: "/legal", changeFrequency: "monthly", priority: 0.5 },
+  { path: "/legal/fees", changeFrequency: "yearly", priority: 0.4 },
   { path: "/legal/terms", changeFrequency: "yearly", priority: 0.4 },
   { path: "/legal/privacy", changeFrequency: "yearly", priority: 0.4 },
 ] as const;
@@ -21,11 +19,9 @@ const PATHS = [
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = getSiteUrl();
   const origin = base.endsWith("/") ? base.slice(0, -1) : base;
-  const now = new Date();
 
   const fixed = PATHS.map(({ path, changeFrequency, priority }) => ({
     url: path === "/" ? `${origin}/` : `${origin}${path}`,
-    lastModified: now,
     changeFrequency,
     priority,
   }));

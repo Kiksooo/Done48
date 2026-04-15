@@ -670,6 +670,42 @@ export function LandingPage() {
                 </article>
               ))}
             </div>
+            <div className="mt-8 rounded-3xl border border-border/70 bg-card/95 p-6 shadow-sm sm:p-8">
+              <h3 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+                Прозрачные правила и поддержка
+              </h3>
+              <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+                Площадка открыто описывает условия работы: как проходят расчеты, когда доступен резерв средств и куда
+                обращаться при спорных ситуациях.
+              </p>
+              <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+                {[
+                  "Условия и правила площадки доступны публично",
+                  "Модель комиссий и расчетов описана в документах",
+                  "Политика обработки персональных данных опубликована отдельно",
+                  "Поддержка отвечает по вопросам сервиса и сделок",
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2 rounded-xl bg-muted/35 px-3 py-2.5">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+                    <span className="text-sm text-foreground/90">{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm">
+                <Link href="/legal/terms" className="text-primary underline-offset-4 hover:underline">
+                  Пользовательское соглашение
+                </Link>
+                <Link href="/legal/fees" className="text-primary underline-offset-4 hover:underline">
+                  Комиссии и расчеты
+                </Link>
+                <Link href="/legal/privacy" className="text-primary underline-offset-4 hover:underline">
+                  Политика конфиденциальности
+                </Link>
+                <a href={`mailto:${SITE_EMAIL_INFO}`} className="text-primary underline-offset-4 hover:underline">
+                  {SITE_EMAIL_INFO}
+                </a>
+              </div>
+            </div>
           </div>
         </section>
 
