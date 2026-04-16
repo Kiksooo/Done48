@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { getSiteUrl } from "@/lib/site-url";
 import { listPublicExecutorUsernames } from "@/server/queries/public-executor";
 import { listBlogSlugs } from "@/server/queries/blog";
+import { listPublishedJobVacancySlugs } from "@/server/queries/job-vacancies";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +11,7 @@ const PATHS = [
   { path: "/", changeFrequency: "weekly", priority: 1 },
   { path: "/executors", changeFrequency: "weekly", priority: 0.7 },
   { path: "/blog", changeFrequency: "weekly", priority: 0.8 },
+  { path: "/vacancies", changeFrequency: "monthly", priority: 0.55 },
   { path: "/legal", changeFrequency: "monthly", priority: 0.5 },
   { path: "/legal/fees", changeFrequency: "yearly", priority: 0.4 },
   { path: "/legal/terms", changeFrequency: "yearly", priority: 0.4 },
@@ -26,9 +28,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority,
   }));
 
-  const [executors, blogPosts] = await Promise.all([
+  const [executors, blogPosts, vacancySlugs] = await Promise.all([
     listPublicExecutorUsernames(),
     listBlogSlugs(),
+    listPublishedJobVacancySlugs(),
   ]);
 
   const executorUrls = executors.flatMap((r) => {
@@ -51,5 +54,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...fixed, ...executorUrls, ...blogUrls] as MetadataRoute.Sitemap;
+  const vacancyUrls = vacancySlugs.map((v) => ({
+    url: `${origin}/vacancies/${v.slug}`,
+    lastModified: v.updatedAt,
+    changeFrequency: "weekly" as const,
+    priority: 0.65,
+  }));
+
+  return [...fixed, ...executorUrls, ...blogUrls, ...vacancyUrls] as MetadataRoute.Sitemap;
 }

@@ -27,6 +27,15 @@ export const BREADCRUMB_BLOG_INDEX: BreadcrumbItem[] = [
   { label: "Блог", href: "/blog" },
 ];
 
+export const BREADCRUMB_VACANCIES: BreadcrumbItem[] = [
+  HOME,
+  { label: "Вакансии", href: "/vacancies" },
+];
+
+export function breadcrumbJobVacancy(slug: string, title: string): BreadcrumbItem[] {
+  return [...BREADCRUMB_VACANCIES, { label: title, href: `/vacancies/${slug}` }];
+}
+
 export function breadcrumbBlogPost(slug: string, title: string): BreadcrumbItem[] {
   return [...BREADCRUMB_BLOG_INDEX, { label: title, href: `/blog/${slug}` }];
 }

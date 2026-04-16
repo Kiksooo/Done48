@@ -6,5 +6,6 @@ export const landingNavLinks = [
   { href: "#how", label: "Как это работает", hint: "От задачи до сделки" },
   { href: "#categories", label: "Направления", hint: "Типы задач" },
   { href: "#trust", label: "Прозрачность", hint: "Баланс и правила" },
+  { href: "/vacancies", label: "Вакансии", hint: "Команда и открытые роли" },
   { href: "/blog", label: "Блог", hint: "Полезные статьи и советы" },
 ] as const;

@@ -23,7 +23,8 @@ export type NavIconName =
   | "search"
   | "flag"
   | "mail"
-  | "penLine";
+  | "penLine"
+  | "newspaper";
 
 export type CabinetNavItem = {
   href: string;
@@ -49,6 +50,7 @@ export const ADMIN_NAV: CabinetNavItem[] = [
   { href: "/admin/support", label: "Чат поддержки", icon: "mail" },
   { href: "/admin/settings", label: "Настройки", icon: "settings" },
   { href: "/admin/blog", label: "Блог", icon: "penLine" },
+  { href: "/admin/vacancies", label: "Вакансии", icon: "newspaper" },
   { href: "/admin/audit-logs", label: "Логи", icon: "scrollText" },
 ];
 
@@ -57,6 +59,7 @@ export const CUSTOMER_NAV: CabinetNavItem[] = [
   { href: "/customer/orders", label: "Мои заказы", icon: "clipboardList" },
   { href: "/customer/orders/new", label: "Создать заказ", icon: "plusCircle" },
   { href: "/customer/messages", label: "Сообщения", icon: "messageSquare" },
+  { href: "/vacancies", label: "Вакансии", icon: "newspaper" },
   { href: "/customer/balance", label: "Баланс", icon: "wallet" },
   { href: "/customer/profile", label: "Профиль", icon: "user" },
   { href: "/customer/feedback", label: "Чат с админом", icon: "mail" },
@@ -67,6 +70,7 @@ export const EXECUTOR_NAV: CabinetNavItem[] = [
   { href: "/executor", label: "Дашборд", icon: "layoutDashboard", end: true },
   { href: "/executor/orders", label: "Мои заказы", icon: "briefcase" },
   { href: "/executor/orders/available", label: "Доступные заказы", icon: "search" },
+  { href: "/vacancies", label: "Вакансии", icon: "newspaper" },
   { href: "/executor/profile", label: "Профиль", icon: "user" },
   { href: "/executor/portfolio", label: "Галерея работ", icon: "folderTree" },
   { href: "/executor/balance", label: "Баланс и выплаты", icon: "banknote" },
