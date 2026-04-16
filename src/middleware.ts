@@ -9,6 +9,7 @@ const PUBLIC_PREFIXES = [
   "/forgot-password",
   "/reset-password",
   "/legal",
+  "/vacancies",
 ];
 
 function isPublicPath(pathname: string): boolean {
@@ -92,7 +93,9 @@ export async function middleware(request: NextRequest) {
       pathname === "/executors" ||
       pathname.startsWith("/executors/") ||
       pathname === "/blog" ||
-      pathname.startsWith("/blog/")
+      pathname.startsWith("/blog/") ||
+      pathname === "/vacancies" ||
+      pathname.startsWith("/vacancies/")
     ) {
       return NextResponse.next();
     }

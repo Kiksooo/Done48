@@ -19,34 +19,42 @@ export async function submitJobApplicationAction(vacancySlug: string, input: Job
     return { ok: false as const, error: parsed.error.issues[0]?.message ?? "Ошибка валидации" };
   }
   const data = parsed.data;
-  const vacancy = await prisma.jobVacancy.findFirst({
-    where: {
-      slug: vacancySlug,
-      published: true,
-      publishedAt: { not: null },
-      acceptingApplications: true,
-    },
-  });
-  if (!vacancy) {
-    return { ok: false as const, error: "Вакансия недоступна для откликов" };
+  try {
+    const vacancy = await prisma.jobVacancy.findFirst({
+      where: {
+        slug: vacancySlug,
+        published: true,
+        publishedAt: { not: null },
+        acceptingApplications: true,
+      },
+    });
+    if (!vacancy) {
+      return { ok: false as const, error: "Вакансия недоступна для откликов" };
+    }
+
+    await prisma.jobApplication.create({
+      data: {
+        vacancyId: vacancy.id,
+        fullName: data.fullName.trim(),
+        email: data.email.trim().toLowerCase(),
+        phone: data.phone?.trim() || null,
+        coverLetter: data.coverLetter.trim(),
+        resumeUrl: data.resumeUrl?.trim() || null,
+        status: JobApplicationStatus.NEW,
+      },
+    });
+
+    revalidatePath("/admin/vacancies");
+    revalidatePath(`/admin/vacancies/${vacancy.id}`);
+    revalidatePath(`/vacancies/${vacancy.slug}`);
+    return { ok: true as const };
+  } catch (e) {
+    console.error("[job-application] submitJobApplicationAction", e);
+    return {
+      ok: false as const,
+      error: "Сервис временно недоступен. Проверьте, что применена миграция БД, или попробуйте позже.",
+    };
   }
-
-  await prisma.jobApplication.create({
-    data: {
-      vacancyId: vacancy.id,
-      fullName: data.fullName.trim(),
-      email: data.email.trim().toLowerCase(),
-      phone: data.phone?.trim() || null,
-      coverLetter: data.coverLetter.trim(),
-      resumeUrl: data.resumeUrl?.trim() || null,
-      status: JobApplicationStatus.NEW,
-    },
-  });
-
-  revalidatePath("/admin/vacancies");
-  revalidatePath(`/admin/vacancies/${vacancy.id}`);
-  revalidatePath(`/vacancies/${vacancy.slug}`);
-  return { ok: true as const };
 }
 
 export async function updateJobApplicationStatusAction(
