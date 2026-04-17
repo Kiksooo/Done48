@@ -23,11 +23,14 @@ export default async function AdminVacancyEditPage({ params }: Props) {
 
   return (
     <div className="space-y-10">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Редактирование вакансии</h1>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          {vacancy.published ? "Опубликована" : "Черновик"} · /vacancies/{vacancy.slug} · откликов:{" "}
-          {vacancy._count.applications}
+      <div className="max-w-2xl space-y-2">
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Редактирование вакансии</h1>
+        <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
+          <span className="font-medium text-foreground">{vacancy.published ? "На сайте" : "Черновик"}</span>
+          {" · "}
+          <span className="font-mono text-foreground/90">/vacancies/{vacancy.slug}</span>
+          {" · "}
+          откликов: <span className="tabular-nums text-foreground">{vacancy._count.applications}</span>
         </p>
       </div>
       <JobVacancyForm

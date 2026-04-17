@@ -27,9 +27,19 @@ export function AvatarField({ value, onChange, disabled, idPrefix = "av" }: Prop
       const fd = new FormData();
       fd.append("file", file);
       const res = await fetch("/api/upload/avatar", { method: "POST", body: fd });
-      const data: { url?: string; error?: string } = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Ошибка загрузки");
-      if (data.url) onChange(data.url);
+      const raw = await res.text();
+      let data: { url?: string; error?: string } | null = null;
+      if (raw) {
+        try {
+          data = (JSON.parse(raw) as { url?: string; error?: string }) ?? null;
+        } catch {
+          data = null;
+        }
+      }
+      if (!res.ok) {
+        throw new Error(data?.error ?? `Ошибка загрузки (HTTP ${res.status})`);
+      }
+      if (data?.url) onChange(data.url);
     } catch (e2) {
       setErr(e2 instanceof Error ? e2.message : "Не удалось загрузить");
     } finally {

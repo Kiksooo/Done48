@@ -42,29 +42,46 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Допустимы JPEG, PNG, WebP или GIF" }, { status: 400 });
   }
 
-  const buf = Buffer.from(await file.arrayBuffer());
-  if (buf.length > MAX_BYTES) {
-    return NextResponse.json({ error: "Файл больше 2 МБ" }, { status: 400 });
-  }
-
-  const name = `${user.id}-${Date.now()}.${ext}`;
-  const key = `avatars/${name}`;
-
-  let url: string;
-  if (objectStorageConfigured()) {
-    try {
-      url = await putPublicObject({ key, body: buf, contentType: mime });
-    } catch (e) {
-      console.error("[upload/avatar] S3", e);
-      return NextResponse.json({ error: "Не удалось сохранить файл в хранилище" }, { status: 502 });
+  try {
+    const buf = Buffer.from(await file.arrayBuffer());
+    if (buf.length > MAX_BYTES) {
+      return NextResponse.json({ error: "Файл больше 2 МБ" }, { status: 400 });
     }
-  } else {
-    const dir = path.join(process.cwd(), "public", "uploads", "avatars");
-    await mkdir(dir, { recursive: true });
-    const fsPath = path.join(dir, name);
-    await writeFile(fsPath, buf);
-    url = `/uploads/avatars/${name}`;
-  }
 
-  return NextResponse.json({ url });
+    const name = `${user.id}-${Date.now()}.${ext}`;
+    const key = `avatars/${name}`;
+
+    let url: string;
+    if (objectStorageConfigured()) {
+      try {
+        url = await putPublicObject({ key, body: buf, contentType: mime });
+      } catch (e) {
+        console.error("[upload/avatar] S3", e);
+        return NextResponse.json({ error: "Не удалось сохранить файл в хранилище" }, { status: 502 });
+      }
+    } else {
+      try {
+        const dir = path.join(process.cwd(), "public", "uploads", "avatars");
+        await mkdir(dir, { recursive: true });
+        const fsPath = path.join(dir, name);
+        await writeFile(fsPath, buf);
+        url = `/uploads/avatars/${name}`;
+      } catch (e) {
+        console.error("[upload/avatar] local fs", e);
+        const details =
+          process.env.NODE_ENV === "production"
+            ? " На production обычно нужно S3-совместимое хранилище (S3_* переменные окружения)."
+            : "";
+        return NextResponse.json(
+          { error: `Не удалось сохранить файл на сервере. Проверьте настройки хранилища.${details}` },
+          { status: 500 },
+        );
+      }
+    }
+
+    return NextResponse.json({ url });
+  } catch (e) {
+    console.error("[upload/avatar] unexpected", e);
+    return NextResponse.json({ error: "Внутренняя ошибка загрузки" }, { status: 500 });
+  }
 }

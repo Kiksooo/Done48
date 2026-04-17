@@ -15,11 +15,12 @@ export default async function AdminVacanciesPage() {
   }));
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Вакансии</h1>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Публичный раздел: /vacancies. Опубликованные вакансии видны на сайте; отклики приходят в карточку вакансии.
+    <div className="space-y-8">
+      <div className="max-w-2xl space-y-2">
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Вакансии</h1>
+        <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
+          Раздел на сайте: <span className="font-mono text-foreground/90">/vacancies</span>. Опубликованные позиции
+          видят кандидаты; отклики сохраняются в карточке каждой вакансии — удобно вести переписку с одного места.
         </p>
       </div>
       <VacanciesAdminPanel rows={data} />
