@@ -20,6 +20,10 @@ import {
   customerOrderActionSchema,
 } from "@/schemas/order";
 import { appendStatusHistory } from "@/server/orders/status";
+import { appendOrderSystemChatMessage } from "@/server/orders/order-system-chat";
+import {
+  sendPublishedOrderEmailsToExecutors,
+} from "@/server/notifications/order-transactional-email";
 import {
   createNotification,
   createNotificationsForUsers,
@@ -108,6 +112,11 @@ export async function adminPublishOrder(orderId: string): Promise<ActionResult> 
 
   revalidateOrderPaths(orderId);
 
+  await appendOrderSystemChatMessage(
+    orderId,
+    "Заказ опубликован и доступен специалистам. Можно просматривать отклики.",
+  );
+
   notifySafe(async () => {
     await createNotification({
       userId: customerId,
@@ -116,6 +125,10 @@ export async function adminPublishOrder(orderId: string): Promise<ActionResult> 
       body: `«${orderTitle}» доступен специалистам`,
       link: `/orders/${orderId}`,
     });
+  });
+
+  notifySafe(async () => {
+    await sendPublishedOrderEmailsToExecutors(orderId);
   });
 
   return { ok: true };

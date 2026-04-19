@@ -9,6 +9,7 @@ import { appendStatusHistory } from "@/server/orders/status";
 import { getAntifraudPlatformSettings } from "@/lib/platform-antifraud";
 import { createOrderSchema } from "@/schemas/order";
 import { notifyActiveAdmins, notifySafe } from "@/server/notifications/service";
+import { appendOrderSystemChatMessage } from "@/server/orders/order-system-chat";
 
 export type ActionResult<T = void> =
   | { ok: true; data?: T }
@@ -131,6 +132,12 @@ export async function createOrderAction(raw: unknown): Promise<ActionResult<{ or
     revalidatePath("/customer/orders");
     revalidatePath("/admin/orders");
     revalidatePath(`/orders/${orderId}`);
+
+    const systemIntro =
+      status === OrderStatus.ON_MODERATION
+        ? "Заказ создан и отправлен на модерацию. После проверки он будет опубликован, и специалисты смогут откликаться."
+        : "Заказ создан. Он станет доступен специалистам для откликов после публикации администратором.";
+    await appendOrderSystemChatMessage(orderId, systemIntro);
 
     notifySafe(async () => {
       await notifyActiveAdmins({

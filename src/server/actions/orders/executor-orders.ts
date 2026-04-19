@@ -17,6 +17,9 @@ import { getSessionUserForAction } from "@/lib/rbac";
 import { createProposalSchema, customerOrderActionSchema } from "@/schemas/order";
 import { assertOrderWritableByExecutor, canExecutorSeePublishedOpen } from "@/server/orders/access";
 import { appendStatusHistory } from "@/server/orders/status";
+import { appendOrderSystemChatMessage } from "@/server/orders/order-system-chat";
+import { formatMoneyFromCents } from "@/lib/format";
+import { sendNewProposalEmailToCustomer } from "@/server/notifications/order-transactional-email";
 import {
   createNotification,
   notifyActiveAdmins,
@@ -127,6 +130,28 @@ export async function executorCreateProposalAction(raw: unknown): Promise<Action
   revalidateOrderPaths(orderIdNotify);
   revalidatePath("/admin/proposals");
 
+  const executorLabel =
+    ep.displayName?.trim() ||
+    ep.username?.trim() ||
+    profile.email?.split("@")[0]?.trim() ||
+    "Специалист";
+  const msgLines: string[] = [`Специалист «${executorLabel}» оставил отклик на заказ.`];
+  const comment = parsed.data.message?.replace(/\s+/g, " ").trim();
+  if (comment) {
+    msgLines.push(`Комментарий: ${comment.slice(0, 600)}${comment.length > 600 ? "…" : ""}`);
+  }
+  const terms: string[] = [];
+  if (offeredCents !== undefined) {
+    terms.push(`Предложенная стоимость: ${formatMoneyFromCents(offeredCents)}`);
+  }
+  if (parsed.data.offeredDays != null) {
+    terms.push(`Срок: ${parsed.data.offeredDays} дн.`);
+  }
+  if (terms.length) {
+    msgLines.push(terms.join(". ") + ".");
+  }
+  await appendOrderSystemChatMessage(orderIdNotify, msgLines.join("\n"));
+
   notifySafe(async () => {
     await createNotification({
       userId: customerIdNotify,
@@ -140,6 +165,15 @@ export async function executorCreateProposalAction(raw: unknown): Promise<Action
       title: "Новый отклик",
       body: orderTitleNotify,
       link: `/orders/${orderIdNotify}`,
+    });
+    await sendNewProposalEmailToCustomer({
+      customerId: customerIdNotify,
+      orderId: orderIdNotify,
+      orderTitle: orderTitleNotify,
+      executorLabel,
+      offeredCents,
+      offeredDays: parsed.data.offeredDays ?? null,
+      message: parsed.data.message,
     });
   });
 

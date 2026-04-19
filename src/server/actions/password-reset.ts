@@ -16,7 +16,7 @@ export type RequestPasswordResetResult =
   | { ok: false; error: string }
   | {
       ok: true;
-      /** Настроен SMTP или Resend (и в продакшене задан EMAIL_FROM). */
+      /** Настроен MailerSend, SMTP или Resend (и в продакшене задан EMAIL_FROM). */
       emailDeliveryEnabled: boolean;
       /**
        * Пользователь найден, но письмо не ушло (ошибка SMTP/API / сеть).
@@ -60,14 +60,14 @@ export async function requestPasswordResetAction(raw: unknown): Promise<RequestP
   if (!sendResult.sent) {
     const hint =
       sendResult.reason === "NOT_CONFIGURED"
-        ? "нет SMTP_HOST и RESEND_API_KEY"
+        ? "нет MAILERSEND_API_KEY, SMTP_HOST и RESEND_API_KEY"
         : sendResult.reason === "MISSING_EMAIL_FROM"
           ? "нет EMAIL_FROM в production"
           : sendResult.reason === "PROVIDER_ERROR"
             ? (sendResult.detail ?? "ошибка провайдера почты")
             : "сеть";
     console.error(
-      `[password-reset] Письмо не ушло (${hint}). Проверьте SMTP_* или RESEND_API_KEY, EMAIL_FROM, SPF/DKIM. NEXT_PUBLIC_SITE_URL / NEXTAUTH_URL влияют на ссылку в письме.`,
+      `[password-reset] Письмо не ушло (${hint}). Проверьте MAILERSEND_API_KEY, SMTP_* или RESEND_API_KEY, EMAIL_FROM, SPF/DKIM. NEXT_PUBLIC_SITE_URL / NEXTAUTH_URL влияют на ссылку в письме.`,
     );
     return {
       ok: true,
