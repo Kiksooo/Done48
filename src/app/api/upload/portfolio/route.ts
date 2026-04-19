@@ -1,9 +1,7 @@
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { NextResponse } from "next/server";
 import { Role } from "@prisma/client";
-import { objectStorageConfigured, putPublicObject } from "@/lib/uploads/object-storage";
 import { getSessionUserForAction } from "@/lib/rbac";
+import { getPublicUploadMode, savePublicUploadedFile } from "@/lib/uploads/public-file-upload";
 
 export const runtime = "nodejs";
 
@@ -49,23 +47,17 @@ export async function POST(req: Request) {
   }
 
   const name = `${user.id}-${Date.now()}.${ext}`;
-  const key = `portfolio/${name}`;
+  const logicalPath = `portfolio/${name}`;
 
-  let url: string;
-  if (objectStorageConfigured()) {
-    try {
-      url = await putPublicObject({ key, body: buf, contentType: mime });
-    } catch (e) {
-      console.error("[upload/portfolio] S3", e);
-      return NextResponse.json({ error: "Не удалось сохранить файл в хранилище" }, { status: 502 });
-    }
-  } else {
-    const dir = path.join(process.cwd(), "public", "uploads", "portfolio");
-    await mkdir(dir, { recursive: true });
-    const fsPath = path.join(dir, name);
-    await writeFile(fsPath, buf);
-    url = `/uploads/portfolio/${name}`;
+  try {
+    const url = await savePublicUploadedFile({
+      logicalPath,
+      body: buf,
+      contentType: mime,
+    });
+    return NextResponse.json({ url });
+  } catch (e) {
+    console.error("[upload/portfolio]", getPublicUploadMode(), e);
+    return NextResponse.json({ error: "Не удалось сохранить файл в хранилище" }, { status: 502 });
   }
-
-  return NextResponse.json({ url });
 }

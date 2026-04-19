@@ -35,16 +35,24 @@ export function OnboardingClient({ role }: { role: Role }) {
   async function handleContinue() {
     setError(null);
     setLoading(true);
-    const result = await completeOnboarding();
-    if (!result.ok) {
-      setError(result.error);
+    try {
+      const result = await completeOnboarding();
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      try {
+        await update({ onboardingDone: true });
+      } catch {
+        // Даже если обновление JWT-сессии не удалось, редирект на "/" восстановит состояние через middleware.
+      }
+      router.refresh();
+      router.push("/");
+    } catch {
+      setError("Не удалось завершить шаг. Проверьте интернет и попробуйте снова.");
+    } finally {
       setLoading(false);
-      return;
     }
-    await update({ onboardingDone: true });
-    router.refresh();
-    router.push("/");
-    setLoading(false);
   }
 
   const hints =

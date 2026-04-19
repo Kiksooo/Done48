@@ -27,7 +27,7 @@ export function PublicPageNav({ homeHref = "/", extra, className }: Props) {
 
   return (
     <nav
-      className={cn("flex flex-wrap gap-2", className)}
+      className={cn("flex min-w-0 flex-wrap gap-2", className)}
       aria-label="Навигация по сайту"
     >
       <button type="button" onClick={() => router.back()} className={publicNavItemClassName}>

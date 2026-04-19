@@ -1,10 +1,8 @@
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { NextResponse } from "next/server";
 import type { Role } from "@prisma/client";
-import { objectStorageConfigured, putPublicObject } from "@/lib/uploads/object-storage";
 import { prisma } from "@/lib/db";
 import { getSessionUserForAction } from "@/lib/rbac";
+import { getPublicUploadMode, savePublicUploadedFile } from "@/lib/uploads/public-file-upload";
 import { assertOrderReadable } from "@/server/orders/access";
 import { canPostOrderChat } from "@/server/orders/customer-partners";
 
@@ -87,23 +85,17 @@ export async function POST(req: Request) {
   }
 
   const name = `${user.id}-${Date.now()}.${ext}`;
-  const key = `chat-orders/${orderId}/${name}`;
+  const logicalPath = `chat-orders/${orderId}/${name}`;
 
-  let url: string;
-  if (objectStorageConfigured()) {
-    try {
-      url = await putPublicObject({ key, body: buf, contentType: mime });
-    } catch (e) {
-      console.error("[upload/chat] S3", e);
-      return NextResponse.json({ error: "Не удалось сохранить файл в хранилище" }, { status: 502 });
-    }
-  } else {
-    const dir = path.join(process.cwd(), "public", "uploads", "chat-orders", orderId);
-    await mkdir(dir, { recursive: true });
-    const fsPath = path.join(dir, name);
-    await writeFile(fsPath, buf);
-    url = `/uploads/chat-orders/${orderId}/${name}`;
+  try {
+    const url = await savePublicUploadedFile({
+      logicalPath,
+      body: buf,
+      contentType: mime,
+    });
+    return NextResponse.json({ url });
+  } catch (e) {
+    console.error("[upload/chat]", getPublicUploadMode(), e);
+    return NextResponse.json({ error: "Не удалось сохранить файл в хранилище" }, { status: 502 });
   }
-
-  return NextResponse.json({ url });
 }

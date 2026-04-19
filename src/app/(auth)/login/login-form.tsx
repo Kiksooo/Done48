@@ -29,21 +29,28 @@ export function LoginForm() {
 
   async function onSubmit(values: LoginInput) {
     setSubmitError(null);
-    const res = await signIn("credentials", {
-      email: values.email,
-      password: values.password,
-      redirect: false,
-      callbackUrl,
-    });
+    try {
+      const res = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+        callbackUrl,
+      });
 
-    if (res?.error) {
-      setSubmitError("Неверный email или пароль");
-      return;
-    }
+      if (res?.error) {
+        setSubmitError("Неверный email или пароль");
+        return;
+      }
 
-    if (res?.url) {
-      router.push(res.url);
-      router.refresh();
+      if (res?.url) {
+        router.push(res.url);
+        router.refresh();
+        return;
+      }
+
+      setSubmitError("Не удалось войти. Попробуйте ещё раз.");
+    } catch {
+      setSubmitError("Ошибка сети при входе. Проверьте интернет и попробуйте снова.");
     }
   }
 

@@ -80,7 +80,7 @@ export function OrderChat(props: {
   }
 
   return (
-    <section className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
+    <section className="min-w-0 rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-semibold">Чат по заказу</h2>
         {props.unreadCount > 0 ? (
@@ -120,7 +120,7 @@ export function OrderChat(props: {
           return (
             <div key={m.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
               <div
-                className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
+                className={`max-w-[85%] min-w-0 rounded-lg px-3 py-2 text-sm ${
                   isMine
                     ? "bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900"
                     : "border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950"
@@ -139,13 +139,13 @@ export function OrderChat(props: {
                     senderEmail: m.senderEmail,
                   })}
                 </p>
-                <p className="mt-1 whitespace-pre-wrap">{m.body}</p>
+                <p className="mt-1 whitespace-pre-wrap break-words">{m.body}</p>
                 {m.attachmentUrl ? (
                   <a
                     href={m.attachmentUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`mt-2 inline-block text-xs underline ${isMine ? "text-white/90" : "text-neutral-600 dark:text-neutral-400"}`}
+                    className={`mt-2 inline-block max-w-full break-all text-xs underline ${isMine ? "text-white/90" : "text-neutral-600 dark:text-neutral-400"}`}
                   >
                     {m.attachmentUrl.startsWith("/uploads/") || m.attachmentUrl.includes("/chat-orders/")
                       ? "Скачать вложение"

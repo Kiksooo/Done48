@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { objectStorageConfigured } from "@/lib/uploads/object-storage";
+import { getPublicUploadMode } from "@/lib/uploads/public-file-upload";
 
 export const dynamic = "force-dynamic";
 
 /** Публичная проверка живости и связи с БД (uptime, алерты). */
 export async function GET() {
   const uploads = {
-    mode: objectStorageConfigured() ? "s3" : "local",
+    mode: getPublicUploadMode(),
     nodeEnv: process.env.NODE_ENV ?? "unknown",
   };
   try {

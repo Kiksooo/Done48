@@ -3,7 +3,7 @@ import { AuthLegalLinks } from "@/components/auth/auth-legal-links";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background px-4 py-12 sm:px-6">
+    <div className="relative min-h-screen overflow-x-hidden bg-background px-4 py-12 sm:px-6">
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,var(--primary),transparent)] opacity-25 dark:opacity-35"
         aria-hidden

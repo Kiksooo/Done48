@@ -25,7 +25,10 @@ export function PublicBreadcrumbs({ items, className }: Props) {
             <li key={`${item.href}-${i}`} className="inline-flex items-center gap-1">
               {i > 0 ? <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-40" aria-hidden /> : null}
               {isLast ? (
-                <span className="max-w-[20rem] truncate font-medium text-foreground" title={item.label}>
+                <span
+                  className="max-w-[min(20rem,85vw)] truncate font-medium text-foreground"
+                  title={item.label}
+                >
                   {item.label}
                 </span>
               ) : (

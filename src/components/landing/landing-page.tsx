@@ -259,7 +259,7 @@ function SectionEyebrow({ children, className }: { children: ReactNode; classNam
 
 export function LandingPage() {
   return (
-    <div className="landing-page-theme min-h-screen bg-background text-foreground">
+    <div className="landing-page-theme min-h-screen min-w-0 overflow-x-hidden bg-background text-foreground">
       <LandingJsonLd />
       <LandingHeader />
 

@@ -103,7 +103,7 @@ export function LandingHeader() {
           open ? "z-[110]" : "z-50",
         )}
       >
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-10">
+        <div className="mx-auto flex h-14 min-w-0 max-w-7xl items-center justify-between gap-2 px-3 sm:gap-3 sm:px-6 lg:px-10">
           <Link
             href="/"
             className="group flex shrink-0 items-center gap-2 rounded-lg py-1 pr-1 transition-opacity hover:opacity-90"
@@ -146,7 +146,11 @@ export function LandingHeader() {
             <Button variant="ghost" size="sm" asChild className="hidden h-9 rounded-md px-3 sm:inline-flex">
               <Link href="/login">Войти</Link>
             </Button>
-            <Button size="sm" className="h-9 rounded-md px-4 shadow-sm sm:px-4" asChild>
+            <Button
+              size="sm"
+              className="h-9 shrink-0 rounded-md px-2.5 text-xs shadow-sm sm:px-4 sm:text-sm"
+              asChild
+            >
               <Link href="/register">Начать бесплатно</Link>
             </Button>
             <Button

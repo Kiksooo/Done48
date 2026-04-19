@@ -41,7 +41,7 @@ export default async function VacanciesPage() {
   const vacancies = await listPublishedJobVacancies();
 
   return (
-    <div className="min-h-screen bg-background px-4 py-10 sm:px-6 sm:py-14">
+    <div className="min-h-screen min-w-0 overflow-x-hidden bg-background px-4 py-10 sm:px-6 sm:py-14">
       <BreadcrumbJsonLd items={BREADCRUMB_VACANCIES} />
       <div className="mx-auto max-w-3xl space-y-10 pb-20">
         <PublicPageNav />

@@ -12,10 +12,15 @@ export async function completeOnboarding(): Promise<OnboardingState> {
     return { ok: false, error: "Нужна авторизация" };
   }
 
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { onboardingDone: true },
-  });
+  try {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { onboardingDone: true },
+    });
+  } catch (e) {
+    console.error("[onboarding] complete failed", e);
+    return { ok: false, error: "Не удалось завершить онбординг. Попробуйте ещё раз." };
+  }
 
   revalidatePath("/", "layout");
   return { ok: true };

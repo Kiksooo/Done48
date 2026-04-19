@@ -40,8 +40,17 @@ export function CabinetChrome({
     setMobileOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobileOpen]);
+
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen min-w-0">
       {mobileOpen ? (
         <button
           type="button"
@@ -115,7 +124,7 @@ export function CabinetChrome({
             );
           })}
         </nav>
-        <div className="relative z-20 space-y-2 border-t border-border/90 bg-muted/25 p-3 backdrop-blur-sm">
+        <div className="relative z-20 space-y-2 border-t border-border/90 bg-muted/25 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-sm">
           {profileHref ? (
             <Link
               href={profileHref}
@@ -147,8 +156,8 @@ export function CabinetChrome({
         </div>
       </aside>
 
-      <div className="flex min-h-screen flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-12 items-center gap-2 border-b border-border/50 bg-background/95 px-3 backdrop-blur-sm supports-[backdrop-filter]:bg-background/85 sm:px-4">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col overflow-x-hidden">
+        <header className="sticky top-0 z-30 flex h-12 min-w-0 items-center gap-2 border-b border-border/50 bg-background/95 px-3 backdrop-blur-sm supports-[backdrop-filter]:bg-background/85 sm:px-4">
           <Button
             type="button"
             variant="ghost"
@@ -162,7 +171,7 @@ export function CabinetChrome({
           <div className="min-w-0 flex-1 lg:hidden">
             <p className="truncate text-sm font-semibold text-foreground">{brand}</p>
           </div>
-          <div className="ml-auto">
+          <div className="ml-auto shrink-0">
             <SignOutButton />
           </div>
         </header>

@@ -37,6 +37,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
   }
   * {
     @apply border-border;
@@ -45,6 +46,9 @@
     @apply min-h-screen bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
     text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
   }
   ::selection {
     color: var(--foreground);

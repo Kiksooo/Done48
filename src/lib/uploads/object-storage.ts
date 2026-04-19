@@ -53,17 +53,30 @@ export async function putPublicObject(params: {
   return `${base}/${params.key}`;
 }
 
-/** URL вложения чата: локальный префикс или объект из нашего bucket (origin как у S3_PUBLIC_BASE_URL). */
+function pathnameContainsChatOrder(pathname: string, orderId: string): boolean {
+  const norm = decodeURIComponent(pathname).replace(/^\/+/, "");
+  return norm.includes(`chat-orders/${orderId}/`);
+}
+
+/** Публичный URL Vercel Blob (см. @vercel/blob put). */
+function isVercelBlobPublicHost(hostname: string): boolean {
+  return hostname.endsWith(".public.blob.vercel-storage.com");
+}
+
+/** URL вложения чата: локальный префикс, Vercel Blob, или объект из нашего S3 bucket. */
 export function isTrustedChatUploadUrl(orderId: string, rawUrl: string): boolean {
   if (rawUrl.includes("..")) return false;
   const localPrefix = `/uploads/chat-orders/${orderId}/`;
   if (rawUrl.startsWith(localPrefix)) return true;
   const baseRaw = process.env.S3_PUBLIC_BASE_URL?.trim();
-  if (!baseRaw) return false;
   try {
     const parsed = new URL(rawUrl);
-    const base = new URL(baseRaw);
     if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return false;
+    if (isVercelBlobPublicHost(parsed.hostname)) {
+      return pathnameContainsChatOrder(parsed.pathname, orderId);
+    }
+    if (!baseRaw) return false;
+    const base = new URL(baseRaw);
     if (parsed.origin !== base.origin) return false;
     const norm = parsed.pathname.replace(/^\/+/, "");
     return norm.includes(`chat-orders/${orderId}/`);

@@ -41,7 +41,7 @@ export function CabinetShell({
       profileHref={profileHref}
       helpHref={helpHref}
     >
-      <div className="relative mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <div className="relative mx-auto w-full min-w-0 max-w-6xl overflow-x-hidden px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <div
           className="pointer-events-none absolute -right-12 top-0 h-48 w-48 rounded-full bg-slate-400/[0.06] blur-3xl dark:bg-slate-500/[0.07]"
           aria-hidden
