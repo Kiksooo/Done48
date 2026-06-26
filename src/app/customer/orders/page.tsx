@@ -96,7 +96,7 @@ export default async function CustomerOrdersPage({ searchParams }: { searchParam
                 <td className="px-4 py-3 text-muted-foreground">{o.executor?.email ?? "—"}</td>
                 <td className="px-4 py-3">{formatMoneyFromCents(o.budgetCents, o.currency)}</td>
                 <td className="px-4 py-3">
-                  <OrderStatusBadge status={o.status} />
+                  <OrderStatusBadge status={o.status} audience="customer" />
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">{formatDateTime(o.deadlineAt)}</td>
                 <td className="px-4 py-3 text-muted-foreground">{formatDateTime(o.updatedAt)}</td>
@@ -132,7 +132,7 @@ export default async function CustomerOrdersPage({ searchParams }: { searchParam
           >
             <div className="flex items-start justify-between gap-2">
               <h2 className="font-medium text-foreground">{o.title}</h2>
-              <OrderStatusBadge status={o.status} />
+              <OrderStatusBadge status={o.status} audience="customer" />
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
               {formatMoneyFromCents(o.budgetCents, o.currency)} · {formatDateTime(o.deadlineAt)}

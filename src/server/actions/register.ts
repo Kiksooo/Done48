@@ -8,14 +8,24 @@ import {
   Role,
   TransactionType,
 } from "@prisma/client";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { isContactBlocklisted } from "@/lib/contact-blocklist";
 import { syncMailerLiteSubscriber } from "@/lib/mailerlite";
 import { REFERRAL_REWARD_CENTS } from "@/lib/referral";
 import { registerSchema } from "@/schemas/auth";
 
+function isNextRedirectError(e: unknown): boolean {
+  return (
+    typeof e === "object" &&
+    e !== null &&
+    "digest" in e &&
+    typeof (e as { digest?: string }).digest === "string" &&
+    (e as { digest: string }).digest.startsWith("NEXT_REDIRECT;")
+  );
+}
+
 export type RegisterState =
-  | { ok: true }
   | { ok: false; error: string; fieldErrors?: Record<string, string[]> };
 
 export async function registerUser(
@@ -110,7 +120,7 @@ export async function registerUser(
         (profileError.code === "P2021" || profileError.code === "P2022")
       ) {
         pushMailerLiteSignup();
-        return { ok: true };
+        redirect("/login?registered=1");
       }
       throw profileError;
     }
@@ -187,8 +197,11 @@ export async function registerUser(
     }
 
     pushMailerLiteSignup();
-    return { ok: true };
+    redirect("/login?registered=1");
   } catch (error) {
+    if (isNextRedirectError(error)) {
+      throw error;
+    }
     console.error("[register] failed:", error);
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2002") {

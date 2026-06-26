@@ -19,9 +19,9 @@ export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 12;
 
-const catalogOgTitle = SITE_SEO_TITLE_TEMPLATE.replace("%s", "Каталог специалистов");
+const catalogOgTitle = SITE_SEO_TITLE_TEMPLATE.replace("%s", "Исполнители");
 const catalogDescription =
-  "Каталог специалистов на фриланс-бирже DONE48: портфолио, отзывы после сделок и фильтры по городу и запросу. Подберите исполнителя под вашу задачу.";
+  "Профили исполнителей DONE48: портфолио, отзывы после выполненных задач и фильтры по городу. Сервис назначает специалистов на задачи заказчиков.";
 
 export const metadata: Metadata = {
   title: "Специалисты",

@@ -57,7 +57,7 @@ export const ADMIN_NAV: CabinetNavItem[] = [
 export const CUSTOMER_NAV: CabinetNavItem[] = [
   { href: "/customer", label: "Дашборд", icon: "layoutDashboard", end: true },
   { href: "/customer/orders", label: "Мои заказы", icon: "clipboardList" },
-  { href: "/customer/orders/new", label: "Создать заказ", icon: "plusCircle" },
+  { href: "/customer/orders/new", label: "Оставить задачу", icon: "plusCircle" },
   { href: "/customer/messages", label: "Сообщения", icon: "messageSquare" },
   { href: "/vacancies", label: "Вакансии", icon: "newspaper" },
   { href: "/customer/balance", label: "Баланс", icon: "wallet" },

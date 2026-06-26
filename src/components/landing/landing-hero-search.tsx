@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Search as SearchIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SERVICE_CTA_LEAVE_TASK } from "@/lib/brand-copy";
+import { REGISTER_HREF_CUSTOMER } from "@/lib/register-intent";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -25,7 +27,7 @@ export function LandingHeroSearch({ className }: Props) {
         /* ignore */
       }
     }
-    router.push("/register");
+    router.push(REGISTER_HREF_CUSTOMER);
   }
 
   return (
@@ -53,10 +55,12 @@ export function LandingHeroSearch({ className }: Props) {
           />
         </label>
         <Button type="submit" className="h-12 shrink-0 rounded-xl px-6 font-semibold sm:h-11 sm:self-center sm:rounded-lg">
-          Найти
+          {SERVICE_CTA_LEAVE_TASK}
         </Button>
       </div>
-      <p className="mt-2 text-xs text-muted-foreground">После регистрации поможем быстро начать: разместить заказ или откликнуться на задачи.</p>
+      <p className="mt-2 text-xs text-muted-foreground">
+        После регистрации перенесём формулировку в задачу — сервис подберёт исполнителя и выполнит работу за 48 часов.
+      </p>
     </form>
   );
 }

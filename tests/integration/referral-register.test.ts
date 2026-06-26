@@ -16,8 +16,9 @@ describe.skipIf(!hasTestDatabase())("registerUser referral ref", () => {
     fd.set("acceptTerms", "on");
     fd.set("ref", inviter.id);
 
-    const res = await registerUser(undefined, fd);
-    expect(res?.ok).toBe(true);
+    await expect(registerUser(undefined, fd)).rejects.toMatchObject({
+      digest: expect.stringContaining("/login?registered=1"),
+    });
 
     const newbie = await prisma.user.findUnique({ where: { email }, select: { id: true } });
     expect(newbie).toBeTruthy();
@@ -69,8 +70,9 @@ describe.skipIf(!hasTestDatabase())("registerUser referral ref", () => {
     fd.set("acceptTerms", "on");
     fd.set("ref", "clxxxxxxxxxxxxxxxxxxxxxxxxx");
 
-    const res = await registerUser(undefined, fd);
-    expect(res?.ok).toBe(true);
+    await expect(registerUser(undefined, fd)).rejects.toMatchObject({
+      digest: expect.stringContaining("/login?registered=1"),
+    });
 
     const newbie = await prisma.user.findUnique({ where: { email }, select: { id: true } });
     expect(newbie).toBeTruthy();

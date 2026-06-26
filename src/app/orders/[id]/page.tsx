@@ -7,6 +7,7 @@ import { OrderPanels } from "@/components/orders/order-panels";
 import { OrderReportSection } from "@/components/orders/order-report-section";
 import { OrderReviewsSection, type OrderReviewRow } from "@/components/reviews/order-reviews-section";
 import { OrderStatusBadge } from "@/components/orders/order-status-badge";
+import { OrderSubmittedBanner } from "@/components/orders/order-submitted-banner";
 import { Badge } from "@/components/ui/badge";
 import { countUnreadChatMessages } from "@/lib/chat-unread";
 import { formatDateTime, formatMoneyFromCents } from "@/lib/format";
@@ -42,7 +43,13 @@ const OrderLocationMap = nextDynamic(
   },
 );
 
-export default async function OrderPage({ params }: { params: { id: string } }) {
+export default async function OrderPage({
+  params,
+  searchParams,
+}: {
+  params: { id: string };
+  searchParams?: { submitted?: string };
+}) {
   const { id } = params;
   const user = await getSessionUserForAction();
   if (!user) notFound();
@@ -238,9 +245,13 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
         ? "/customer/orders"
         : "/executor/orders";
 
+  const showSubmittedBanner =
+    user.role === "CUSTOMER" && searchParams?.submitted === "1" && order.customerId === user.id;
+
   return (
     <div className="min-h-screen bg-neutral-50 px-4 py-6 dark:bg-neutral-950 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl space-y-6">
+        {showSubmittedBanner ? <OrderSubmittedBanner /> : null}
         <div>
           <Link
             href={backHref}
@@ -250,7 +261,10 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
           </Link>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <h1 className="text-2xl font-semibold tracking-tight">{order.title}</h1>
-            <OrderStatusBadge status={order.status} />
+            <OrderStatusBadge
+              status={order.status}
+              audience={user.role === "CUSTOMER" ? "customer" : "internal"}
+            />
             <Badge variant="outline">{PAYMENT_STATUS_LABELS[order.paymentStatus]}</Badge>
           </div>
           <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
@@ -286,10 +300,12 @@ export default async function OrderPage({ params }: { params: { id: string } }) 
               {order.subcategory ? ` / ${order.subcategory.name}` : ""}
             </p>
           </div>
-          <div>
-            <p className="text-neutral-500">Видимость</p>
-            <p className="font-medium">{VISIBILITY_LABELS[order.visibilityType]}</p>
-          </div>
+          {user.role === "ADMIN" ? (
+            <div>
+              <p className="text-neutral-500">Видимость</p>
+              <p className="font-medium">{VISIBILITY_LABELS[order.visibilityType]}</p>
+            </div>
+          ) : null}
           <div>
             <p className="text-neutral-500">Заказчик</p>
             <p className="font-medium">{showCustomerEmail ? order.customer.email : customerPublicName}</p>

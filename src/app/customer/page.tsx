@@ -10,6 +10,7 @@ import {
 } from "@/components/cabinet/dashboard-ui";
 import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
 import { Button } from "@/components/ui/button";
+import { SERVICE_CTA_LEAVE_TASK } from "@/lib/brand-copy";
 import { formatMoneyFromCents } from "@/lib/format";
 import { getSessionUserForAction } from "@/lib/rbac";
 import { prisma } from "@/lib/db";
@@ -43,12 +44,12 @@ export default async function CustomerHomePage() {
       <CabinetPageHeader
         breadcrumbs={[{ label: "Дашборд" }]}
         title={`Здравствуйте, ${name}`}
-        description="Сводка по заказам и быстрый доступ к разделам. Ведите сделки в статусах карточки заказа — так проще отслеживать оплату и работу."
+        description="Ваши задачи и статусы выполнения. Сервис подбирает исполнителя — вам остаётся принять результат."
         action={
           <Button asChild size="lg" className="w-full sm:w-auto">
             <Link href="/customer/orders/new">
               <Plus className="mr-2 h-4 w-4" aria-hidden />
-              Новый заказ
+              {SERVICE_CTA_LEAVE_TASK}
             </Link>
           </Button>
         }
@@ -56,13 +57,12 @@ export default async function CustomerHomePage() {
 
       {isNewCustomer ? (
         <div className="rounded-xl border border-primary/25 bg-primary/[0.06] px-4 py-4 dark:bg-primary/10">
-          <p className="text-sm font-semibold text-foreground">Первый заказ</p>
+          <p className="text-sm font-semibold text-foreground">Первая задача</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Опишите задачу и бюджет — после публикации специалисты смогут откликнуться. Статусы и оплата — в одной
-            карточке заказа.
+            Опишите, что нужно сделать — сервис подберёт исполнителя и выполнит работу в течение 48 часов.
           </p>
           <Button asChild className="mt-3" size="sm">
-            <Link href="/customer/orders/new">Создать заказ</Link>
+            <Link href="/customer/orders/new">{SERVICE_CTA_LEAVE_TASK}</Link>
           </Button>
         </div>
       ) : null}
@@ -76,19 +76,19 @@ export default async function CustomerHomePage() {
             icon={ClipboardList}
             label="В работе"
             value={buckets.active}
-            sublabel="Назначен специалист, идёт выполнение"
+            sublabel="Исполнитель найден, задача выполняется"
           />
           <DashboardStatTile
             icon={Hourglass}
-            label="Ожидание и модерация"
+            label="Принято сервисом"
             value={buckets.waiting}
-            sublabel="Новые и на проверке площадки"
+            sublabel="Задача создана или ищем исполнителя"
           />
           <DashboardStatTile
             icon={Eye}
-            label="На вашей проверке"
+            label="На проверке"
             value={buckets.review}
-            sublabel="Специалист сдал результат"
+            sublabel="Результат готов к приёмке"
           />
           <DashboardStatTile
             icon={Wallet}

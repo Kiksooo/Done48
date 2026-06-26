@@ -7,6 +7,8 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { landingNavLinks } from "@/components/landing/nav-data";
+import { REGISTER_HREF_CUSTOMER } from "@/lib/register-intent";
+import { SERVICE_CTA_LEAVE_TASK } from "@/lib/brand-copy";
 
 const mobileNavTop = "top-14 sm:top-14";
 
@@ -45,8 +47,8 @@ function LandingMobileNavPanel({ onClose }: { onClose: () => void }) {
       )}
       <div className="space-y-2 pt-2">
         <Button className="w-full rounded-xl shadow-sm" asChild>
-          <Link href="/register" onClick={onClose}>
-            Начать бесплатно
+          <Link href={REGISTER_HREF_CUSTOMER} onClick={onClose}>
+            {SERVICE_CTA_LEAVE_TASK}
           </Link>
         </Button>
         <Button variant="outline" className="w-full rounded-xl" asChild>
@@ -151,7 +153,7 @@ export function LandingHeader() {
               className="h-9 shrink-0 rounded-md px-2.5 text-xs shadow-sm sm:px-4 sm:text-sm"
               asChild
             >
-              <Link href="/register">Начать бесплатно</Link>
+              <Link href={REGISTER_HREF_CUSTOMER}>{SERVICE_CTA_LEAVE_TASK}</Link>
             </Button>
             <Button
               ref={menuButtonRef}

@@ -1,6 +1,6 @@
 "use server";
 
-import { NotificationKind, OrderStatus, Role } from "@prisma/client";
+import { NotificationKind, OrderStatus, Role, VisibilityType } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
@@ -90,7 +90,7 @@ export async function createOrderAction(raw: unknown): Promise<ActionResult<{ or
         deadlineAt,
         urgency: Boolean(data.urgency),
         status,
-        visibilityType: data.visibilityType,
+        visibilityType: VisibilityType.PLATFORM_ASSIGN,
         executorRequirements: data.executorRequirements ?? undefined,
         ...(canUseOfflineColumns
           ? {
@@ -135,8 +135,8 @@ export async function createOrderAction(raw: unknown): Promise<ActionResult<{ or
 
     const systemIntro =
       status === OrderStatus.ON_MODERATION
-        ? "Заказ создан и отправлен на модерацию. После проверки он будет опубликован, и специалисты смогут откликаться."
-        : "Заказ создан. Он станет доступен специалистам для откликов после публикации администратором.";
+        ? "Задача принята и на проверке. После модерации сервис подберёт исполнителя; выполнение — в течение 48 часов с начала работы."
+        : "Задача принята. Сервис подберёт исполнителя и выполнит работу в течение 48 часов.";
     await appendOrderSystemChatMessage(orderId, systemIntro);
 
     notifySafe(async () => {

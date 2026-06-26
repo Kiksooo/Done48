@@ -1,6 +1,6 @@
 import type { OrderStatus } from "@prisma/client";
 import { Badge } from "@/components/ui/badge";
-import { ORDER_STATUS_LABELS } from "@/lib/order-labels";
+import { getCustomerOrderStatusLabel, ORDER_STATUS_LABELS } from "@/lib/order-labels";
 
 const done: OrderStatus[] = ["COMPLETED", "ACCEPTED"];
 const risk: OrderStatus[] = ["DISPUTED", "CANCELED"];
@@ -14,6 +14,15 @@ function variantFor(status: OrderStatus): "default" | "success" | "warning" | "d
   return "default";
 }
 
-export function OrderStatusBadge({ status }: { status: OrderStatus }) {
-  return <Badge variant={variantFor(status)}>{ORDER_STATUS_LABELS[status]}</Badge>;
+export function OrderStatusBadge({
+  status,
+  audience = "internal",
+}: {
+  status: OrderStatus;
+  /** `customer` — упрощённые 5 статусов для заказчика. */
+  audience?: "customer" | "internal";
+}) {
+  const label =
+    audience === "customer" ? getCustomerOrderStatusLabel(status) : ORDER_STATUS_LABELS[status];
+  return <Badge variant={variantFor(status)}>{label}</Badge>;
 }

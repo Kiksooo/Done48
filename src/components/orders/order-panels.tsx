@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { formatMoneyFromCents } from "@/lib/format";
+import { ORDER_FINDING_EXECUTOR_HINT } from "@/lib/brand-copy";
 import { PAYMENT_STATUS_LABELS } from "@/lib/order-labels";
 import { customerReserveOrderAction } from "@/server/actions/finance/customer-finance";
 import {
@@ -25,7 +26,6 @@ import {
 } from "@/server/actions/orders/admin-orders";
 import { adminDeleteOrderAction, customerDeleteOrderAction } from "@/server/actions/orders/delete-order";
 import {
-  customerAcceptProposalAction,
   customerAcceptWorkAction,
   customerCancelOrderAction,
   customerCompleteOrderAction,
@@ -451,54 +451,10 @@ export function OrderPanels(props: {
               </Button>
             </div>
           ) : null}
-          {snapshot.status === "PUBLISHED" &&
-          snapshot.visibilityType === "OPEN_FOR_RESPONSES" &&
-          !snapshot.executorId ? (
+          {snapshot.status === "PUBLISHED" && !snapshot.executorId ? (
             <div className="mt-4 border-t border-neutral-200 pt-4 dark:border-neutral-800">
-              <h3 className="text-sm font-medium text-neutral-800 dark:text-neutral-200">Отклики</h3>
-              {snapshot.paymentStatus === "RESERVED" ? (
-                <>
-                  <p className="mt-1 text-xs text-neutral-500">
-                    Выберите специалиста по одному из откликов. Остальные отклики будут отклонены автоматически.
-                  </p>
-                  <ul className="mt-2 space-y-2 text-sm">
-                    {snapshot.proposals
-                      .filter((p) => p.status === "PENDING")
-                      .map((p) => (
-                        <li
-                          key={p.id}
-                          className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-neutral-100 px-3 py-2 dark:border-neutral-900"
-                        >
-                          <span>
-                            {p.label}
-                            {p.offeredCents != null
-                              ? ` · ${formatMoneyFromCents(p.offeredCents)}`
-                              : ""}
-                            {p.offeredDays != null ? ` · ${p.offeredDays} дн.` : ""}
-                          </span>
-                          <Button
-                            type="button"
-                            size="sm"
-                            disabled={pending}
-                            onClick={() =>
-                              run("pick", () => customerAcceptProposalAction({ proposalId: p.id }))
-                            }
-                          >
-                            Выбрать специалистом
-                          </Button>
-                        </li>
-                      ))}
-                    {snapshot.proposals.filter((p) => p.status === "PENDING").length === 0 ? (
-                      <li className="text-neutral-500">Пока нет откликов — дождитесь специалистов.</li>
-                    ) : null}
-                  </ul>
-                </>
-              ) : (
-                <p className="mt-1 text-xs text-amber-800 dark:text-amber-200/90">
-                  Чтобы выбрать специалиста, сначала зарезервируйте сумму заказа (кнопка выше) — так специалист
-                  получит оплату только после приёмки работы.
-                </p>
-              )}
+              <h3 className="text-sm font-medium text-neutral-800 dark:text-neutral-200">Подбор исполнителя</h3>
+              <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">{ORDER_FINDING_EXECUTOR_HINT}</p>
             </div>
           ) : null}
           <div className="mt-3 flex flex-wrap gap-2">
@@ -511,7 +467,7 @@ export function OrderPanels(props: {
                 disabled={pending}
                 onClick={() => run("cancel", () => customerCancelOrderAction({ orderId }))}
               >
-                Отменить заказ
+                Отменить задачу
               </Button>
             ) : null}
             {canCustomerDeleteOrderSnapshot(snapshot) ? (

@@ -3,7 +3,6 @@
 import type { Role } from "@prisma/client";
 import { useFormState, useFormStatus } from "react-dom";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,19 +26,12 @@ type RegisterFormProps = {
 };
 
 export function RegisterForm({ referralCode, defaultRole }: RegisterFormProps) {
-  const router = useRouter();
   const initialRole = defaultRole ?? "CUSTOMER";
   const [state, formAction] = useFormState<RegisterState | undefined, FormData>(
     registerUser,
     undefined,
   );
   const [landingTaskHint, setLandingTaskHint] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (state?.ok) {
-      router.push("/login?registered=1");
-    }
-  }, [state, router]);
 
   useEffect(() => {
     try {
@@ -58,7 +50,7 @@ export function RegisterForm({ referralCode, defaultRole }: RegisterFormProps) {
       <CardHeader>
         <CardTitle>Создайте аккаунт</CardTitle>
         <CardDescription>
-          Регистрация займёт пару минут. Выберите роль и сразу переходите к заказам или откликам.
+          Регистрация займёт пару минут. Заказчики сразу оставляют задачу; специалисты — заполняют профиль и получают назначения от сервиса.
         </CardDescription>
         {defaultRole === "EXECUTOR" ? (
           <p className="mt-3 rounded-lg border border-primary/15 bg-primary/[0.06] px-3 py-2 text-sm text-foreground dark:bg-primary/[0.09]">
@@ -67,7 +59,7 @@ export function RegisterForm({ referralCode, defaultRole }: RegisterFormProps) {
         ) : null}
         {landingTaskHint ? (
           <p className="mt-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-foreground">
-            Вы искали на главной: «{landingTaskHint}». После регистрации это можно использовать в заказе или отклике.
+            Вы искали на главной: «{landingTaskHint}». После регистрации это можно использовать при создании задачи.
           </p>
         ) : null}
       </CardHeader>

@@ -1,4 +1,5 @@
 import { CabinetPageHeader } from "@/components/cabinet/cabinet-page-header";
+import { SERVICE_CTA_LEAVE_TASK } from "@/lib/brand-copy";
 import { getAntifraudPlatformSettings } from "@/lib/platform-antifraud";
 import { listCategoriesWithSubcategories } from "@/server/queries/categories";
 import { OrderCreateForm, type CategoryOption } from "./order-create-form";
@@ -20,10 +21,10 @@ export default async function CustomerNewOrderPage() {
         breadcrumbs={[
           { label: "Дашборд", href: "/customer" },
           { label: "Мои заказы", href: "/customer/orders" },
-          { label: "Новый заказ" },
+          { label: SERVICE_CTA_LEAVE_TASK },
         ]}
-        title="Создать заказ"
-        description="Заполните поля — после публикации заказ увидят специалисты (при необходимости пройдёт модерацию)."
+        title={SERVICE_CTA_LEAVE_TASK}
+        description="Опишите задачу — сервис подберёт исполнителя и выполнит работу в течение 48 часов."
       />
       <OrderCreateForm categories={categories} moderateAllNewOrders={af.moderateAllNewOrders} />
     </div>

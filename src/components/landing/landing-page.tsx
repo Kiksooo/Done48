@@ -3,7 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   ArrowRight,
-  Banknote,
   Briefcase,
   Camera,
   CheckCircle2,
@@ -33,6 +32,7 @@ import { LandingHeroSearch } from "@/components/landing/landing-hero-search";
 import { landingNavLinks } from "@/components/landing/nav-data";
 import { LandingJsonLd } from "@/components/seo/landing-json-ld";
 import { REGISTER_HREF_CUSTOMER, REGISTER_HREF_EXECUTOR } from "@/lib/register-intent";
+import { SERVICE_CTA_LEAVE_TASK, SERVICE_HERO_TAGLINE } from "@/lib/brand-copy";
 import { Button } from "@/components/ui/button";
 import { SITE_EMAIL_INFO } from "@/lib/site-contact";
 import { cn } from "@/lib/utils";
@@ -51,11 +51,11 @@ const categories = [
 ];
 
 const forCustomers = [
-  "Описываете задачу своими словами и сразу указываете бюджет и сроки.",
-  "Получаете отклики и выбираете специалиста без бесконечных переписок.",
-  "Статус заказа, сообщения и оплата собраны в одном месте.",
-  "Можно включить резерв: деньги уйдут специалисту только после приёмки.",
-  "Если что-то пошло не так, подключается поддержка.",
+  "Описываете задачу своими словами — без выбора исполнителя вручную.",
+  "Сервис подбирает специалиста и отвечает за выполнение.",
+  "Срок — до 48 часов с начала работы над задачей.",
+  "Статус, сообщения и оплата — в одной карточке.",
+  "При необходимости подключается поддержка.",
 ];
 
 const forExecutors = [
@@ -69,23 +69,23 @@ const forExecutors = [
 const steps = [
   {
     step: "1",
-    title: "Знакомство",
-    text: "При регистрации выберите роль заказчика или специалиста; в онбординге — короткая справка по кабинету.",
+    title: "Оставьте задачу",
+    text: "Регистрация за минуту: опишите, что нужно сделать, и укажите бюджет.",
   },
   {
     step: "2",
-    title: "Находите друг друга",
-    text: "Кто-то публикует задачу, кто-то откликается с условиями и сроками — всё по делу.",
+    title: "Мы подбираем исполнителя",
+    text: "Сервис находит специалиста — вам не нужно сравнивать отклики и выбирать вручную.",
   },
   {
     step: "3",
-    title: "Делаете дело",
-    text: "Статусы, сообщения и файлы в одной карточке заказа. Закрыли — и можно двигаться дальше.",
+    title: "Выполнение за 48 часов",
+    text: "Работа ведётся в карточке задачи: чат, файлы и статусы на виду.",
   },
   {
     step: "4",
-    title: "Подстраховка",
-    text: "Резерв под заказ и выплаты видны в балансе; специалист не получает сумму, пока вы не примете результат. Если что-то неясно — мы на связи по правилам площадки.",
+    title: "Результат и оплата",
+    text: "Принимаете работу в кабинете; оплата по правилам сервиса после приёмки.",
   },
 ];
 
@@ -99,34 +99,34 @@ const highlights = [
   },
 ];
 
-/** Короткие опоры доверия в духе маркетплейсов: ясно и без лишней «воды». */
+/** Короткие опоры доверия: ясно и без лишней «воды». */
 const marketplaceBenefits = [
   {
-    icon: MessageSquare,
-    title: "Специалисты откликнутся сами",
-    text: "Публикуете заказ и получаете отклики с ценой, сроками и комментариями.",
-  },
-  {
-    icon: Banknote,
-    title: "Сравните предложения",
-    text: "Видно несколько вариантов сразу, поэтому проще выбрать по делу, а не наугад.",
+    icon: Clock,
+    title: "Срок — 48 часов",
+    text: "Берём задачу в работу и выполняем в течение 48 часов с момента старта.",
   },
   {
     icon: ShieldCheck,
-    title: "Защита сделки",
-    text: "Можно зафиксировать оплату в резерве: деньги переводятся после вашей приёмки.",
+    title: "Сервис отвечает",
+    text: "Исполнителя подбираем мы — не нужно искать и сравнивать предложения.",
+  },
+  {
+    icon: MessageSquare,
+    title: "Всё в одном месте",
+    text: "Переписка, статус и детали задачи — в одной карточке.",
   },
   {
     icon: Star,
-    title: "Отзывы после сделки",
-    text: "Отзывы оставляют только после выполненного заказа, поэтому им можно доверять.",
+    title: "Прозрачный результат",
+    text: "Принимаете работу в кабинете; при спорных ситуациях помогает поддержка.",
   },
 ];
 
 const heroTrust = [
   { icon: Gift, text: "Регистрация бесплатно" },
-  { icon: Clock, text: "Около минуты до старта" },
-  { icon: Users, text: "Заказчик или специалист" },
+  { icon: Clock, text: "Выполнение за 48 часов" },
+  { icon: ShieldCheck, text: "Подбор исполнителя сервисом" },
 ] as const;
 
 const trustVisuals = [
@@ -177,58 +177,38 @@ function HeroPreview() {
                 D
               </span>
               <div>
-                <p className="text-xs font-semibold text-foreground">Кабинет заказа</p>
-                <p className="text-[11px] text-muted-foreground">Вёрстка лендинга</p>
+                <p className="text-xs font-semibold text-foreground">Карточка задачи</p>
+                <p className="text-[11px] text-muted-foreground">Статус и срок</p>
               </div>
             </div>
-            <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-400">
-              В работе ✓
+            <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[10px] font-semibold text-amber-800 dark:text-amber-300">
+              Ищем исполнителя
             </span>
           </div>
           <div className="space-y-3">
             <div className="flex gap-3 rounded-2xl border border-border/50 bg-background/80 p-3 shadow-sm">
-              <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border border-border/60">
-                <Image
-                  src="/images/blog/blog-kak-vybrat-dizaynera-dlya-logotipa.jpg"
-                  alt="Фото специалиста"
-                  fill
-                  className="object-cover"
-                  sizes="40px"
-                />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
+                <Clock className="h-4 w-4 text-primary" aria-hidden />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium text-foreground">Отклик специалиста</p>
+                <p className="text-xs font-medium text-foreground">Срок выполнения</p>
                 <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-                  готов за 1 день, приложу ссылки на прошлые работы.
+                  до 48 часов с момента начала работы над задачей.
                 </p>
               </div>
             </div>
             <div className="flex items-center justify-between rounded-2xl border border-border/50 bg-background/80 px-3 py-2.5">
-              <p className="text-[11px] text-muted-foreground">Последние активные специалисты</p>
-              <div className="flex -space-x-2">
-                {[
-                  "/images/blog/blog-kak-nayti-khoroshego-specialista.jpg",
-                  "/images/blog/blog-portfolio-specialista-kak-oformit.jpg",
-                  "/images/blog/blog-kak-specialistu-poluchat-bolshe-zakazov.jpg",
-                ].map((src, i) => (
-                  <div
-                    key={src}
-                    className="relative h-7 w-7 overflow-hidden rounded-full border-2 border-card"
-                    style={{ zIndex: 10 - i }}
-                  >
-                    <Image src={src} alt="Аватар специалиста" fill className="object-cover" sizes="28px" />
-                  </div>
-                ))}
-              </div>
+              <p className="text-[11px] text-muted-foreground">Подбор исполнителя</p>
+              <span className="text-[11px] font-medium text-foreground">Сервис DONE48</span>
             </div>
             <div className="flex items-center justify-between rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-2">
-              <span className="text-[11px] font-medium text-emerald-800 dark:text-emerald-300">Проверенный профиль</span>
-              <span className="text-[10px] text-emerald-700 dark:text-emerald-400">Модерация пройдена</span>
+              <span className="text-[11px] font-medium text-emerald-800 dark:text-emerald-300">Задача принята</span>
+              <span className="text-[10px] text-emerald-700 dark:text-emerald-400">Статус обновится автоматически</span>
             </div>
             <div className="rounded-2xl border border-dashed border-primary/25 bg-primary/[0.04] p-3 dark:bg-primary/[0.07]">
               <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                 <Zap className="h-3.5 w-3.5 text-primary" aria-hidden />
-                <span>Следующий шаг: согласовать сроки и перейти к сдаче</span>
+                <span>Следующий шаг: дождаться назначения исполнителя</span>
               </div>
             </div>
           </div>
@@ -241,7 +221,7 @@ function HeroPreview() {
       <div className="absolute -bottom-6 -right-4 hidden w-44 rounded-2xl border border-border bg-card/95 p-3 shadow-elevated backdrop-blur-md sm:block lg:-right-8">
         <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Сводка</p>
         <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">48</p>
-        <p className="text-[11px] text-muted-foreground">идеально для небольших задач</p>
+        <p className="text-[11px] text-muted-foreground">часов на выполнение задачи</p>
       </div>
     </div>
   );
@@ -281,13 +261,13 @@ export function LandingPage() {
               <div>
                 <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3.5 py-1.5 text-xs font-medium text-primary opacity-0 animate-fade-up [animation-delay:40ms] sm:text-sm">
                   <Sparkles className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" aria-hidden />
-                  Фриланс-биржа для заказчиков и специалистов
+                  Сервис задач за 48 часов
                 </p>
                 <h1 className="text-balance text-4xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl lg:text-[2.75rem] xl:text-[3.15rem] opacity-0 animate-fade-up [animation-delay:80ms]">
-                  Найдите специалиста на фриланс-бирже — без лишней суеты
+                  {SERVICE_HERO_TAGLINE}
                 </h1>
                 <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl opacity-0 animate-fade-up [animation-delay:140ms]">
-                  Как на удобной фриланс-бирже: разместите задачу, получите отклики и выберите исполнителя по цене и подходу. Статусы, чат и оплата — в одном кабинете.
+                  Опишите задачу — мы подберём исполнителя и доведём работу до результата. Без биржи и ручного выбора специалиста.
                 </p>
 
                 <ul className="mt-6 flex flex-wrap gap-2 opacity-0 animate-fade-up [animation-delay:180ms] sm:gap-3">
@@ -305,7 +285,7 @@ export function LandingPage() {
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center opacity-0 animate-fade-up [animation-delay:220ms]">
                   <Button size="lg" className="h-12 gap-2 rounded-full px-8 text-base shadow-glow" asChild>
                     <Link href={REGISTER_HREF_CUSTOMER}>
-                      Разместить первую задачу
+                      {SERVICE_CTA_LEAVE_TASK}
                       <ArrowRight className="h-4 w-4" aria-hidden />
                     </Link>
                   </Button>
@@ -372,7 +352,7 @@ export function LandingPage() {
               <div className="relative mt-14 opacity-0 animate-fade-up [animation-delay:420ms] lg:mt-4">
                 <HeroPreview />
                 <p className="mx-auto mt-6 max-w-md text-center text-xs text-muted-foreground lg:mx-0 lg:text-left">
-                  Так выглядит карточка заказа: отклики, статус и следующий шаг — на одном экране.
+                  Так выглядит карточка задачи: статус, срок 48 часов и следующий шаг — на одном экране.
                 </p>
               </div>
             </div>
@@ -428,13 +408,13 @@ export function LandingPage() {
                 {
                   title: "Если вам нужна помощь",
                   icon: Users,
-                  intro: "Разовая задача — текст, дизайн, правка сайта — без бесконечных «а кто свободен?» в чатах.",
+                  intro: "Разовая задача — текст, дизайн, правка сайта. Оставляете описание, сервис берёт выполнение на себя.",
                   items: forCustomers,
                 },
                 {
                   title: "Если вы — профессионал своего дела",
                   icon: Briefcase,
-                  intro: "Заполняете профиль, показываете работы и получаете заказы без ручного поиска клиентов по чатам.",
+                  intro: "Заполняете профиль, показываете работы и получаете задачи от сервиса — без поиска клиентов вручную.",
                   items: forExecutors,
                 },
               ].map((block) => {
@@ -552,35 +532,35 @@ export function LandingPage() {
           aria-labelledby="specialists-heading"
         >
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
-            <SectionEyebrow>Специалисты</SectionEyebrow>
+            <SectionEyebrow>Исполнители</SectionEyebrow>
             <h2 id="specialists-heading" className="text-center text-3xl font-bold tracking-tight sm:text-4xl">
-              Профессионалы с портфолио и отзывами
+              Подбор и контроль — на стороне сервиса
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-center text-lg text-muted-foreground">
-              Каждый специалист создаёт профиль с примерами работ, описанием опыта и контактами.
-              Отзывы оставляют только реальные заказчики после завершённой сделки.
+              Заказчику не нужно выбирать специалиста вручную: мы проверяем профили, смотрим портфолио и назначаем
+              исполнителя под задачу.
             </p>
             <div className="mt-12 grid gap-6 sm:grid-cols-3">
               {[
                 {
                   icon: Briefcase,
-                  title: "Портфолио работ",
-                  text: "Специалисты загружают примеры выполненных проектов — фото, описания и ссылки. Всё проходит модерацию.",
+                  title: "Портфолио и опыт",
+                  text: "Исполнители проходят модерацию и показывают примеры работ — мы учитываем это при назначении.",
                 },
                 {
                   icon: Star,
                   title: "Рейтинг и отзывы",
-                  text: "Оценки ставятся по итогам реальных заказов. Чем больше положительных отзывов — тем выше доверие.",
+                  text: "Оценки ставятся по итогам реальных задач — это помогает сервису подбирать надёжных специалистов.",
                 },
                 {
                   icon: CheckCircle2,
                   title: "Проверенные профили",
-                  text: "Анкеты проходят модерацию администраторами. Только подтверждённые специалисты видны в каталоге.",
+                  text: "Анкеты проверяют администраторы. На задачу назначаются только подтверждённые исполнители.",
                 },
               ].map((item) => {
                 const ItemIcon = item.icon;
                 const visual = specialistVisuals[
-                  item.title === "Портфолио работ" ? 0 : item.title === "Рейтинг и отзывы" ? 1 : 2
+                  item.title === "Портфолио и опыт" ? 0 : item.title === "Рейтинг и отзывы" ? 1 : 2
                 ];
                 return (
                   <div
@@ -605,8 +585,8 @@ export function LandingPage() {
             </div>
             <div className="mt-10 text-center">
               <Button size="lg" variant="outline" className="h-12 gap-2 rounded-xl px-8 text-base" asChild>
-                <Link href="/executors">
-                  Смотреть каталог специалистов
+                <Link href={REGISTER_HREF_EXECUTOR}>
+                  Стать исполнителем
                   <ArrowRight className="h-4 w-4" aria-hidden />
                 </Link>
               </Button>
@@ -714,14 +694,14 @@ export function LandingPage() {
           <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-10">
             <div className="overflow-hidden rounded-[2rem] border border-border/60 bg-gradient-to-br from-card via-card to-primary/[0.06] p-10 shadow-elevated sm:p-14 dark:to-primary/[0.09]">
               <div className="text-center">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Начните за пару минут</h2>
+                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Оставьте первую задачу</h2>
                 <p className="mx-auto mt-4 max-w-lg text-pretty text-muted-foreground sm:text-lg">
-                  Регистрация бесплатная. Выбираете роль, заполняете профиль и можете сразу начать работу.
+                  Регистрация бесплатная. Опишите задачу — сервис подберёт исполнителя и выполнит работу в течение 48 часов.
                 </p>
                 <div className="mt-10 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:justify-center">
                   <Button size="lg" className="h-12 gap-2 rounded-xl px-10 text-base shadow-glow" asChild>
-                    <Link href="/register">
-                      Зарегистрироваться
+                    <Link href={REGISTER_HREF_CUSTOMER}>
+                      {SERVICE_CTA_LEAVE_TASK}
                       <ArrowRight className="h-4 w-4" aria-hidden />
                     </Link>
                   </Button>
@@ -745,8 +725,8 @@ export function LandingPage() {
               <span className="text-lg font-bold">DONE48</span>
             </div>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
-              Маркетплейс услуг: заказчики и специалисты в одной экосистеме — портфолио, чат, статусы, опциональный резерв
-              суммы под заказ до приёмки работы.
+              Сервис задач за 48 часов: оставьте задачу — мы подберём исполнителя и доведём работу до результата.
+              Статусы, чат и оплата — в одном кабинете.
             </p>
             <p className="mt-3 text-sm">
               <a

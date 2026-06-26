@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { DEFAULT_MAP_LAT, DEFAULT_MAP_LNG } from "@/lib/geo-defaults";
+import { SERVICE_CTA_LEAVE_TASK } from "@/lib/brand-copy";
 import { createOrderSchema, type CreateOrderInput } from "@/schemas/order";
 import { createOrderAction } from "@/server/actions/orders/create-order";
 
@@ -57,7 +58,7 @@ export function OrderCreateForm({
       budgetType: BudgetType.FIXED,
       deadlineAt: "",
       urgency: false,
-      visibilityType: VisibilityType.OPEN_FOR_RESPONSES,
+      visibilityType: VisibilityType.PLATFORM_ASSIGN,
       executorRequirements: "",
       initialStatus: moderateAllNewOrders ? "ON_MODERATION" : "NEW",
       isOfflineWork: false,
@@ -149,7 +150,7 @@ export function OrderCreateForm({
     startTransition(async () => {
       const res = await createOrderAction(values);
       if (res.ok && res.data) {
-        router.push(`/orders/${res.data.orderId}`);
+        router.push(`/orders/${res.data.orderId}?submitted=1`);
         router.refresh();
         return;
       }
@@ -179,8 +180,10 @@ export function OrderCreateForm({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Новый заказ</CardTitle>
-        <CardDescription>Заполните поля — заказ появится в системе со статусом «Новый» или «На модерации».</CardDescription>
+        <CardTitle>Оставить задачу</CardTitle>
+        <CardDescription>
+          Опишите, что нужно сделать. Исполнителя подберёт сервис — вам не нужно выбирать специалиста вручную.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form className="space-y-5" onSubmit={form.handleSubmit(onSubmit)} noValidate>
@@ -257,38 +260,16 @@ export function OrderCreateForm({
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="deadlineAt">Дедлайн</Label>
+              <Label htmlFor="deadlineAt">Желаемый срок</Label>
               <Input id="deadlineAt" type="datetime-local" {...form.register("deadlineAt")} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="visibilityType">Доступ для специалистов</Label>
-              <select
-                id="visibilityType"
-                className="flex h-10 w-full rounded-md border border-neutral-300 bg-transparent px-3 text-sm dark:border-neutral-700"
-                {...form.register("visibilityType")}
-              >
-                <option value={VisibilityType.OPEN_FOR_RESPONSES}>Открыт для откликов</option>
-                <option value={VisibilityType.PLATFORM_ASSIGN}>Только подбор платформой</option>
-              </select>
+              <p className="text-xs text-neutral-500">Ориентир сервиса — выполнение в течение 48 часов после начала работы.</p>
             </div>
           </div>
           {moderateAllNewOrders ? (
             <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100">
-              Новые заказы проходят проверку модератором перед публикацией для специалистов.
+              Новые задачи проходят короткую проверку перед подбором исполнителя.
             </div>
-          ) : (
-            <div className="space-y-2">
-              <Label htmlFor="initialStatus">Стартовый статус</Label>
-              <select
-                id="initialStatus"
-                className="flex h-10 w-full rounded-md border border-neutral-300 bg-transparent px-3 text-sm dark:border-neutral-700"
-                {...form.register("initialStatus")}
-              >
-                <option value="NEW">Новый</option>
-                <option value="ON_MODERATION">На модерации</option>
-              </select>
-            </div>
-          )}
+          ) : null}
           <div className="flex items-center gap-2">
             <input id="urgency" type="checkbox" className="h-4 w-4 rounded border-neutral-300" {...form.register("urgency")} />
             <Label htmlFor="urgency" className="font-normal">
@@ -296,7 +277,7 @@ export function OrderCreateForm({
             </Label>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="executorRequirements">Требования к специалисту</Label>
+            <Label htmlFor="executorRequirements">Дополнительные пожелания (необязательно)</Label>
             <Textarea id="executorRequirements" {...form.register("executorRequirements")} />
           </div>
 
@@ -387,7 +368,7 @@ export function OrderCreateForm({
 
           <div className="flex flex-wrap gap-3">
             <Button type="submit" disabled={pending}>
-              {pending ? "Создание…" : "Создать заказ"}
+              {pending ? "Отправка…" : SERVICE_CTA_LEAVE_TASK}
             </Button>
             <Button type="button" variant="outline" asChild>
               <Link href="/customer/orders">Отмена</Link>
